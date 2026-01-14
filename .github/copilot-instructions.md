@@ -21,3 +21,62 @@ This project uses following libraries/tools:
 - Vitest (for testing)
 
 Orval is used to generate the API client from the OpenAPI spec located in `/src/pokeapi.yml`. The generated files are located in `/src/generated/`. Use already generated API client functions to fetch data from the API.
+
+## Development Guidelines
+
+### Code Structure
+
+- Keep components modular and follow the established project structure
+- Use TypeScript for type safety across the codebase
+- Follow existing patterns for hooks, utilities, and component implementations
+
+### React Best Practices
+
+**Component Structure:**
+
+- Use function declarations for components: `function ComponentName(props: Props) { ... }`
+- Import React as a namespace: `import React from 'react'`
+- For single-component files, always name the props interface `Props`
+- For files with multiple components, use descriptive names: `ButtonProps`, `HeaderProps`, etc.
+- Filename should be pascal case and match the main component name: `MyComponent.tsx`
+- Do not reference props via destructuring: `const { prop1, prop2 } = props`. Always use `props.prop1`, `props.prop2`
+
+**Composition & Architecture:**
+
+- Prefer composition over prop drilling
+- Extract custom hooks to separate business logic from view logic
+- Keep components focused on presentation when possible
+- Use hooks for stateful logic and side effects
+- Always export component functions (no default exports) or export separately at the bottom of the file
+
+**Code Organization:**
+
+```typescript
+// Good example structure
+import React from 'react'
+
+interface Props {
+  title: string
+  onSubmit: () => void
+}
+
+export function MyComponent(props: Props) {
+  const logic = useMyComponentLogic(props)
+  const [ state, setState ] = React.useState(null)
+
+  React.useEffect(() => {
+    // side effects here
+  }, [state, props.title])
+
+  return (
+    // JSX here
+  )
+}
+```
+
+**Custom Hooks:**
+
+- Extract complex logic into custom hooks (e.g., `useMyComponentLogic`)
+- Name hooks with the `use` prefix
+- Keep view components clean and declarative
+- Test hooks independently when they contain significant logic
