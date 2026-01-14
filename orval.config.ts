@@ -7,6 +7,7 @@ export default defineConfig({
       schemas: "src/generated/schemas",
       client: "react-query",
       mock: false,
+      baseUrl: "https://pokeapi.co/api/v2/",
     },
     input: {
       target: "./src/openapi/pokeapi.yml",

@@ -20,13 +20,20 @@ Created by [**Paul Hallett**](https://github.com/phalt) and other [**PokéAPI co
     
  * OpenAPI spec version: 2.7.0
  */
-import { useQuery } from "@tanstack/react-query";
+import {
+  useQuery
+} from '@tanstack/react-query';
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
+  QueryClient,
   QueryFunction,
   QueryKey,
+  UndefinedInitialDataOptions,
   UseQueryOptions,
-  UseQueryResult,
-} from "@tanstack/react-query";
+  UseQueryResult
+} from '@tanstack/react-query';
 
 import type {
   AbilityDetail,
@@ -173,11310 +180,11872 @@ import type {
   SuperContestEffectDetail,
   TypeDetail,
   VersionDetail,
-  VersionGroupDetail,
-} from "./schemas";
+  VersionGroupDetail
+} from './schemas';
 
 /**
  * Abilities provide passive effects for Pokémon in battle or in the overworld. Pokémon have multiple possible abilities but can have only one ability at a time. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Ability) for greater detail.
  */
 export type apiV2AbilityListResponse200 = {
-  data: PaginatedAbilitySummaryList;
-  status: 200;
-};
-
-export type apiV2AbilityListResponseSuccess = apiV2AbilityListResponse200 & {
+  data: PaginatedAbilitySummaryList
+  status: 200
+}
+    
+export type apiV2AbilityListResponseSuccess = (apiV2AbilityListResponse200) & {
   headers: Headers;
 };
-export type apiV2AbilityListResponse = apiV2AbilityListResponseSuccess;
+;
 
-export const getApiV2AbilityListUrl = (params?: ApiV2AbilityListParams) => {
+export type apiV2AbilityListResponse = (apiV2AbilityListResponseSuccess)
+
+export const getApiV2AbilityListUrl = (params?: ApiV2AbilityListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/ability/?${stringifiedParams}`
-    : `/api/v2/ability/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/ability/?${stringifiedParams}` : `https://pokeapi.co/api/v2/ability/`
+}
 
-export const apiV2AbilityList = async (
-  params?: ApiV2AbilityListParams,
-  options?: RequestInit,
-): Promise<apiV2AbilityListResponse> => {
-  const res = await fetch(getApiV2AbilityListUrl(params), {
+export const apiV2AbilityList = async (params?: ApiV2AbilityListParams, options?: RequestInit): Promise<apiV2AbilityListResponse> => {
+  
+  const res = await fetch(getApiV2AbilityListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2AbilityListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2AbilityListResponse
+}
 
-  const data: apiV2AbilityListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2AbilityListResponse;
-};
 
-export const getApiV2AbilityListQueryKey = (
-  params?: ApiV2AbilityListParams,
+
+
+
+export const getApiV2AbilityListQueryKey = (params?: ApiV2AbilityListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/ability/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2AbilityListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2AbilityList>>, TError = unknown>(params?: ApiV2AbilityListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2AbilityList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/ability/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2AbilityListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2AbilityList>>,
-  TError = unknown,
->(
-  params?: ApiV2AbilityListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2AbilityList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2AbilityListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2AbilityList>>
-  > = ({ signal }) => apiV2AbilityList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2AbilityListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2AbilityList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2AbilityListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2AbilityList>>
->;
-export type ApiV2AbilityListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2AbilityList>>> = ({ signal }) => apiV2AbilityList(params, { signal, ...fetchOptions });
 
-export function useApiV2AbilityList<
-  TData = Awaited<ReturnType<typeof apiV2AbilityList>>,
-  TError = unknown,
->(
-  params?: ApiV2AbilityListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2AbilityList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2AbilityListQueryOptions(params, options);
+      
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2AbilityList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2AbilityListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2AbilityList>>>
+export type ApiV2AbilityListQueryError = unknown
+
+
+export function useApiV2AbilityList<TData = Awaited<ReturnType<typeof apiV2AbilityList>>, TError = unknown>(
+ params: undefined |  ApiV2AbilityListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2AbilityList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2AbilityList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2AbilityList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2AbilityList<TData = Awaited<ReturnType<typeof apiV2AbilityList>>, TError = unknown>(
+ params?: ApiV2AbilityListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2AbilityList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2AbilityList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2AbilityList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2AbilityList<TData = Awaited<ReturnType<typeof apiV2AbilityList>>, TError = unknown>(
+ params?: ApiV2AbilityListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2AbilityList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useApiV2AbilityList<TData = Awaited<ReturnType<typeof apiV2AbilityList>>, TError = unknown>(
+ params?: ApiV2AbilityListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2AbilityList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getApiV2AbilityListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Abilities provide passive effects for Pokémon in battle or in the overworld. Pokémon have multiple possible abilities but can have only one ability at a time. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Ability) for greater detail.
  */
 export type apiV2AbilityRetrieveResponse200 = {
-  data: AbilityDetail;
-  status: 200;
+  data: AbilityDetail
+  status: 200
+}
+    
+export type apiV2AbilityRetrieveResponseSuccess = (apiV2AbilityRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2AbilityRetrieveResponseSuccess =
-  apiV2AbilityRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2AbilityRetrieveResponse = apiV2AbilityRetrieveResponseSuccess;
+export type apiV2AbilityRetrieveResponse = (apiV2AbilityRetrieveResponseSuccess)
 
-export const getApiV2AbilityRetrieveUrl = (id: string) => {
-  return `/api/v2/ability/${id}/`;
-};
+export const getApiV2AbilityRetrieveUrl = (id: string,) => {
 
-export const apiV2AbilityRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2AbilityRetrieveResponse> => {
-  const res = await fetch(getApiV2AbilityRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/ability/${id}/`
+}
+
+export const apiV2AbilityRetrieve = async (id: string, options?: RequestInit): Promise<apiV2AbilityRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2AbilityRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2AbilityRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2AbilityRetrieveResponse
+}
 
-  const data: apiV2AbilityRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2AbilityRetrieveResponse;
-};
 
-export const getApiV2AbilityRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/ability/${id}/`] as const;
-};
 
-export const getApiV2AbilityRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2AbilityRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2AbilityRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2AbilityRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/ability/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2AbilityRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2AbilityRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2AbilityRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2AbilityRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2AbilityRetrieve>>
-  > = ({ signal }) => apiV2AbilityRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2AbilityRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2AbilityRetrieveQueryKey(id);
 
-export type ApiV2AbilityRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2AbilityRetrieve>>
->;
-export type ApiV2AbilityRetrieveQueryError = unknown;
+  
 
-export function useApiV2AbilityRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2AbilityRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2AbilityRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2AbilityRetrieveQueryOptions(id, options);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2AbilityRetrieve>>> = ({ signal }) => apiV2AbilityRetrieve(id, { signal, ...fetchOptions });
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2AbilityRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2AbilityRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2AbilityRetrieve>>>
+export type ApiV2AbilityRetrieveQueryError = unknown
+
+
+export function useApiV2AbilityRetrieve<TData = Awaited<ReturnType<typeof apiV2AbilityRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2AbilityRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2AbilityRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2AbilityRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2AbilityRetrieve<TData = Awaited<ReturnType<typeof apiV2AbilityRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2AbilityRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2AbilityRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2AbilityRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2AbilityRetrieve<TData = Awaited<ReturnType<typeof apiV2AbilityRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2AbilityRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useApiV2AbilityRetrieve<TData = Awaited<ReturnType<typeof apiV2AbilityRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2AbilityRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getApiV2AbilityRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Berries are small fruits that can provide HP and status condition restoration, stat enhancement, and even damage negation when eaten by Pokémon. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Berry) for greater detail.
  * @summary List berries
  */
 export type apiV2BerryListResponse200 = {
-  data: PaginatedBerrySummaryList;
-  status: 200;
-};
-
-export type apiV2BerryListResponseSuccess = apiV2BerryListResponse200 & {
+  data: PaginatedBerrySummaryList
+  status: 200
+}
+    
+export type apiV2BerryListResponseSuccess = (apiV2BerryListResponse200) & {
   headers: Headers;
 };
-export type apiV2BerryListResponse = apiV2BerryListResponseSuccess;
+;
 
-export const getApiV2BerryListUrl = (params?: ApiV2BerryListParams) => {
+export type apiV2BerryListResponse = (apiV2BerryListResponseSuccess)
+
+export const getApiV2BerryListUrl = (params?: ApiV2BerryListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/berry/?${stringifiedParams}`
-    : `/api/v2/berry/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/berry/?${stringifiedParams}` : `https://pokeapi.co/api/v2/berry/`
+}
 
-export const apiV2BerryList = async (
-  params?: ApiV2BerryListParams,
-  options?: RequestInit,
-): Promise<apiV2BerryListResponse> => {
-  const res = await fetch(getApiV2BerryListUrl(params), {
+export const apiV2BerryList = async (params?: ApiV2BerryListParams, options?: RequestInit): Promise<apiV2BerryListResponse> => {
+  
+  const res = await fetch(getApiV2BerryListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2BerryListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2BerryListResponse
+}
 
-  const data: apiV2BerryListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2BerryListResponse;
-};
 
-export const getApiV2BerryListQueryKey = (params?: ApiV2BerryListParams) => {
-  return [`/api/v2/berry/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2BerryListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2BerryList>>,
-  TError = unknown,
->(
-  params?: ApiV2BerryListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2BerryList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2BerryListQueryKey = (params?: ApiV2BerryListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/berry/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2BerryListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2BerryList>>, TError = unknown>(params?: ApiV2BerryListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2BerryListQueryKey(params);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2BerryList>>> = ({
-    signal,
-  }) => apiV2BerryList(params, { signal, ...fetchOptions });
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2BerryList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2BerryListQueryKey(params);
 
-export type ApiV2BerryListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2BerryList>>
->;
-export type ApiV2BerryListQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2BerryList>>> = ({ signal }) => apiV2BerryList(params, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2BerryListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2BerryList>>>
+export type ApiV2BerryListQueryError = unknown
+
+
+export function useApiV2BerryList<TData = Awaited<ReturnType<typeof apiV2BerryList>>, TError = unknown>(
+ params: undefined |  ApiV2BerryListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2BerryList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2BerryList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2BerryList<TData = Awaited<ReturnType<typeof apiV2BerryList>>, TError = unknown>(
+ params?: ApiV2BerryListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2BerryList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2BerryList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2BerryList<TData = Awaited<ReturnType<typeof apiV2BerryList>>, TError = unknown>(
+ params?: ApiV2BerryListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List berries
  */
 
-export function useApiV2BerryList<
-  TData = Awaited<ReturnType<typeof apiV2BerryList>>,
-  TError = unknown,
->(
-  params?: ApiV2BerryListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2BerryList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2BerryListQueryOptions(params, options);
+export function useApiV2BerryList<TData = Awaited<ReturnType<typeof apiV2BerryList>>, TError = unknown>(
+ params?: ApiV2BerryListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2BerryListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Berries are small fruits that can provide HP and status condition restoration, stat enhancement, and even damage negation when eaten by Pokémon. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Berry) for greater detail.
  * @summary Get a berry
  */
 export type apiV2BerryRetrieveResponse200 = {
-  data: BerryDetail;
-  status: 200;
+  data: BerryDetail
+  status: 200
+}
+    
+export type apiV2BerryRetrieveResponseSuccess = (apiV2BerryRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2BerryRetrieveResponseSuccess =
-  apiV2BerryRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2BerryRetrieveResponse = apiV2BerryRetrieveResponseSuccess;
+export type apiV2BerryRetrieveResponse = (apiV2BerryRetrieveResponseSuccess)
 
-export const getApiV2BerryRetrieveUrl = (id: string) => {
-  return `/api/v2/berry/${id}/`;
-};
+export const getApiV2BerryRetrieveUrl = (id: string,) => {
 
-export const apiV2BerryRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2BerryRetrieveResponse> => {
-  const res = await fetch(getApiV2BerryRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/berry/${id}/`
+}
+
+export const apiV2BerryRetrieve = async (id: string, options?: RequestInit): Promise<apiV2BerryRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2BerryRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2BerryRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2BerryRetrieveResponse
+}
 
-  const data: apiV2BerryRetrieveResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2BerryRetrieveResponse;
-};
 
-export const getApiV2BerryRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/berry/${id}/`] as const;
-};
 
-export const getApiV2BerryRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2BerryRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2BerryRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2BerryRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/berry/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2BerryRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2BerryRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2BerryRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2BerryRetrieve>>
-  > = ({ signal }) => apiV2BerryRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2BerryRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2BerryRetrieveQueryKey(id);
 
-export type ApiV2BerryRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2BerryRetrieve>>
->;
-export type ApiV2BerryRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2BerryRetrieve>>> = ({ signal }) => apiV2BerryRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2BerryRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2BerryRetrieve>>>
+export type ApiV2BerryRetrieveQueryError = unknown
+
+
+export function useApiV2BerryRetrieve<TData = Awaited<ReturnType<typeof apiV2BerryRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2BerryRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2BerryRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2BerryRetrieve<TData = Awaited<ReturnType<typeof apiV2BerryRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2BerryRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2BerryRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2BerryRetrieve<TData = Awaited<ReturnType<typeof apiV2BerryRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get a berry
  */
 
-export function useApiV2BerryRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2BerryRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2BerryRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2BerryRetrieveQueryOptions(id, options);
+export function useApiV2BerryRetrieve<TData = Awaited<ReturnType<typeof apiV2BerryRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2BerryRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Berries can be soft or hard. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Category:Berries_by_firmness) for greater detail.
  * @summary List berry firmness
  */
 export type apiV2BerryFirmnessListResponse200 = {
-  data: PaginatedBerryFirmnessSummaryList;
-  status: 200;
+  data: PaginatedBerryFirmnessSummaryList
+  status: 200
+}
+    
+export type apiV2BerryFirmnessListResponseSuccess = (apiV2BerryFirmnessListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2BerryFirmnessListResponseSuccess =
-  apiV2BerryFirmnessListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2BerryFirmnessListResponse =
-  apiV2BerryFirmnessListResponseSuccess;
+export type apiV2BerryFirmnessListResponse = (apiV2BerryFirmnessListResponseSuccess)
 
-export const getApiV2BerryFirmnessListUrl = (
-  params?: ApiV2BerryFirmnessListParams,
-) => {
+export const getApiV2BerryFirmnessListUrl = (params?: ApiV2BerryFirmnessListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/berry-firmness/?${stringifiedParams}`
-    : `/api/v2/berry-firmness/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/berry-firmness/?${stringifiedParams}` : `https://pokeapi.co/api/v2/berry-firmness/`
+}
 
-export const apiV2BerryFirmnessList = async (
-  params?: ApiV2BerryFirmnessListParams,
-  options?: RequestInit,
-): Promise<apiV2BerryFirmnessListResponse> => {
-  const res = await fetch(getApiV2BerryFirmnessListUrl(params), {
+export const apiV2BerryFirmnessList = async (params?: ApiV2BerryFirmnessListParams, options?: RequestInit): Promise<apiV2BerryFirmnessListResponse> => {
+  
+  const res = await fetch(getApiV2BerryFirmnessListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2BerryFirmnessListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2BerryFirmnessListResponse
+}
 
-  const data: apiV2BerryFirmnessListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2BerryFirmnessListResponse;
-};
 
-export const getApiV2BerryFirmnessListQueryKey = (
-  params?: ApiV2BerryFirmnessListParams,
+
+
+
+export const getApiV2BerryFirmnessListQueryKey = (params?: ApiV2BerryFirmnessListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/berry-firmness/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2BerryFirmnessListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2BerryFirmnessList>>, TError = unknown>(params?: ApiV2BerryFirmnessListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFirmnessList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/berry-firmness/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2BerryFirmnessListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2BerryFirmnessList>>,
-  TError = unknown,
->(
-  params?: ApiV2BerryFirmnessListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2BerryFirmnessList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2BerryFirmnessListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2BerryFirmnessList>>
-  > = ({ signal }) =>
-    apiV2BerryFirmnessList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2BerryFirmnessListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2BerryFirmnessList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2BerryFirmnessListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2BerryFirmnessList>>
->;
-export type ApiV2BerryFirmnessListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2BerryFirmnessList>>> = ({ signal }) => apiV2BerryFirmnessList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFirmnessList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2BerryFirmnessListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2BerryFirmnessList>>>
+export type ApiV2BerryFirmnessListQueryError = unknown
+
+
+export function useApiV2BerryFirmnessList<TData = Awaited<ReturnType<typeof apiV2BerryFirmnessList>>, TError = unknown>(
+ params: undefined |  ApiV2BerryFirmnessListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFirmnessList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2BerryFirmnessList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2BerryFirmnessList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2BerryFirmnessList<TData = Awaited<ReturnType<typeof apiV2BerryFirmnessList>>, TError = unknown>(
+ params?: ApiV2BerryFirmnessListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFirmnessList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2BerryFirmnessList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2BerryFirmnessList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2BerryFirmnessList<TData = Awaited<ReturnType<typeof apiV2BerryFirmnessList>>, TError = unknown>(
+ params?: ApiV2BerryFirmnessListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFirmnessList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List berry firmness
  */
 
-export function useApiV2BerryFirmnessList<
-  TData = Awaited<ReturnType<typeof apiV2BerryFirmnessList>>,
-  TError = unknown,
->(
-  params?: ApiV2BerryFirmnessListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2BerryFirmnessList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2BerryFirmnessListQueryOptions(params, options);
+export function useApiV2BerryFirmnessList<TData = Awaited<ReturnType<typeof apiV2BerryFirmnessList>>, TError = unknown>(
+ params?: ApiV2BerryFirmnessListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFirmnessList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2BerryFirmnessListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Berries can be soft or hard. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Category:Berries_by_firmness) for greater detail.
  * @summary Get berry by firmness
  */
 export type apiV2BerryFirmnessRetrieveResponse200 = {
-  data: BerryFirmnessDetail;
-  status: 200;
+  data: BerryFirmnessDetail
+  status: 200
+}
+    
+export type apiV2BerryFirmnessRetrieveResponseSuccess = (apiV2BerryFirmnessRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2BerryFirmnessRetrieveResponseSuccess =
-  apiV2BerryFirmnessRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2BerryFirmnessRetrieveResponse =
-  apiV2BerryFirmnessRetrieveResponseSuccess;
+export type apiV2BerryFirmnessRetrieveResponse = (apiV2BerryFirmnessRetrieveResponseSuccess)
 
-export const getApiV2BerryFirmnessRetrieveUrl = (id: string) => {
-  return `/api/v2/berry-firmness/${id}/`;
-};
+export const getApiV2BerryFirmnessRetrieveUrl = (id: string,) => {
 
-export const apiV2BerryFirmnessRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2BerryFirmnessRetrieveResponse> => {
-  const res = await fetch(getApiV2BerryFirmnessRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/berry-firmness/${id}/`
+}
+
+export const apiV2BerryFirmnessRetrieve = async (id: string, options?: RequestInit): Promise<apiV2BerryFirmnessRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2BerryFirmnessRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2BerryFirmnessRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2BerryFirmnessRetrieveResponse
+}
 
-  const data: apiV2BerryFirmnessRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2BerryFirmnessRetrieveResponse;
-};
 
-export const getApiV2BerryFirmnessRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/berry-firmness/${id}/`] as const;
-};
 
-export const getApiV2BerryFirmnessRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2BerryFirmnessRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/berry-firmness/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2BerryFirmnessRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2BerryFirmnessRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>
-  > = ({ signal }) =>
-    apiV2BerryFirmnessRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2BerryFirmnessRetrieveQueryKey(id);
 
-export type ApiV2BerryFirmnessRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>
->;
-export type ApiV2BerryFirmnessRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>> = ({ signal }) => apiV2BerryFirmnessRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2BerryFirmnessRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>>
+export type ApiV2BerryFirmnessRetrieveQueryError = unknown
+
+
+export function useApiV2BerryFirmnessRetrieve<TData = Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2BerryFirmnessRetrieve<TData = Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2BerryFirmnessRetrieve<TData = Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get berry by firmness
  */
 
-export function useApiV2BerryFirmnessRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2BerryFirmnessRetrieveQueryOptions(id, options);
+export function useApiV2BerryFirmnessRetrieve<TData = Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFirmnessRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2BerryFirmnessRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Flavors determine whether a Pokémon will benefit or suffer from eating a berry based on their **nature**. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Flavor) for greater detail.
  * @summary List berry flavors
  */
 export type apiV2BerryFlavorListResponse200 = {
-  data: PaginatedBerryFlavorSummaryList;
-  status: 200;
+  data: PaginatedBerryFlavorSummaryList
+  status: 200
+}
+    
+export type apiV2BerryFlavorListResponseSuccess = (apiV2BerryFlavorListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2BerryFlavorListResponseSuccess =
-  apiV2BerryFlavorListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2BerryFlavorListResponse = apiV2BerryFlavorListResponseSuccess;
+export type apiV2BerryFlavorListResponse = (apiV2BerryFlavorListResponseSuccess)
 
-export const getApiV2BerryFlavorListUrl = (
-  params?: ApiV2BerryFlavorListParams,
-) => {
+export const getApiV2BerryFlavorListUrl = (params?: ApiV2BerryFlavorListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/berry-flavor/?${stringifiedParams}`
-    : `/api/v2/berry-flavor/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/berry-flavor/?${stringifiedParams}` : `https://pokeapi.co/api/v2/berry-flavor/`
+}
 
-export const apiV2BerryFlavorList = async (
-  params?: ApiV2BerryFlavorListParams,
-  options?: RequestInit,
-): Promise<apiV2BerryFlavorListResponse> => {
-  const res = await fetch(getApiV2BerryFlavorListUrl(params), {
+export const apiV2BerryFlavorList = async (params?: ApiV2BerryFlavorListParams, options?: RequestInit): Promise<apiV2BerryFlavorListResponse> => {
+  
+  const res = await fetch(getApiV2BerryFlavorListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2BerryFlavorListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2BerryFlavorListResponse
+}
 
-  const data: apiV2BerryFlavorListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2BerryFlavorListResponse;
-};
 
-export const getApiV2BerryFlavorListQueryKey = (
-  params?: ApiV2BerryFlavorListParams,
+
+
+
+export const getApiV2BerryFlavorListQueryKey = (params?: ApiV2BerryFlavorListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/berry-flavor/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2BerryFlavorListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2BerryFlavorList>>, TError = unknown>(params?: ApiV2BerryFlavorListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFlavorList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/berry-flavor/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2BerryFlavorListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2BerryFlavorList>>,
-  TError = unknown,
->(
-  params?: ApiV2BerryFlavorListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2BerryFlavorList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2BerryFlavorListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2BerryFlavorList>>
-  > = ({ signal }) => apiV2BerryFlavorList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2BerryFlavorListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2BerryFlavorList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2BerryFlavorListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2BerryFlavorList>>
->;
-export type ApiV2BerryFlavorListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2BerryFlavorList>>> = ({ signal }) => apiV2BerryFlavorList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFlavorList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2BerryFlavorListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2BerryFlavorList>>>
+export type ApiV2BerryFlavorListQueryError = unknown
+
+
+export function useApiV2BerryFlavorList<TData = Awaited<ReturnType<typeof apiV2BerryFlavorList>>, TError = unknown>(
+ params: undefined |  ApiV2BerryFlavorListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFlavorList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2BerryFlavorList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2BerryFlavorList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2BerryFlavorList<TData = Awaited<ReturnType<typeof apiV2BerryFlavorList>>, TError = unknown>(
+ params?: ApiV2BerryFlavorListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFlavorList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2BerryFlavorList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2BerryFlavorList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2BerryFlavorList<TData = Awaited<ReturnType<typeof apiV2BerryFlavorList>>, TError = unknown>(
+ params?: ApiV2BerryFlavorListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFlavorList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List berry flavors
  */
 
-export function useApiV2BerryFlavorList<
-  TData = Awaited<ReturnType<typeof apiV2BerryFlavorList>>,
-  TError = unknown,
->(
-  params?: ApiV2BerryFlavorListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2BerryFlavorList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2BerryFlavorListQueryOptions(params, options);
+export function useApiV2BerryFlavorList<TData = Awaited<ReturnType<typeof apiV2BerryFlavorList>>, TError = unknown>(
+ params?: ApiV2BerryFlavorListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFlavorList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2BerryFlavorListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Flavors determine whether a Pokémon will benefit or suffer from eating a berry based on their **nature**. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Flavor) for greater detail.
  * @summary Get berries by flavor
  */
 export type apiV2BerryFlavorRetrieveResponse200 = {
-  data: BerryFlavorDetail;
-  status: 200;
+  data: BerryFlavorDetail
+  status: 200
+}
+    
+export type apiV2BerryFlavorRetrieveResponseSuccess = (apiV2BerryFlavorRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2BerryFlavorRetrieveResponseSuccess =
-  apiV2BerryFlavorRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2BerryFlavorRetrieveResponse =
-  apiV2BerryFlavorRetrieveResponseSuccess;
+export type apiV2BerryFlavorRetrieveResponse = (apiV2BerryFlavorRetrieveResponseSuccess)
 
-export const getApiV2BerryFlavorRetrieveUrl = (id: string) => {
-  return `/api/v2/berry-flavor/${id}/`;
-};
+export const getApiV2BerryFlavorRetrieveUrl = (id: string,) => {
 
-export const apiV2BerryFlavorRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2BerryFlavorRetrieveResponse> => {
-  const res = await fetch(getApiV2BerryFlavorRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/berry-flavor/${id}/`
+}
+
+export const apiV2BerryFlavorRetrieve = async (id: string, options?: RequestInit): Promise<apiV2BerryFlavorRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2BerryFlavorRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2BerryFlavorRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2BerryFlavorRetrieveResponse
+}
 
-  const data: apiV2BerryFlavorRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2BerryFlavorRetrieveResponse;
-};
 
-export const getApiV2BerryFlavorRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/berry-flavor/${id}/`] as const;
-};
 
-export const getApiV2BerryFlavorRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2BerryFlavorRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/berry-flavor/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2BerryFlavorRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2BerryFlavorRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>
-  > = ({ signal }) => apiV2BerryFlavorRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2BerryFlavorRetrieveQueryKey(id);
 
-export type ApiV2BerryFlavorRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>
->;
-export type ApiV2BerryFlavorRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>> = ({ signal }) => apiV2BerryFlavorRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2BerryFlavorRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>>
+export type ApiV2BerryFlavorRetrieveQueryError = unknown
+
+
+export function useApiV2BerryFlavorRetrieve<TData = Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2BerryFlavorRetrieve<TData = Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2BerryFlavorRetrieve<TData = Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get berries by flavor
  */
 
-export function useApiV2BerryFlavorRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2BerryFlavorRetrieveQueryOptions(id, options);
+export function useApiV2BerryFlavorRetrieve<TData = Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2BerryFlavorRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2BerryFlavorRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Characteristics indicate which stat contains a Pokémon's highest IV. A Pokémon's Characteristic is determined by the remainder of its highest IV divided by 5 (gene_modulo). Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Characteristic) for greater detail.
  * @summary List charecterictics
  */
 export type apiV2CharacteristicListResponse200 = {
-  data: PaginatedCharacteristicSummaryList;
-  status: 200;
+  data: PaginatedCharacteristicSummaryList
+  status: 200
+}
+    
+export type apiV2CharacteristicListResponseSuccess = (apiV2CharacteristicListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2CharacteristicListResponseSuccess =
-  apiV2CharacteristicListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2CharacteristicListResponse =
-  apiV2CharacteristicListResponseSuccess;
+export type apiV2CharacteristicListResponse = (apiV2CharacteristicListResponseSuccess)
 
-export const getApiV2CharacteristicListUrl = (
-  params?: ApiV2CharacteristicListParams,
-) => {
+export const getApiV2CharacteristicListUrl = (params?: ApiV2CharacteristicListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/characteristic/?${stringifiedParams}`
-    : `/api/v2/characteristic/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/characteristic/?${stringifiedParams}` : `https://pokeapi.co/api/v2/characteristic/`
+}
 
-export const apiV2CharacteristicList = async (
-  params?: ApiV2CharacteristicListParams,
-  options?: RequestInit,
-): Promise<apiV2CharacteristicListResponse> => {
-  const res = await fetch(getApiV2CharacteristicListUrl(params), {
+export const apiV2CharacteristicList = async (params?: ApiV2CharacteristicListParams, options?: RequestInit): Promise<apiV2CharacteristicListResponse> => {
+  
+  const res = await fetch(getApiV2CharacteristicListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2CharacteristicListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2CharacteristicListResponse
+}
 
-  const data: apiV2CharacteristicListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2CharacteristicListResponse;
-};
 
-export const getApiV2CharacteristicListQueryKey = (
-  params?: ApiV2CharacteristicListParams,
+
+
+
+export const getApiV2CharacteristicListQueryKey = (params?: ApiV2CharacteristicListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/characteristic/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2CharacteristicListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2CharacteristicList>>, TError = unknown>(params?: ApiV2CharacteristicListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2CharacteristicList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/characteristic/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2CharacteristicListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2CharacteristicList>>,
-  TError = unknown,
->(
-  params?: ApiV2CharacteristicListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2CharacteristicList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2CharacteristicListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2CharacteristicList>>
-  > = ({ signal }) =>
-    apiV2CharacteristicList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2CharacteristicListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2CharacteristicList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2CharacteristicListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2CharacteristicList>>
->;
-export type ApiV2CharacteristicListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2CharacteristicList>>> = ({ signal }) => apiV2CharacteristicList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2CharacteristicList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2CharacteristicListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2CharacteristicList>>>
+export type ApiV2CharacteristicListQueryError = unknown
+
+
+export function useApiV2CharacteristicList<TData = Awaited<ReturnType<typeof apiV2CharacteristicList>>, TError = unknown>(
+ params: undefined |  ApiV2CharacteristicListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2CharacteristicList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2CharacteristicList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2CharacteristicList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2CharacteristicList<TData = Awaited<ReturnType<typeof apiV2CharacteristicList>>, TError = unknown>(
+ params?: ApiV2CharacteristicListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2CharacteristicList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2CharacteristicList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2CharacteristicList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2CharacteristicList<TData = Awaited<ReturnType<typeof apiV2CharacteristicList>>, TError = unknown>(
+ params?: ApiV2CharacteristicListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2CharacteristicList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List charecterictics
  */
 
-export function useApiV2CharacteristicList<
-  TData = Awaited<ReturnType<typeof apiV2CharacteristicList>>,
-  TError = unknown,
->(
-  params?: ApiV2CharacteristicListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2CharacteristicList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2CharacteristicListQueryOptions(params, options);
+export function useApiV2CharacteristicList<TData = Awaited<ReturnType<typeof apiV2CharacteristicList>>, TError = unknown>(
+ params?: ApiV2CharacteristicListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2CharacteristicList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2CharacteristicListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Characteristics indicate which stat contains a Pokémon's highest IV. A Pokémon's Characteristic is determined by the remainder of its highest IV divided by 5 (gene_modulo). Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Characteristic) for greater detail.
  * @summary Get characteristic
  */
 export type apiV2CharacteristicRetrieveResponse200 = {
-  data: CharacteristicDetail;
-  status: 200;
+  data: CharacteristicDetail
+  status: 200
+}
+    
+export type apiV2CharacteristicRetrieveResponseSuccess = (apiV2CharacteristicRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2CharacteristicRetrieveResponseSuccess =
-  apiV2CharacteristicRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2CharacteristicRetrieveResponse =
-  apiV2CharacteristicRetrieveResponseSuccess;
+export type apiV2CharacteristicRetrieveResponse = (apiV2CharacteristicRetrieveResponseSuccess)
 
-export const getApiV2CharacteristicRetrieveUrl = (id: string) => {
-  return `/api/v2/characteristic/${id}/`;
-};
+export const getApiV2CharacteristicRetrieveUrl = (id: string,) => {
 
-export const apiV2CharacteristicRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2CharacteristicRetrieveResponse> => {
-  const res = await fetch(getApiV2CharacteristicRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/characteristic/${id}/`
+}
+
+export const apiV2CharacteristicRetrieve = async (id: string, options?: RequestInit): Promise<apiV2CharacteristicRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2CharacteristicRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2CharacteristicRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2CharacteristicRetrieveResponse
+}
 
-  const data: apiV2CharacteristicRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2CharacteristicRetrieveResponse;
-};
 
-export const getApiV2CharacteristicRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/characteristic/${id}/`] as const;
-};
 
-export const getApiV2CharacteristicRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2CharacteristicRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/characteristic/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2CharacteristicRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2CharacteristicRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>
-  > = ({ signal }) =>
-    apiV2CharacteristicRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2CharacteristicRetrieveQueryKey(id);
 
-export type ApiV2CharacteristicRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>
->;
-export type ApiV2CharacteristicRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>> = ({ signal }) => apiV2CharacteristicRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2CharacteristicRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>>
+export type ApiV2CharacteristicRetrieveQueryError = unknown
+
+
+export function useApiV2CharacteristicRetrieve<TData = Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2CharacteristicRetrieve<TData = Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2CharacteristicRetrieve<TData = Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get characteristic
  */
 
-export function useApiV2CharacteristicRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2CharacteristicRetrieveQueryOptions(id, options);
+export function useApiV2CharacteristicRetrieve<TData = Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2CharacteristicRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2CharacteristicRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Contest types are categories judges used to weigh a Pokémon's condition in Pokémon contests. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Contest_condition) for greater detail.
  * @summary List contest types
  */
 export type apiV2ContestTypeListResponse200 = {
-  data: PaginatedContestTypeSummaryList;
-  status: 200;
+  data: PaginatedContestTypeSummaryList
+  status: 200
+}
+    
+export type apiV2ContestTypeListResponseSuccess = (apiV2ContestTypeListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2ContestTypeListResponseSuccess =
-  apiV2ContestTypeListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2ContestTypeListResponse = apiV2ContestTypeListResponseSuccess;
+export type apiV2ContestTypeListResponse = (apiV2ContestTypeListResponseSuccess)
 
-export const getApiV2ContestTypeListUrl = (
-  params?: ApiV2ContestTypeListParams,
-) => {
+export const getApiV2ContestTypeListUrl = (params?: ApiV2ContestTypeListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/contest-type/?${stringifiedParams}`
-    : `/api/v2/contest-type/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/contest-type/?${stringifiedParams}` : `https://pokeapi.co/api/v2/contest-type/`
+}
 
-export const apiV2ContestTypeList = async (
-  params?: ApiV2ContestTypeListParams,
-  options?: RequestInit,
-): Promise<apiV2ContestTypeListResponse> => {
-  const res = await fetch(getApiV2ContestTypeListUrl(params), {
+export const apiV2ContestTypeList = async (params?: ApiV2ContestTypeListParams, options?: RequestInit): Promise<apiV2ContestTypeListResponse> => {
+  
+  const res = await fetch(getApiV2ContestTypeListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ContestTypeListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ContestTypeListResponse
+}
 
-  const data: apiV2ContestTypeListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ContestTypeListResponse;
-};
 
-export const getApiV2ContestTypeListQueryKey = (
-  params?: ApiV2ContestTypeListParams,
+
+
+
+export const getApiV2ContestTypeListQueryKey = (params?: ApiV2ContestTypeListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/contest-type/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2ContestTypeListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ContestTypeList>>, TError = unknown>(params?: ApiV2ContestTypeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestTypeList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/contest-type/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2ContestTypeListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ContestTypeList>>,
-  TError = unknown,
->(
-  params?: ApiV2ContestTypeListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ContestTypeList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2ContestTypeListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ContestTypeList>>
-  > = ({ signal }) => apiV2ContestTypeList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ContestTypeListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ContestTypeList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2ContestTypeListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ContestTypeList>>
->;
-export type ApiV2ContestTypeListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ContestTypeList>>> = ({ signal }) => apiV2ContestTypeList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestTypeList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ContestTypeListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ContestTypeList>>>
+export type ApiV2ContestTypeListQueryError = unknown
+
+
+export function useApiV2ContestTypeList<TData = Awaited<ReturnType<typeof apiV2ContestTypeList>>, TError = unknown>(
+ params: undefined |  ApiV2ContestTypeListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestTypeList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ContestTypeList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ContestTypeList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ContestTypeList<TData = Awaited<ReturnType<typeof apiV2ContestTypeList>>, TError = unknown>(
+ params?: ApiV2ContestTypeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestTypeList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ContestTypeList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ContestTypeList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ContestTypeList<TData = Awaited<ReturnType<typeof apiV2ContestTypeList>>, TError = unknown>(
+ params?: ApiV2ContestTypeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestTypeList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List contest types
  */
 
-export function useApiV2ContestTypeList<
-  TData = Awaited<ReturnType<typeof apiV2ContestTypeList>>,
-  TError = unknown,
->(
-  params?: ApiV2ContestTypeListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ContestTypeList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ContestTypeListQueryOptions(params, options);
+export function useApiV2ContestTypeList<TData = Awaited<ReturnType<typeof apiV2ContestTypeList>>, TError = unknown>(
+ params?: ApiV2ContestTypeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestTypeList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ContestTypeListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Contest types are categories judges used to weigh a Pokémon's condition in Pokémon contests. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Contest_condition) for greater detail.
  * @summary Get contest type
  */
 export type apiV2ContestTypeRetrieveResponse200 = {
-  data: ContestTypeDetail;
-  status: 200;
+  data: ContestTypeDetail
+  status: 200
+}
+    
+export type apiV2ContestTypeRetrieveResponseSuccess = (apiV2ContestTypeRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2ContestTypeRetrieveResponseSuccess =
-  apiV2ContestTypeRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2ContestTypeRetrieveResponse =
-  apiV2ContestTypeRetrieveResponseSuccess;
+export type apiV2ContestTypeRetrieveResponse = (apiV2ContestTypeRetrieveResponseSuccess)
 
-export const getApiV2ContestTypeRetrieveUrl = (id: string) => {
-  return `/api/v2/contest-type/${id}/`;
-};
+export const getApiV2ContestTypeRetrieveUrl = (id: string,) => {
 
-export const apiV2ContestTypeRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2ContestTypeRetrieveResponse> => {
-  const res = await fetch(getApiV2ContestTypeRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/contest-type/${id}/`
+}
+
+export const apiV2ContestTypeRetrieve = async (id: string, options?: RequestInit): Promise<apiV2ContestTypeRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2ContestTypeRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ContestTypeRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ContestTypeRetrieveResponse
+}
 
-  const data: apiV2ContestTypeRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ContestTypeRetrieveResponse;
-};
 
-export const getApiV2ContestTypeRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/contest-type/${id}/`] as const;
-};
 
-export const getApiV2ContestTypeRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2ContestTypeRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/contest-type/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2ContestTypeRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2ContestTypeRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>
-  > = ({ signal }) => apiV2ContestTypeRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ContestTypeRetrieveQueryKey(id);
 
-export type ApiV2ContestTypeRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>
->;
-export type ApiV2ContestTypeRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>> = ({ signal }) => apiV2ContestTypeRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ContestTypeRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>>
+export type ApiV2ContestTypeRetrieveQueryError = unknown
+
+
+export function useApiV2ContestTypeRetrieve<TData = Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ContestTypeRetrieve<TData = Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ContestTypeRetrieve<TData = Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get contest type
  */
 
-export function useApiV2ContestTypeRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ContestTypeRetrieveQueryOptions(id, options);
+export function useApiV2ContestTypeRetrieve<TData = Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestTypeRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ContestTypeRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Contest effects refer to the effects of moves when used in contests.
  * @summary List contest effects
  */
 export type apiV2ContestEffectListResponse200 = {
-  data: PaginatedContestEffectSummaryList;
-  status: 200;
+  data: PaginatedContestEffectSummaryList
+  status: 200
+}
+    
+export type apiV2ContestEffectListResponseSuccess = (apiV2ContestEffectListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2ContestEffectListResponseSuccess =
-  apiV2ContestEffectListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2ContestEffectListResponse =
-  apiV2ContestEffectListResponseSuccess;
+export type apiV2ContestEffectListResponse = (apiV2ContestEffectListResponseSuccess)
 
-export const getApiV2ContestEffectListUrl = (
-  params?: ApiV2ContestEffectListParams,
-) => {
+export const getApiV2ContestEffectListUrl = (params?: ApiV2ContestEffectListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/contest-effect/?${stringifiedParams}`
-    : `/api/v2/contest-effect/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/contest-effect/?${stringifiedParams}` : `https://pokeapi.co/api/v2/contest-effect/`
+}
 
-export const apiV2ContestEffectList = async (
-  params?: ApiV2ContestEffectListParams,
-  options?: RequestInit,
-): Promise<apiV2ContestEffectListResponse> => {
-  const res = await fetch(getApiV2ContestEffectListUrl(params), {
+export const apiV2ContestEffectList = async (params?: ApiV2ContestEffectListParams, options?: RequestInit): Promise<apiV2ContestEffectListResponse> => {
+  
+  const res = await fetch(getApiV2ContestEffectListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ContestEffectListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ContestEffectListResponse
+}
 
-  const data: apiV2ContestEffectListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ContestEffectListResponse;
-};
 
-export const getApiV2ContestEffectListQueryKey = (
-  params?: ApiV2ContestEffectListParams,
+
+
+
+export const getApiV2ContestEffectListQueryKey = (params?: ApiV2ContestEffectListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/contest-effect/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2ContestEffectListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ContestEffectList>>, TError = unknown>(params?: ApiV2ContestEffectListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestEffectList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/contest-effect/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2ContestEffectListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ContestEffectList>>,
-  TError = unknown,
->(
-  params?: ApiV2ContestEffectListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ContestEffectList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2ContestEffectListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ContestEffectList>>
-  > = ({ signal }) =>
-    apiV2ContestEffectList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ContestEffectListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ContestEffectList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2ContestEffectListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ContestEffectList>>
->;
-export type ApiV2ContestEffectListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ContestEffectList>>> = ({ signal }) => apiV2ContestEffectList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestEffectList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ContestEffectListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ContestEffectList>>>
+export type ApiV2ContestEffectListQueryError = unknown
+
+
+export function useApiV2ContestEffectList<TData = Awaited<ReturnType<typeof apiV2ContestEffectList>>, TError = unknown>(
+ params: undefined |  ApiV2ContestEffectListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestEffectList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ContestEffectList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ContestEffectList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ContestEffectList<TData = Awaited<ReturnType<typeof apiV2ContestEffectList>>, TError = unknown>(
+ params?: ApiV2ContestEffectListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestEffectList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ContestEffectList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ContestEffectList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ContestEffectList<TData = Awaited<ReturnType<typeof apiV2ContestEffectList>>, TError = unknown>(
+ params?: ApiV2ContestEffectListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestEffectList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List contest effects
  */
 
-export function useApiV2ContestEffectList<
-  TData = Awaited<ReturnType<typeof apiV2ContestEffectList>>,
-  TError = unknown,
->(
-  params?: ApiV2ContestEffectListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ContestEffectList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ContestEffectListQueryOptions(params, options);
+export function useApiV2ContestEffectList<TData = Awaited<ReturnType<typeof apiV2ContestEffectList>>, TError = unknown>(
+ params?: ApiV2ContestEffectListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestEffectList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ContestEffectListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Contest effects refer to the effects of moves when used in contests.
  * @summary Get contest effect
  */
 export type apiV2ContestEffectRetrieveResponse200 = {
-  data: ContestEffectDetail;
-  status: 200;
+  data: ContestEffectDetail
+  status: 200
+}
+    
+export type apiV2ContestEffectRetrieveResponseSuccess = (apiV2ContestEffectRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2ContestEffectRetrieveResponseSuccess =
-  apiV2ContestEffectRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2ContestEffectRetrieveResponse =
-  apiV2ContestEffectRetrieveResponseSuccess;
+export type apiV2ContestEffectRetrieveResponse = (apiV2ContestEffectRetrieveResponseSuccess)
 
-export const getApiV2ContestEffectRetrieveUrl = (id: string) => {
-  return `/api/v2/contest-effect/${id}/`;
-};
+export const getApiV2ContestEffectRetrieveUrl = (id: string,) => {
 
-export const apiV2ContestEffectRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2ContestEffectRetrieveResponse> => {
-  const res = await fetch(getApiV2ContestEffectRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/contest-effect/${id}/`
+}
+
+export const apiV2ContestEffectRetrieve = async (id: string, options?: RequestInit): Promise<apiV2ContestEffectRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2ContestEffectRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ContestEffectRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ContestEffectRetrieveResponse
+}
 
-  const data: apiV2ContestEffectRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ContestEffectRetrieveResponse;
-};
 
-export const getApiV2ContestEffectRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/contest-effect/${id}/`] as const;
-};
 
-export const getApiV2ContestEffectRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2ContestEffectRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/contest-effect/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2ContestEffectRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2ContestEffectRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>
-  > = ({ signal }) =>
-    apiV2ContestEffectRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ContestEffectRetrieveQueryKey(id);
 
-export type ApiV2ContestEffectRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>
->;
-export type ApiV2ContestEffectRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>> = ({ signal }) => apiV2ContestEffectRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ContestEffectRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>>
+export type ApiV2ContestEffectRetrieveQueryError = unknown
+
+
+export function useApiV2ContestEffectRetrieve<TData = Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ContestEffectRetrieve<TData = Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ContestEffectRetrieve<TData = Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get contest effect
  */
 
-export function useApiV2ContestEffectRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ContestEffectRetrieveQueryOptions(id, options);
+export function useApiV2ContestEffectRetrieve<TData = Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ContestEffectRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ContestEffectRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Egg Groups are categories which determine which Pokémon are able to interbreed. Pokémon may belong to either one or two Egg Groups. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Egg_Group) for greater detail.
  * @summary List egg groups
  */
 export type apiV2EggGroupListResponse200 = {
-  data: PaginatedEggGroupSummaryList;
-  status: 200;
-};
-
-export type apiV2EggGroupListResponseSuccess = apiV2EggGroupListResponse200 & {
+  data: PaginatedEggGroupSummaryList
+  status: 200
+}
+    
+export type apiV2EggGroupListResponseSuccess = (apiV2EggGroupListResponse200) & {
   headers: Headers;
 };
-export type apiV2EggGroupListResponse = apiV2EggGroupListResponseSuccess;
+;
 
-export const getApiV2EggGroupListUrl = (params?: ApiV2EggGroupListParams) => {
+export type apiV2EggGroupListResponse = (apiV2EggGroupListResponseSuccess)
+
+export const getApiV2EggGroupListUrl = (params?: ApiV2EggGroupListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/egg-group/?${stringifiedParams}`
-    : `/api/v2/egg-group/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/egg-group/?${stringifiedParams}` : `https://pokeapi.co/api/v2/egg-group/`
+}
 
-export const apiV2EggGroupList = async (
-  params?: ApiV2EggGroupListParams,
-  options?: RequestInit,
-): Promise<apiV2EggGroupListResponse> => {
-  const res = await fetch(getApiV2EggGroupListUrl(params), {
+export const apiV2EggGroupList = async (params?: ApiV2EggGroupListParams, options?: RequestInit): Promise<apiV2EggGroupListResponse> => {
+  
+  const res = await fetch(getApiV2EggGroupListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2EggGroupListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2EggGroupListResponse
+}
 
-  const data: apiV2EggGroupListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2EggGroupListResponse;
-};
 
-export const getApiV2EggGroupListQueryKey = (
-  params?: ApiV2EggGroupListParams,
+
+
+
+export const getApiV2EggGroupListQueryKey = (params?: ApiV2EggGroupListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/egg-group/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2EggGroupListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2EggGroupList>>, TError = unknown>(params?: ApiV2EggGroupListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EggGroupList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/egg-group/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2EggGroupListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2EggGroupList>>,
-  TError = unknown,
->(
-  params?: ApiV2EggGroupListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EggGroupList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2EggGroupListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2EggGroupList>>
-  > = ({ signal }) => apiV2EggGroupList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2EggGroupListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2EggGroupList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2EggGroupListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2EggGroupList>>
->;
-export type ApiV2EggGroupListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2EggGroupList>>> = ({ signal }) => apiV2EggGroupList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2EggGroupList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2EggGroupListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2EggGroupList>>>
+export type ApiV2EggGroupListQueryError = unknown
+
+
+export function useApiV2EggGroupList<TData = Awaited<ReturnType<typeof apiV2EggGroupList>>, TError = unknown>(
+ params: undefined |  ApiV2EggGroupListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EggGroupList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EggGroupList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EggGroupList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EggGroupList<TData = Awaited<ReturnType<typeof apiV2EggGroupList>>, TError = unknown>(
+ params?: ApiV2EggGroupListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EggGroupList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EggGroupList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EggGroupList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EggGroupList<TData = Awaited<ReturnType<typeof apiV2EggGroupList>>, TError = unknown>(
+ params?: ApiV2EggGroupListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EggGroupList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List egg groups
  */
 
-export function useApiV2EggGroupList<
-  TData = Awaited<ReturnType<typeof apiV2EggGroupList>>,
-  TError = unknown,
->(
-  params?: ApiV2EggGroupListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EggGroupList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2EggGroupListQueryOptions(params, options);
+export function useApiV2EggGroupList<TData = Awaited<ReturnType<typeof apiV2EggGroupList>>, TError = unknown>(
+ params?: ApiV2EggGroupListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EggGroupList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2EggGroupListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Egg Groups are categories which determine which Pokémon are able to interbreed. Pokémon may belong to either one or two Egg Groups. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Egg_Group) for greater detail.
  * @summary Get egg group
  */
 export type apiV2EggGroupRetrieveResponse200 = {
-  data: EggGroupDetail;
-  status: 200;
+  data: EggGroupDetail
+  status: 200
+}
+    
+export type apiV2EggGroupRetrieveResponseSuccess = (apiV2EggGroupRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2EggGroupRetrieveResponseSuccess =
-  apiV2EggGroupRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2EggGroupRetrieveResponse =
-  apiV2EggGroupRetrieveResponseSuccess;
+export type apiV2EggGroupRetrieveResponse = (apiV2EggGroupRetrieveResponseSuccess)
 
-export const getApiV2EggGroupRetrieveUrl = (id: string) => {
-  return `/api/v2/egg-group/${id}/`;
-};
+export const getApiV2EggGroupRetrieveUrl = (id: string,) => {
 
-export const apiV2EggGroupRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2EggGroupRetrieveResponse> => {
-  const res = await fetch(getApiV2EggGroupRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/egg-group/${id}/`
+}
+
+export const apiV2EggGroupRetrieve = async (id: string, options?: RequestInit): Promise<apiV2EggGroupRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2EggGroupRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2EggGroupRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2EggGroupRetrieveResponse
+}
 
-  const data: apiV2EggGroupRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2EggGroupRetrieveResponse;
-};
 
-export const getApiV2EggGroupRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/egg-group/${id}/`] as const;
-};
 
-export const getApiV2EggGroupRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2EggGroupRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/egg-group/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2EggGroupRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2EggGroupRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>
-  > = ({ signal }) => apiV2EggGroupRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2EggGroupRetrieveQueryKey(id);
 
-export type ApiV2EggGroupRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>
->;
-export type ApiV2EggGroupRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>> = ({ signal }) => apiV2EggGroupRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2EggGroupRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>>
+export type ApiV2EggGroupRetrieveQueryError = unknown
+
+
+export function useApiV2EggGroupRetrieve<TData = Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EggGroupRetrieve<TData = Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EggGroupRetrieve<TData = Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get egg group
  */
 
-export function useApiV2EggGroupRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2EggGroupRetrieveQueryOptions(id, options);
+export function useApiV2EggGroupRetrieve<TData = Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EggGroupRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2EggGroupRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Methods by which the player might can encounter Pokémon in the wild, e.g., walking in tall grass. Check out Bulbapedia for greater detail.
  * @summary List encounter methods
  */
 export type apiV2EncounterMethodListResponse200 = {
-  data: PaginatedEncounterMethodSummaryList;
-  status: 200;
+  data: PaginatedEncounterMethodSummaryList
+  status: 200
+}
+    
+export type apiV2EncounterMethodListResponseSuccess = (apiV2EncounterMethodListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2EncounterMethodListResponseSuccess =
-  apiV2EncounterMethodListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2EncounterMethodListResponse =
-  apiV2EncounterMethodListResponseSuccess;
+export type apiV2EncounterMethodListResponse = (apiV2EncounterMethodListResponseSuccess)
 
-export const getApiV2EncounterMethodListUrl = (
-  params?: ApiV2EncounterMethodListParams,
-) => {
+export const getApiV2EncounterMethodListUrl = (params?: ApiV2EncounterMethodListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/encounter-method/?${stringifiedParams}`
-    : `/api/v2/encounter-method/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/encounter-method/?${stringifiedParams}` : `https://pokeapi.co/api/v2/encounter-method/`
+}
 
-export const apiV2EncounterMethodList = async (
-  params?: ApiV2EncounterMethodListParams,
-  options?: RequestInit,
-): Promise<apiV2EncounterMethodListResponse> => {
-  const res = await fetch(getApiV2EncounterMethodListUrl(params), {
+export const apiV2EncounterMethodList = async (params?: ApiV2EncounterMethodListParams, options?: RequestInit): Promise<apiV2EncounterMethodListResponse> => {
+  
+  const res = await fetch(getApiV2EncounterMethodListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2EncounterMethodListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2EncounterMethodListResponse
+}
 
-  const data: apiV2EncounterMethodListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2EncounterMethodListResponse;
-};
 
-export const getApiV2EncounterMethodListQueryKey = (
-  params?: ApiV2EncounterMethodListParams,
+
+
+
+export const getApiV2EncounterMethodListQueryKey = (params?: ApiV2EncounterMethodListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/encounter-method/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2EncounterMethodListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2EncounterMethodList>>, TError = unknown>(params?: ApiV2EncounterMethodListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterMethodList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/encounter-method/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2EncounterMethodListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2EncounterMethodList>>,
-  TError = unknown,
->(
-  params?: ApiV2EncounterMethodListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EncounterMethodList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2EncounterMethodListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2EncounterMethodList>>
-  > = ({ signal }) =>
-    apiV2EncounterMethodList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2EncounterMethodListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2EncounterMethodList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2EncounterMethodListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2EncounterMethodList>>
->;
-export type ApiV2EncounterMethodListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2EncounterMethodList>>> = ({ signal }) => apiV2EncounterMethodList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterMethodList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2EncounterMethodListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2EncounterMethodList>>>
+export type ApiV2EncounterMethodListQueryError = unknown
+
+
+export function useApiV2EncounterMethodList<TData = Awaited<ReturnType<typeof apiV2EncounterMethodList>>, TError = unknown>(
+ params: undefined |  ApiV2EncounterMethodListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterMethodList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EncounterMethodList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EncounterMethodList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EncounterMethodList<TData = Awaited<ReturnType<typeof apiV2EncounterMethodList>>, TError = unknown>(
+ params?: ApiV2EncounterMethodListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterMethodList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EncounterMethodList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EncounterMethodList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EncounterMethodList<TData = Awaited<ReturnType<typeof apiV2EncounterMethodList>>, TError = unknown>(
+ params?: ApiV2EncounterMethodListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterMethodList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List encounter methods
  */
 
-export function useApiV2EncounterMethodList<
-  TData = Awaited<ReturnType<typeof apiV2EncounterMethodList>>,
-  TError = unknown,
->(
-  params?: ApiV2EncounterMethodListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EncounterMethodList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2EncounterMethodListQueryOptions(params, options);
+export function useApiV2EncounterMethodList<TData = Awaited<ReturnType<typeof apiV2EncounterMethodList>>, TError = unknown>(
+ params?: ApiV2EncounterMethodListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterMethodList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2EncounterMethodListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Methods by which the player might can encounter Pokémon in the wild, e.g., walking in tall grass. Check out Bulbapedia for greater detail.
  * @summary Get encounter method
  */
 export type apiV2EncounterMethodRetrieveResponse200 = {
-  data: EncounterMethodDetail;
-  status: 200;
+  data: EncounterMethodDetail
+  status: 200
+}
+    
+export type apiV2EncounterMethodRetrieveResponseSuccess = (apiV2EncounterMethodRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2EncounterMethodRetrieveResponseSuccess =
-  apiV2EncounterMethodRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2EncounterMethodRetrieveResponse =
-  apiV2EncounterMethodRetrieveResponseSuccess;
+export type apiV2EncounterMethodRetrieveResponse = (apiV2EncounterMethodRetrieveResponseSuccess)
 
-export const getApiV2EncounterMethodRetrieveUrl = (id: string) => {
-  return `/api/v2/encounter-method/${id}/`;
-};
+export const getApiV2EncounterMethodRetrieveUrl = (id: string,) => {
 
-export const apiV2EncounterMethodRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2EncounterMethodRetrieveResponse> => {
-  const res = await fetch(getApiV2EncounterMethodRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/encounter-method/${id}/`
+}
+
+export const apiV2EncounterMethodRetrieve = async (id: string, options?: RequestInit): Promise<apiV2EncounterMethodRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2EncounterMethodRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2EncounterMethodRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2EncounterMethodRetrieveResponse
+}
 
-  const data: apiV2EncounterMethodRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2EncounterMethodRetrieveResponse;
-};
 
-export const getApiV2EncounterMethodRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/encounter-method/${id}/`] as const;
-};
 
-export const getApiV2EncounterMethodRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2EncounterMethodRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/encounter-method/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2EncounterMethodRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2EncounterMethodRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>
-  > = ({ signal }) =>
-    apiV2EncounterMethodRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2EncounterMethodRetrieveQueryKey(id);
 
-export type ApiV2EncounterMethodRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>
->;
-export type ApiV2EncounterMethodRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>> = ({ signal }) => apiV2EncounterMethodRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2EncounterMethodRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>>
+export type ApiV2EncounterMethodRetrieveQueryError = unknown
+
+
+export function useApiV2EncounterMethodRetrieve<TData = Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EncounterMethodRetrieve<TData = Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EncounterMethodRetrieve<TData = Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get encounter method
  */
 
-export function useApiV2EncounterMethodRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2EncounterMethodRetrieveQueryOptions(id, options);
+export function useApiV2EncounterMethodRetrieve<TData = Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterMethodRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2EncounterMethodRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Conditions which affect what pokemon might appear in the wild, e.g., day or night.
  * @summary List encounter conditions
  */
 export type apiV2EncounterConditionListResponse200 = {
-  data: PaginatedEncounterConditionSummaryList;
-  status: 200;
+  data: PaginatedEncounterConditionSummaryList
+  status: 200
+}
+    
+export type apiV2EncounterConditionListResponseSuccess = (apiV2EncounterConditionListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2EncounterConditionListResponseSuccess =
-  apiV2EncounterConditionListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2EncounterConditionListResponse =
-  apiV2EncounterConditionListResponseSuccess;
+export type apiV2EncounterConditionListResponse = (apiV2EncounterConditionListResponseSuccess)
 
-export const getApiV2EncounterConditionListUrl = (
-  params?: ApiV2EncounterConditionListParams,
-) => {
+export const getApiV2EncounterConditionListUrl = (params?: ApiV2EncounterConditionListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/encounter-condition/?${stringifiedParams}`
-    : `/api/v2/encounter-condition/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/encounter-condition/?${stringifiedParams}` : `https://pokeapi.co/api/v2/encounter-condition/`
+}
 
-export const apiV2EncounterConditionList = async (
-  params?: ApiV2EncounterConditionListParams,
-  options?: RequestInit,
-): Promise<apiV2EncounterConditionListResponse> => {
-  const res = await fetch(getApiV2EncounterConditionListUrl(params), {
+export const apiV2EncounterConditionList = async (params?: ApiV2EncounterConditionListParams, options?: RequestInit): Promise<apiV2EncounterConditionListResponse> => {
+  
+  const res = await fetch(getApiV2EncounterConditionListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2EncounterConditionListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2EncounterConditionListResponse
+}
 
-  const data: apiV2EncounterConditionListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2EncounterConditionListResponse;
-};
 
-export const getApiV2EncounterConditionListQueryKey = (
-  params?: ApiV2EncounterConditionListParams,
+
+
+
+export const getApiV2EncounterConditionListQueryKey = (params?: ApiV2EncounterConditionListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/encounter-condition/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2EncounterConditionListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2EncounterConditionList>>, TError = unknown>(params?: ApiV2EncounterConditionListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/encounter-condition/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2EncounterConditionListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2EncounterConditionList>>,
-  TError = unknown,
->(
-  params?: ApiV2EncounterConditionListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EncounterConditionList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2EncounterConditionListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2EncounterConditionList>>
-  > = ({ signal }) =>
-    apiV2EncounterConditionList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2EncounterConditionListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2EncounterConditionList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2EncounterConditionListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2EncounterConditionList>>
->;
-export type ApiV2EncounterConditionListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2EncounterConditionList>>> = ({ signal }) => apiV2EncounterConditionList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2EncounterConditionListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2EncounterConditionList>>>
+export type ApiV2EncounterConditionListQueryError = unknown
+
+
+export function useApiV2EncounterConditionList<TData = Awaited<ReturnType<typeof apiV2EncounterConditionList>>, TError = unknown>(
+ params: undefined |  ApiV2EncounterConditionListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EncounterConditionList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EncounterConditionList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EncounterConditionList<TData = Awaited<ReturnType<typeof apiV2EncounterConditionList>>, TError = unknown>(
+ params?: ApiV2EncounterConditionListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EncounterConditionList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EncounterConditionList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EncounterConditionList<TData = Awaited<ReturnType<typeof apiV2EncounterConditionList>>, TError = unknown>(
+ params?: ApiV2EncounterConditionListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List encounter conditions
  */
 
-export function useApiV2EncounterConditionList<
-  TData = Awaited<ReturnType<typeof apiV2EncounterConditionList>>,
-  TError = unknown,
->(
-  params?: ApiV2EncounterConditionListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EncounterConditionList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2EncounterConditionListQueryOptions(
-    params,
-    options,
-  );
+export function useApiV2EncounterConditionList<TData = Awaited<ReturnType<typeof apiV2EncounterConditionList>>, TError = unknown>(
+ params?: ApiV2EncounterConditionListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2EncounterConditionListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Conditions which affect what pokemon might appear in the wild, e.g., day or night.
  * @summary Get encounter condition
  */
 export type apiV2EncounterConditionRetrieveResponse200 = {
-  data: EncounterConditionDetail;
-  status: 200;
+  data: EncounterConditionDetail
+  status: 200
+}
+    
+export type apiV2EncounterConditionRetrieveResponseSuccess = (apiV2EncounterConditionRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2EncounterConditionRetrieveResponseSuccess =
-  apiV2EncounterConditionRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2EncounterConditionRetrieveResponse =
-  apiV2EncounterConditionRetrieveResponseSuccess;
+export type apiV2EncounterConditionRetrieveResponse = (apiV2EncounterConditionRetrieveResponseSuccess)
 
-export const getApiV2EncounterConditionRetrieveUrl = (id: string) => {
-  return `/api/v2/encounter-condition/${id}/`;
-};
+export const getApiV2EncounterConditionRetrieveUrl = (id: string,) => {
 
-export const apiV2EncounterConditionRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2EncounterConditionRetrieveResponse> => {
-  const res = await fetch(getApiV2EncounterConditionRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/encounter-condition/${id}/`
+}
+
+export const apiV2EncounterConditionRetrieve = async (id: string, options?: RequestInit): Promise<apiV2EncounterConditionRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2EncounterConditionRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2EncounterConditionRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2EncounterConditionRetrieveResponse
+}
 
-  const data: apiV2EncounterConditionRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2EncounterConditionRetrieveResponse;
-};
 
-export const getApiV2EncounterConditionRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/encounter-condition/${id}/`] as const;
-};
 
-export const getApiV2EncounterConditionRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2EncounterConditionRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/encounter-condition/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2EncounterConditionRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2EncounterConditionRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>
-  > = ({ signal }) =>
-    apiV2EncounterConditionRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2EncounterConditionRetrieveQueryKey(id);
 
-export type ApiV2EncounterConditionRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>
->;
-export type ApiV2EncounterConditionRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>> = ({ signal }) => apiV2EncounterConditionRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2EncounterConditionRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>>
+export type ApiV2EncounterConditionRetrieveQueryError = unknown
+
+
+export function useApiV2EncounterConditionRetrieve<TData = Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EncounterConditionRetrieve<TData = Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EncounterConditionRetrieve<TData = Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get encounter condition
  */
 
-export function useApiV2EncounterConditionRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2EncounterConditionRetrieveQueryOptions(
-    id,
-    options,
-  );
+export function useApiV2EncounterConditionRetrieve<TData = Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2EncounterConditionRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Encounter condition values are the various states that an encounter condition can have, i.e., time of day can be either day or night.
  * @summary List encounter condition values
  */
 export type apiV2EncounterConditionValueListResponse200 = {
-  data: PaginatedEncounterConditionValueSummaryList;
-  status: 200;
+  data: PaginatedEncounterConditionValueSummaryList
+  status: 200
+}
+    
+export type apiV2EncounterConditionValueListResponseSuccess = (apiV2EncounterConditionValueListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2EncounterConditionValueListResponseSuccess =
-  apiV2EncounterConditionValueListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2EncounterConditionValueListResponse =
-  apiV2EncounterConditionValueListResponseSuccess;
+export type apiV2EncounterConditionValueListResponse = (apiV2EncounterConditionValueListResponseSuccess)
 
-export const getApiV2EncounterConditionValueListUrl = (
-  params?: ApiV2EncounterConditionValueListParams,
-) => {
+export const getApiV2EncounterConditionValueListUrl = (params?: ApiV2EncounterConditionValueListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/encounter-condition-value/?${stringifiedParams}`
-    : `/api/v2/encounter-condition-value/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/encounter-condition-value/?${stringifiedParams}` : `https://pokeapi.co/api/v2/encounter-condition-value/`
+}
 
-export const apiV2EncounterConditionValueList = async (
-  params?: ApiV2EncounterConditionValueListParams,
-  options?: RequestInit,
-): Promise<apiV2EncounterConditionValueListResponse> => {
-  const res = await fetch(getApiV2EncounterConditionValueListUrl(params), {
+export const apiV2EncounterConditionValueList = async (params?: ApiV2EncounterConditionValueListParams, options?: RequestInit): Promise<apiV2EncounterConditionValueListResponse> => {
+  
+  const res = await fetch(getApiV2EncounterConditionValueListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2EncounterConditionValueListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2EncounterConditionValueListResponse
+}
 
-  const data: apiV2EncounterConditionValueListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2EncounterConditionValueListResponse;
-};
 
-export const getApiV2EncounterConditionValueListQueryKey = (
-  params?: ApiV2EncounterConditionValueListParams,
+
+
+
+export const getApiV2EncounterConditionValueListQueryKey = (params?: ApiV2EncounterConditionValueListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/encounter-condition-value/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2EncounterConditionValueListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>, TError = unknown>(params?: ApiV2EncounterConditionValueListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [
-    `/api/v2/encounter-condition-value/`,
-    ...(params ? [params] : []),
-  ] as const;
-};
 
-export const getApiV2EncounterConditionValueListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>,
-  TError = unknown,
->(
-  params?: ApiV2EncounterConditionValueListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ??
-    getApiV2EncounterConditionValueListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>
-  > = ({ signal }) =>
-    apiV2EncounterConditionValueList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2EncounterConditionValueListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2EncounterConditionValueListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>
->;
-export type ApiV2EncounterConditionValueListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>> = ({ signal }) => apiV2EncounterConditionValueList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2EncounterConditionValueListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>>
+export type ApiV2EncounterConditionValueListQueryError = unknown
+
+
+export function useApiV2EncounterConditionValueList<TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>, TError = unknown>(
+ params: undefined |  ApiV2EncounterConditionValueListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EncounterConditionValueList<TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>, TError = unknown>(
+ params?: ApiV2EncounterConditionValueListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EncounterConditionValueList<TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>, TError = unknown>(
+ params?: ApiV2EncounterConditionValueListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List encounter condition values
  */
 
-export function useApiV2EncounterConditionValueList<
-  TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>,
-  TError = unknown,
->(
-  params?: ApiV2EncounterConditionValueListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2EncounterConditionValueListQueryOptions(
-    params,
-    options,
-  );
+export function useApiV2EncounterConditionValueList<TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>, TError = unknown>(
+ params?: ApiV2EncounterConditionValueListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionValueList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2EncounterConditionValueListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Encounter condition values are the various states that an encounter condition can have, i.e., time of day can be either day or night.
  * @summary Get encounter condition value
  */
 export type apiV2EncounterConditionValueRetrieveResponse200 = {
-  data: EncounterConditionValueDetail;
-  status: 200;
+  data: EncounterConditionValueDetail
+  status: 200
+}
+    
+export type apiV2EncounterConditionValueRetrieveResponseSuccess = (apiV2EncounterConditionValueRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2EncounterConditionValueRetrieveResponseSuccess =
-  apiV2EncounterConditionValueRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2EncounterConditionValueRetrieveResponse =
-  apiV2EncounterConditionValueRetrieveResponseSuccess;
+export type apiV2EncounterConditionValueRetrieveResponse = (apiV2EncounterConditionValueRetrieveResponseSuccess)
 
-export const getApiV2EncounterConditionValueRetrieveUrl = (id: string) => {
-  return `/api/v2/encounter-condition-value/${id}/`;
-};
+export const getApiV2EncounterConditionValueRetrieveUrl = (id: string,) => {
 
-export const apiV2EncounterConditionValueRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2EncounterConditionValueRetrieveResponse> => {
-  const res = await fetch(getApiV2EncounterConditionValueRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/encounter-condition-value/${id}/`
+}
+
+export const apiV2EncounterConditionValueRetrieve = async (id: string, options?: RequestInit): Promise<apiV2EncounterConditionValueRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2EncounterConditionValueRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2EncounterConditionValueRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2EncounterConditionValueRetrieveResponse
+}
 
-  const data: apiV2EncounterConditionValueRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2EncounterConditionValueRetrieveResponse;
-};
 
-export const getApiV2EncounterConditionValueRetrieveQueryKey = (
-  id?: string,
+
+
+
+export const getApiV2EncounterConditionValueRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/encounter-condition-value/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2EncounterConditionValueRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/encounter-condition-value/${id}/`] as const;
-};
 
-export const getApiV2EncounterConditionValueRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ??
-    getApiV2EncounterConditionValueRetrieveQueryKey(id);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>
-  > = ({ signal }) =>
-    apiV2EncounterConditionValueRetrieve(id, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2EncounterConditionValueRetrieveQueryKey(id);
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2EncounterConditionValueRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>
->;
-export type ApiV2EncounterConditionValueRetrieveQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>> = ({ signal }) => apiV2EncounterConditionValueRetrieve(id, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2EncounterConditionValueRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>>
+export type ApiV2EncounterConditionValueRetrieveQueryError = unknown
+
+
+export function useApiV2EncounterConditionValueRetrieve<TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EncounterConditionValueRetrieve<TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EncounterConditionValueRetrieve<TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get encounter condition value
  */
 
-export function useApiV2EncounterConditionValueRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2EncounterConditionValueRetrieveQueryOptions(
-    id,
-    options,
-  );
+export function useApiV2EncounterConditionValueRetrieve<TData = Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EncounterConditionValueRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2EncounterConditionValueRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Evolution chains are essentially family trees. They start with the lowest stage within a family and detail evolution conditions for each as well as Pokémon they can evolve into up through the hierarchy.
  * @summary List evolution chains
  */
 export type apiV2EvolutionChainListResponse200 = {
-  data: PaginatedEvolutionChainSummaryList;
-  status: 200;
+  data: PaginatedEvolutionChainSummaryList
+  status: 200
+}
+    
+export type apiV2EvolutionChainListResponseSuccess = (apiV2EvolutionChainListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2EvolutionChainListResponseSuccess =
-  apiV2EvolutionChainListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2EvolutionChainListResponse =
-  apiV2EvolutionChainListResponseSuccess;
+export type apiV2EvolutionChainListResponse = (apiV2EvolutionChainListResponseSuccess)
 
-export const getApiV2EvolutionChainListUrl = (
-  params?: ApiV2EvolutionChainListParams,
-) => {
+export const getApiV2EvolutionChainListUrl = (params?: ApiV2EvolutionChainListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/evolution-chain/?${stringifiedParams}`
-    : `/api/v2/evolution-chain/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/evolution-chain/?${stringifiedParams}` : `https://pokeapi.co/api/v2/evolution-chain/`
+}
 
-export const apiV2EvolutionChainList = async (
-  params?: ApiV2EvolutionChainListParams,
-  options?: RequestInit,
-): Promise<apiV2EvolutionChainListResponse> => {
-  const res = await fetch(getApiV2EvolutionChainListUrl(params), {
+export const apiV2EvolutionChainList = async (params?: ApiV2EvolutionChainListParams, options?: RequestInit): Promise<apiV2EvolutionChainListResponse> => {
+  
+  const res = await fetch(getApiV2EvolutionChainListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2EvolutionChainListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2EvolutionChainListResponse
+}
 
-  const data: apiV2EvolutionChainListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2EvolutionChainListResponse;
-};
 
-export const getApiV2EvolutionChainListQueryKey = (
-  params?: ApiV2EvolutionChainListParams,
+
+
+
+export const getApiV2EvolutionChainListQueryKey = (params?: ApiV2EvolutionChainListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/evolution-chain/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2EvolutionChainListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2EvolutionChainList>>, TError = unknown>(params?: ApiV2EvolutionChainListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionChainList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/evolution-chain/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2EvolutionChainListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2EvolutionChainList>>,
-  TError = unknown,
->(
-  params?: ApiV2EvolutionChainListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EvolutionChainList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2EvolutionChainListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2EvolutionChainList>>
-  > = ({ signal }) =>
-    apiV2EvolutionChainList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2EvolutionChainListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2EvolutionChainList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2EvolutionChainListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2EvolutionChainList>>
->;
-export type ApiV2EvolutionChainListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2EvolutionChainList>>> = ({ signal }) => apiV2EvolutionChainList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionChainList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2EvolutionChainListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2EvolutionChainList>>>
+export type ApiV2EvolutionChainListQueryError = unknown
+
+
+export function useApiV2EvolutionChainList<TData = Awaited<ReturnType<typeof apiV2EvolutionChainList>>, TError = unknown>(
+ params: undefined |  ApiV2EvolutionChainListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionChainList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EvolutionChainList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EvolutionChainList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EvolutionChainList<TData = Awaited<ReturnType<typeof apiV2EvolutionChainList>>, TError = unknown>(
+ params?: ApiV2EvolutionChainListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionChainList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EvolutionChainList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EvolutionChainList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EvolutionChainList<TData = Awaited<ReturnType<typeof apiV2EvolutionChainList>>, TError = unknown>(
+ params?: ApiV2EvolutionChainListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionChainList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List evolution chains
  */
 
-export function useApiV2EvolutionChainList<
-  TData = Awaited<ReturnType<typeof apiV2EvolutionChainList>>,
-  TError = unknown,
->(
-  params?: ApiV2EvolutionChainListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EvolutionChainList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2EvolutionChainListQueryOptions(params, options);
+export function useApiV2EvolutionChainList<TData = Awaited<ReturnType<typeof apiV2EvolutionChainList>>, TError = unknown>(
+ params?: ApiV2EvolutionChainListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionChainList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2EvolutionChainListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Evolution chains are essentially family trees. They start with the lowest stage within a family and detail evolution conditions for each as well as Pokémon they can evolve into up through the hierarchy.
  * @summary Get evolution chain
  */
 export type apiV2EvolutionChainRetrieveResponse200 = {
-  data: EvolutionChainDetail;
-  status: 200;
+  data: EvolutionChainDetail
+  status: 200
+}
+    
+export type apiV2EvolutionChainRetrieveResponseSuccess = (apiV2EvolutionChainRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2EvolutionChainRetrieveResponseSuccess =
-  apiV2EvolutionChainRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2EvolutionChainRetrieveResponse =
-  apiV2EvolutionChainRetrieveResponseSuccess;
+export type apiV2EvolutionChainRetrieveResponse = (apiV2EvolutionChainRetrieveResponseSuccess)
 
-export const getApiV2EvolutionChainRetrieveUrl = (id: string) => {
-  return `/api/v2/evolution-chain/${id}/`;
-};
+export const getApiV2EvolutionChainRetrieveUrl = (id: string,) => {
 
-export const apiV2EvolutionChainRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2EvolutionChainRetrieveResponse> => {
-  const res = await fetch(getApiV2EvolutionChainRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/evolution-chain/${id}/`
+}
+
+export const apiV2EvolutionChainRetrieve = async (id: string, options?: RequestInit): Promise<apiV2EvolutionChainRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2EvolutionChainRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2EvolutionChainRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2EvolutionChainRetrieveResponse
+}
 
-  const data: apiV2EvolutionChainRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2EvolutionChainRetrieveResponse;
-};
 
-export const getApiV2EvolutionChainRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/evolution-chain/${id}/`] as const;
-};
 
-export const getApiV2EvolutionChainRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2EvolutionChainRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/evolution-chain/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2EvolutionChainRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2EvolutionChainRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>
-  > = ({ signal }) =>
-    apiV2EvolutionChainRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2EvolutionChainRetrieveQueryKey(id);
 
-export type ApiV2EvolutionChainRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>
->;
-export type ApiV2EvolutionChainRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>> = ({ signal }) => apiV2EvolutionChainRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2EvolutionChainRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>>
+export type ApiV2EvolutionChainRetrieveQueryError = unknown
+
+
+export function useApiV2EvolutionChainRetrieve<TData = Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EvolutionChainRetrieve<TData = Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EvolutionChainRetrieve<TData = Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get evolution chain
  */
 
-export function useApiV2EvolutionChainRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2EvolutionChainRetrieveQueryOptions(id, options);
+export function useApiV2EvolutionChainRetrieve<TData = Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionChainRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2EvolutionChainRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Evolution triggers are the events and conditions that cause a Pokémon to evolve. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Methods_of_evolution) for greater detail.
  * @summary List evolution triggers
  */
 export type apiV2EvolutionTriggerListResponse200 = {
-  data: PaginatedEvolutionTriggerSummaryList;
-  status: 200;
+  data: PaginatedEvolutionTriggerSummaryList
+  status: 200
+}
+    
+export type apiV2EvolutionTriggerListResponseSuccess = (apiV2EvolutionTriggerListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2EvolutionTriggerListResponseSuccess =
-  apiV2EvolutionTriggerListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2EvolutionTriggerListResponse =
-  apiV2EvolutionTriggerListResponseSuccess;
+export type apiV2EvolutionTriggerListResponse = (apiV2EvolutionTriggerListResponseSuccess)
 
-export const getApiV2EvolutionTriggerListUrl = (
-  params?: ApiV2EvolutionTriggerListParams,
-) => {
+export const getApiV2EvolutionTriggerListUrl = (params?: ApiV2EvolutionTriggerListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/evolution-trigger/?${stringifiedParams}`
-    : `/api/v2/evolution-trigger/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/evolution-trigger/?${stringifiedParams}` : `https://pokeapi.co/api/v2/evolution-trigger/`
+}
 
-export const apiV2EvolutionTriggerList = async (
-  params?: ApiV2EvolutionTriggerListParams,
-  options?: RequestInit,
-): Promise<apiV2EvolutionTriggerListResponse> => {
-  const res = await fetch(getApiV2EvolutionTriggerListUrl(params), {
+export const apiV2EvolutionTriggerList = async (params?: ApiV2EvolutionTriggerListParams, options?: RequestInit): Promise<apiV2EvolutionTriggerListResponse> => {
+  
+  const res = await fetch(getApiV2EvolutionTriggerListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2EvolutionTriggerListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2EvolutionTriggerListResponse
+}
 
-  const data: apiV2EvolutionTriggerListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2EvolutionTriggerListResponse;
-};
 
-export const getApiV2EvolutionTriggerListQueryKey = (
-  params?: ApiV2EvolutionTriggerListParams,
+
+
+
+export const getApiV2EvolutionTriggerListQueryKey = (params?: ApiV2EvolutionTriggerListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/evolution-trigger/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2EvolutionTriggerListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>, TError = unknown>(params?: ApiV2EvolutionTriggerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/evolution-trigger/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2EvolutionTriggerListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>,
-  TError = unknown,
->(
-  params?: ApiV2EvolutionTriggerListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2EvolutionTriggerListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>
-  > = ({ signal }) =>
-    apiV2EvolutionTriggerList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2EvolutionTriggerListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2EvolutionTriggerListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>
->;
-export type ApiV2EvolutionTriggerListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>> = ({ signal }) => apiV2EvolutionTriggerList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2EvolutionTriggerListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>>
+export type ApiV2EvolutionTriggerListQueryError = unknown
+
+
+export function useApiV2EvolutionTriggerList<TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>, TError = unknown>(
+ params: undefined |  ApiV2EvolutionTriggerListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EvolutionTriggerList<TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>, TError = unknown>(
+ params?: ApiV2EvolutionTriggerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EvolutionTriggerList<TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>, TError = unknown>(
+ params?: ApiV2EvolutionTriggerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List evolution triggers
  */
 
-export function useApiV2EvolutionTriggerList<
-  TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>,
-  TError = unknown,
->(
-  params?: ApiV2EvolutionTriggerListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2EvolutionTriggerListQueryOptions(
-    params,
-    options,
-  );
+export function useApiV2EvolutionTriggerList<TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>, TError = unknown>(
+ params?: ApiV2EvolutionTriggerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionTriggerList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2EvolutionTriggerListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Evolution triggers are the events and conditions that cause a Pokémon to evolve. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Methods_of_evolution) for greater detail.
  * @summary Get evolution trigger
  */
 export type apiV2EvolutionTriggerRetrieveResponse200 = {
-  data: EvolutionTriggerDetail;
-  status: 200;
+  data: EvolutionTriggerDetail
+  status: 200
+}
+    
+export type apiV2EvolutionTriggerRetrieveResponseSuccess = (apiV2EvolutionTriggerRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2EvolutionTriggerRetrieveResponseSuccess =
-  apiV2EvolutionTriggerRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2EvolutionTriggerRetrieveResponse =
-  apiV2EvolutionTriggerRetrieveResponseSuccess;
+export type apiV2EvolutionTriggerRetrieveResponse = (apiV2EvolutionTriggerRetrieveResponseSuccess)
 
-export const getApiV2EvolutionTriggerRetrieveUrl = (id: string) => {
-  return `/api/v2/evolution-trigger/${id}/`;
-};
+export const getApiV2EvolutionTriggerRetrieveUrl = (id: string,) => {
 
-export const apiV2EvolutionTriggerRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2EvolutionTriggerRetrieveResponse> => {
-  const res = await fetch(getApiV2EvolutionTriggerRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/evolution-trigger/${id}/`
+}
+
+export const apiV2EvolutionTriggerRetrieve = async (id: string, options?: RequestInit): Promise<apiV2EvolutionTriggerRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2EvolutionTriggerRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2EvolutionTriggerRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2EvolutionTriggerRetrieveResponse
+}
 
-  const data: apiV2EvolutionTriggerRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2EvolutionTriggerRetrieveResponse;
-};
 
-export const getApiV2EvolutionTriggerRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/evolution-trigger/${id}/`] as const;
-};
 
-export const getApiV2EvolutionTriggerRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2EvolutionTriggerRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/evolution-trigger/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2EvolutionTriggerRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2EvolutionTriggerRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>
-  > = ({ signal }) =>
-    apiV2EvolutionTriggerRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2EvolutionTriggerRetrieveQueryKey(id);
 
-export type ApiV2EvolutionTriggerRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>
->;
-export type ApiV2EvolutionTriggerRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>> = ({ signal }) => apiV2EvolutionTriggerRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2EvolutionTriggerRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>>
+export type ApiV2EvolutionTriggerRetrieveQueryError = unknown
+
+
+export function useApiV2EvolutionTriggerRetrieve<TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EvolutionTriggerRetrieve<TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2EvolutionTriggerRetrieve<TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get evolution trigger
  */
 
-export function useApiV2EvolutionTriggerRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2EvolutionTriggerRetrieveQueryOptions(
-    id,
-    options,
-  );
+export function useApiV2EvolutionTriggerRetrieve<TData = Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2EvolutionTriggerRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2EvolutionTriggerRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * A generation is a grouping of the Pokémon games that separates them based on the Pokémon they include. In each generation, a new set of Pokémon, Moves, Abilities and Types that did not exist in the previous generation are released.
  * @summary List genrations
  */
 export type apiV2GenerationListResponse200 = {
-  data: PaginatedGenerationSummaryList;
-  status: 200;
+  data: PaginatedGenerationSummaryList
+  status: 200
+}
+    
+export type apiV2GenerationListResponseSuccess = (apiV2GenerationListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2GenerationListResponseSuccess =
-  apiV2GenerationListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2GenerationListResponse = apiV2GenerationListResponseSuccess;
+export type apiV2GenerationListResponse = (apiV2GenerationListResponseSuccess)
 
-export const getApiV2GenerationListUrl = (
-  params?: ApiV2GenerationListParams,
-) => {
+export const getApiV2GenerationListUrl = (params?: ApiV2GenerationListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/generation/?${stringifiedParams}`
-    : `/api/v2/generation/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/generation/?${stringifiedParams}` : `https://pokeapi.co/api/v2/generation/`
+}
 
-export const apiV2GenerationList = async (
-  params?: ApiV2GenerationListParams,
-  options?: RequestInit,
-): Promise<apiV2GenerationListResponse> => {
-  const res = await fetch(getApiV2GenerationListUrl(params), {
+export const apiV2GenerationList = async (params?: ApiV2GenerationListParams, options?: RequestInit): Promise<apiV2GenerationListResponse> => {
+  
+  const res = await fetch(getApiV2GenerationListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2GenerationListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2GenerationListResponse
+}
 
-  const data: apiV2GenerationListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2GenerationListResponse;
-};
 
-export const getApiV2GenerationListQueryKey = (
-  params?: ApiV2GenerationListParams,
+
+
+
+export const getApiV2GenerationListQueryKey = (params?: ApiV2GenerationListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/generation/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2GenerationListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2GenerationList>>, TError = unknown>(params?: ApiV2GenerationListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenerationList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/generation/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2GenerationListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2GenerationList>>,
-  TError = unknown,
->(
-  params?: ApiV2GenerationListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2GenerationList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2GenerationListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2GenerationList>>
-  > = ({ signal }) => apiV2GenerationList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2GenerationListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2GenerationList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2GenerationListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2GenerationList>>
->;
-export type ApiV2GenerationListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2GenerationList>>> = ({ signal }) => apiV2GenerationList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2GenerationList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2GenerationListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2GenerationList>>>
+export type ApiV2GenerationListQueryError = unknown
+
+
+export function useApiV2GenerationList<TData = Awaited<ReturnType<typeof apiV2GenerationList>>, TError = unknown>(
+ params: undefined |  ApiV2GenerationListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenerationList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2GenerationList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2GenerationList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2GenerationList<TData = Awaited<ReturnType<typeof apiV2GenerationList>>, TError = unknown>(
+ params?: ApiV2GenerationListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenerationList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2GenerationList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2GenerationList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2GenerationList<TData = Awaited<ReturnType<typeof apiV2GenerationList>>, TError = unknown>(
+ params?: ApiV2GenerationListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenerationList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List genrations
  */
 
-export function useApiV2GenerationList<
-  TData = Awaited<ReturnType<typeof apiV2GenerationList>>,
-  TError = unknown,
->(
-  params?: ApiV2GenerationListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2GenerationList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2GenerationListQueryOptions(params, options);
+export function useApiV2GenerationList<TData = Awaited<ReturnType<typeof apiV2GenerationList>>, TError = unknown>(
+ params?: ApiV2GenerationListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenerationList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2GenerationListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * A generation is a grouping of the Pokémon games that separates them based on the Pokémon they include. In each generation, a new set of Pokémon, Moves, Abilities and Types that did not exist in the previous generation are released.
  * @summary Get genration
  */
 export type apiV2GenerationRetrieveResponse200 = {
-  data: GenerationDetail;
-  status: 200;
+  data: GenerationDetail
+  status: 200
+}
+    
+export type apiV2GenerationRetrieveResponseSuccess = (apiV2GenerationRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2GenerationRetrieveResponseSuccess =
-  apiV2GenerationRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2GenerationRetrieveResponse =
-  apiV2GenerationRetrieveResponseSuccess;
+export type apiV2GenerationRetrieveResponse = (apiV2GenerationRetrieveResponseSuccess)
 
-export const getApiV2GenerationRetrieveUrl = (id: string) => {
-  return `/api/v2/generation/${id}/`;
-};
+export const getApiV2GenerationRetrieveUrl = (id: string,) => {
 
-export const apiV2GenerationRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2GenerationRetrieveResponse> => {
-  const res = await fetch(getApiV2GenerationRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/generation/${id}/`
+}
+
+export const apiV2GenerationRetrieve = async (id: string, options?: RequestInit): Promise<apiV2GenerationRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2GenerationRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2GenerationRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2GenerationRetrieveResponse
+}
 
-  const data: apiV2GenerationRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2GenerationRetrieveResponse;
-};
 
-export const getApiV2GenerationRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/generation/${id}/`] as const;
-};
 
-export const getApiV2GenerationRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2GenerationRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2GenerationRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2GenerationRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/generation/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2GenerationRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2GenerationRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenerationRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2GenerationRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2GenerationRetrieve>>
-  > = ({ signal }) => apiV2GenerationRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2GenerationRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2GenerationRetrieveQueryKey(id);
 
-export type ApiV2GenerationRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2GenerationRetrieve>>
->;
-export type ApiV2GenerationRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2GenerationRetrieve>>> = ({ signal }) => apiV2GenerationRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2GenerationRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2GenerationRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2GenerationRetrieve>>>
+export type ApiV2GenerationRetrieveQueryError = unknown
+
+
+export function useApiV2GenerationRetrieve<TData = Awaited<ReturnType<typeof apiV2GenerationRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenerationRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2GenerationRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2GenerationRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2GenerationRetrieve<TData = Awaited<ReturnType<typeof apiV2GenerationRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenerationRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2GenerationRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2GenerationRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2GenerationRetrieve<TData = Awaited<ReturnType<typeof apiV2GenerationRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenerationRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get genration
  */
 
-export function useApiV2GenerationRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2GenerationRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2GenerationRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2GenerationRetrieveQueryOptions(id, options);
+export function useApiV2GenerationRetrieve<TData = Awaited<ReturnType<typeof apiV2GenerationRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenerationRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2GenerationRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Genders were introduced in Generation II for the purposes of breeding Pokémon but can also result in visual differences or even different evolutionary lines. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Gender) for greater detail.
  * @summary List genders
  */
 export type apiV2GenderListResponse200 = {
-  data: PaginatedGenderSummaryList;
-  status: 200;
-};
-
-export type apiV2GenderListResponseSuccess = apiV2GenderListResponse200 & {
+  data: PaginatedGenderSummaryList
+  status: 200
+}
+    
+export type apiV2GenderListResponseSuccess = (apiV2GenderListResponse200) & {
   headers: Headers;
 };
-export type apiV2GenderListResponse = apiV2GenderListResponseSuccess;
+;
 
-export const getApiV2GenderListUrl = (params?: ApiV2GenderListParams) => {
+export type apiV2GenderListResponse = (apiV2GenderListResponseSuccess)
+
+export const getApiV2GenderListUrl = (params?: ApiV2GenderListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/gender/?${stringifiedParams}`
-    : `/api/v2/gender/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/gender/?${stringifiedParams}` : `https://pokeapi.co/api/v2/gender/`
+}
 
-export const apiV2GenderList = async (
-  params?: ApiV2GenderListParams,
-  options?: RequestInit,
-): Promise<apiV2GenderListResponse> => {
-  const res = await fetch(getApiV2GenderListUrl(params), {
+export const apiV2GenderList = async (params?: ApiV2GenderListParams, options?: RequestInit): Promise<apiV2GenderListResponse> => {
+  
+  const res = await fetch(getApiV2GenderListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2GenderListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2GenderListResponse
+}
 
-  const data: apiV2GenderListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2GenderListResponse;
-};
 
-export const getApiV2GenderListQueryKey = (params?: ApiV2GenderListParams) => {
-  return [`/api/v2/gender/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2GenderListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2GenderList>>,
-  TError = unknown,
->(
-  params?: ApiV2GenderListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2GenderList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2GenderListQueryKey = (params?: ApiV2GenderListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/gender/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2GenderListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2GenderList>>, TError = unknown>(params?: ApiV2GenderListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenderList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2GenderListQueryKey(params);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2GenderList>>> = ({
-    signal,
-  }) => apiV2GenderList(params, { signal, ...fetchOptions });
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2GenderList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2GenderListQueryKey(params);
 
-export type ApiV2GenderListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2GenderList>>
->;
-export type ApiV2GenderListQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2GenderList>>> = ({ signal }) => apiV2GenderList(params, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2GenderList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2GenderListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2GenderList>>>
+export type ApiV2GenderListQueryError = unknown
+
+
+export function useApiV2GenderList<TData = Awaited<ReturnType<typeof apiV2GenderList>>, TError = unknown>(
+ params: undefined |  ApiV2GenderListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenderList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2GenderList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2GenderList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2GenderList<TData = Awaited<ReturnType<typeof apiV2GenderList>>, TError = unknown>(
+ params?: ApiV2GenderListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenderList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2GenderList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2GenderList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2GenderList<TData = Awaited<ReturnType<typeof apiV2GenderList>>, TError = unknown>(
+ params?: ApiV2GenderListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenderList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List genders
  */
 
-export function useApiV2GenderList<
-  TData = Awaited<ReturnType<typeof apiV2GenderList>>,
-  TError = unknown,
->(
-  params?: ApiV2GenderListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2GenderList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2GenderListQueryOptions(params, options);
+export function useApiV2GenderList<TData = Awaited<ReturnType<typeof apiV2GenderList>>, TError = unknown>(
+ params?: ApiV2GenderListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenderList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2GenderListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Genders were introduced in Generation II for the purposes of breeding Pokémon but can also result in visual differences or even different evolutionary lines. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Gender) for greater detail.
  * @summary Get gender
  */
 export type apiV2GenderRetrieveResponse200 = {
-  data: GenderDetail;
-  status: 200;
+  data: GenderDetail
+  status: 200
+}
+    
+export type apiV2GenderRetrieveResponseSuccess = (apiV2GenderRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2GenderRetrieveResponseSuccess =
-  apiV2GenderRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2GenderRetrieveResponse = apiV2GenderRetrieveResponseSuccess;
+export type apiV2GenderRetrieveResponse = (apiV2GenderRetrieveResponseSuccess)
 
-export const getApiV2GenderRetrieveUrl = (id: string) => {
-  return `/api/v2/gender/${id}/`;
-};
+export const getApiV2GenderRetrieveUrl = (id: string,) => {
 
-export const apiV2GenderRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2GenderRetrieveResponse> => {
-  const res = await fetch(getApiV2GenderRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/gender/${id}/`
+}
+
+export const apiV2GenderRetrieve = async (id: string, options?: RequestInit): Promise<apiV2GenderRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2GenderRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2GenderRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2GenderRetrieveResponse
+}
 
-  const data: apiV2GenderRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2GenderRetrieveResponse;
-};
 
-export const getApiV2GenderRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/gender/${id}/`] as const;
-};
 
-export const getApiV2GenderRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2GenderRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2GenderRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2GenderRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/gender/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2GenderRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2GenderRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenderRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2GenderRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2GenderRetrieve>>
-  > = ({ signal }) => apiV2GenderRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2GenderRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2GenderRetrieveQueryKey(id);
 
-export type ApiV2GenderRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2GenderRetrieve>>
->;
-export type ApiV2GenderRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2GenderRetrieve>>> = ({ signal }) => apiV2GenderRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2GenderRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2GenderRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2GenderRetrieve>>>
+export type ApiV2GenderRetrieveQueryError = unknown
+
+
+export function useApiV2GenderRetrieve<TData = Awaited<ReturnType<typeof apiV2GenderRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenderRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2GenderRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2GenderRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2GenderRetrieve<TData = Awaited<ReturnType<typeof apiV2GenderRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenderRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2GenderRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2GenderRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2GenderRetrieve<TData = Awaited<ReturnType<typeof apiV2GenderRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenderRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get gender
  */
 
-export function useApiV2GenderRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2GenderRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2GenderRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2GenderRetrieveQueryOptions(id, options);
+export function useApiV2GenderRetrieve<TData = Awaited<ReturnType<typeof apiV2GenderRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GenderRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2GenderRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Growth rates are the speed with which Pokémon gain levels through experience. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Experience) for greater detail.
  * @summary List growth rates
  */
 export type apiV2GrowthRateListResponse200 = {
-  data: PaginatedGrowthRateSummaryList;
-  status: 200;
+  data: PaginatedGrowthRateSummaryList
+  status: 200
+}
+    
+export type apiV2GrowthRateListResponseSuccess = (apiV2GrowthRateListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2GrowthRateListResponseSuccess =
-  apiV2GrowthRateListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2GrowthRateListResponse = apiV2GrowthRateListResponseSuccess;
+export type apiV2GrowthRateListResponse = (apiV2GrowthRateListResponseSuccess)
 
-export const getApiV2GrowthRateListUrl = (
-  params?: ApiV2GrowthRateListParams,
-) => {
+export const getApiV2GrowthRateListUrl = (params?: ApiV2GrowthRateListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/growth-rate/?${stringifiedParams}`
-    : `/api/v2/growth-rate/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/growth-rate/?${stringifiedParams}` : `https://pokeapi.co/api/v2/growth-rate/`
+}
 
-export const apiV2GrowthRateList = async (
-  params?: ApiV2GrowthRateListParams,
-  options?: RequestInit,
-): Promise<apiV2GrowthRateListResponse> => {
-  const res = await fetch(getApiV2GrowthRateListUrl(params), {
+export const apiV2GrowthRateList = async (params?: ApiV2GrowthRateListParams, options?: RequestInit): Promise<apiV2GrowthRateListResponse> => {
+  
+  const res = await fetch(getApiV2GrowthRateListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2GrowthRateListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2GrowthRateListResponse
+}
 
-  const data: apiV2GrowthRateListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2GrowthRateListResponse;
-};
 
-export const getApiV2GrowthRateListQueryKey = (
-  params?: ApiV2GrowthRateListParams,
+
+
+
+export const getApiV2GrowthRateListQueryKey = (params?: ApiV2GrowthRateListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/growth-rate/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2GrowthRateListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2GrowthRateList>>, TError = unknown>(params?: ApiV2GrowthRateListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GrowthRateList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/growth-rate/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2GrowthRateListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2GrowthRateList>>,
-  TError = unknown,
->(
-  params?: ApiV2GrowthRateListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2GrowthRateList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2GrowthRateListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2GrowthRateList>>
-  > = ({ signal }) => apiV2GrowthRateList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2GrowthRateListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2GrowthRateList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2GrowthRateListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2GrowthRateList>>
->;
-export type ApiV2GrowthRateListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2GrowthRateList>>> = ({ signal }) => apiV2GrowthRateList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2GrowthRateList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2GrowthRateListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2GrowthRateList>>>
+export type ApiV2GrowthRateListQueryError = unknown
+
+
+export function useApiV2GrowthRateList<TData = Awaited<ReturnType<typeof apiV2GrowthRateList>>, TError = unknown>(
+ params: undefined |  ApiV2GrowthRateListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GrowthRateList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2GrowthRateList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2GrowthRateList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2GrowthRateList<TData = Awaited<ReturnType<typeof apiV2GrowthRateList>>, TError = unknown>(
+ params?: ApiV2GrowthRateListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GrowthRateList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2GrowthRateList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2GrowthRateList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2GrowthRateList<TData = Awaited<ReturnType<typeof apiV2GrowthRateList>>, TError = unknown>(
+ params?: ApiV2GrowthRateListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GrowthRateList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List growth rates
  */
 
-export function useApiV2GrowthRateList<
-  TData = Awaited<ReturnType<typeof apiV2GrowthRateList>>,
-  TError = unknown,
->(
-  params?: ApiV2GrowthRateListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2GrowthRateList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2GrowthRateListQueryOptions(params, options);
+export function useApiV2GrowthRateList<TData = Awaited<ReturnType<typeof apiV2GrowthRateList>>, TError = unknown>(
+ params?: ApiV2GrowthRateListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GrowthRateList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2GrowthRateListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Growth rates are the speed with which Pokémon gain levels through experience. Check out [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Experience) for greater detail.
  * @summary Get growth rate
  */
 export type apiV2GrowthRateRetrieveResponse200 = {
-  data: GrowthRateDetail;
-  status: 200;
+  data: GrowthRateDetail
+  status: 200
+}
+    
+export type apiV2GrowthRateRetrieveResponseSuccess = (apiV2GrowthRateRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2GrowthRateRetrieveResponseSuccess =
-  apiV2GrowthRateRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2GrowthRateRetrieveResponse =
-  apiV2GrowthRateRetrieveResponseSuccess;
+export type apiV2GrowthRateRetrieveResponse = (apiV2GrowthRateRetrieveResponseSuccess)
 
-export const getApiV2GrowthRateRetrieveUrl = (id: string) => {
-  return `/api/v2/growth-rate/${id}/`;
-};
+export const getApiV2GrowthRateRetrieveUrl = (id: string,) => {
 
-export const apiV2GrowthRateRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2GrowthRateRetrieveResponse> => {
-  const res = await fetch(getApiV2GrowthRateRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/growth-rate/${id}/`
+}
+
+export const apiV2GrowthRateRetrieve = async (id: string, options?: RequestInit): Promise<apiV2GrowthRateRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2GrowthRateRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2GrowthRateRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2GrowthRateRetrieveResponse
+}
 
-  const data: apiV2GrowthRateRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2GrowthRateRetrieveResponse;
-};
 
-export const getApiV2GrowthRateRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/growth-rate/${id}/`] as const;
-};
 
-export const getApiV2GrowthRateRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2GrowthRateRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/growth-rate/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2GrowthRateRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2GrowthRateRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>
-  > = ({ signal }) => apiV2GrowthRateRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2GrowthRateRetrieveQueryKey(id);
 
-export type ApiV2GrowthRateRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>
->;
-export type ApiV2GrowthRateRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>> = ({ signal }) => apiV2GrowthRateRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2GrowthRateRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>>
+export type ApiV2GrowthRateRetrieveQueryError = unknown
+
+
+export function useApiV2GrowthRateRetrieve<TData = Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2GrowthRateRetrieve<TData = Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2GrowthRateRetrieve<TData = Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get growth rate
  */
 
-export function useApiV2GrowthRateRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2GrowthRateRetrieveQueryOptions(id, options);
+export function useApiV2GrowthRateRetrieve<TData = Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2GrowthRateRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2GrowthRateRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * An item is an object in the games which the player can pick up, keep in their bag, and use in some manner. They have various uses, including healing, powering up, helping catch Pokémon, or to access a new area.
  * @summary List items
  */
 export type apiV2ItemListResponse200 = {
-  data: PaginatedItemSummaryList;
-  status: 200;
-};
-
-export type apiV2ItemListResponseSuccess = apiV2ItemListResponse200 & {
+  data: PaginatedItemSummaryList
+  status: 200
+}
+    
+export type apiV2ItemListResponseSuccess = (apiV2ItemListResponse200) & {
   headers: Headers;
 };
-export type apiV2ItemListResponse = apiV2ItemListResponseSuccess;
+;
 
-export const getApiV2ItemListUrl = (params?: ApiV2ItemListParams) => {
+export type apiV2ItemListResponse = (apiV2ItemListResponseSuccess)
+
+export const getApiV2ItemListUrl = (params?: ApiV2ItemListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/item/?${stringifiedParams}`
-    : `/api/v2/item/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/item/?${stringifiedParams}` : `https://pokeapi.co/api/v2/item/`
+}
 
-export const apiV2ItemList = async (
-  params?: ApiV2ItemListParams,
-  options?: RequestInit,
-): Promise<apiV2ItemListResponse> => {
-  const res = await fetch(getApiV2ItemListUrl(params), {
+export const apiV2ItemList = async (params?: ApiV2ItemListParams, options?: RequestInit): Promise<apiV2ItemListResponse> => {
+  
+  const res = await fetch(getApiV2ItemListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ItemListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ItemListResponse
+}
 
-  const data: apiV2ItemListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ItemListResponse;
-};
 
-export const getApiV2ItemListQueryKey = (params?: ApiV2ItemListParams) => {
-  return [`/api/v2/item/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2ItemListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ItemList>>,
-  TError = unknown,
->(
-  params?: ApiV2ItemListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2ItemListQueryKey = (params?: ApiV2ItemListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/item/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2ItemListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ItemList>>, TError = unknown>(params?: ApiV2ItemListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2ItemListQueryKey(params);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ItemList>>> = ({
-    signal,
-  }) => apiV2ItemList(params, { signal, ...fetchOptions });
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ItemList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ItemListQueryKey(params);
 
-export type ApiV2ItemListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ItemList>>
->;
-export type ApiV2ItemListQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ItemList>>> = ({ signal }) => apiV2ItemList(params, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ItemListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ItemList>>>
+export type ApiV2ItemListQueryError = unknown
+
+
+export function useApiV2ItemList<TData = Awaited<ReturnType<typeof apiV2ItemList>>, TError = unknown>(
+ params: undefined |  ApiV2ItemListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemList<TData = Awaited<ReturnType<typeof apiV2ItemList>>, TError = unknown>(
+ params?: ApiV2ItemListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemList<TData = Awaited<ReturnType<typeof apiV2ItemList>>, TError = unknown>(
+ params?: ApiV2ItemListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List items
  */
 
-export function useApiV2ItemList<
-  TData = Awaited<ReturnType<typeof apiV2ItemList>>,
-  TError = unknown,
->(
-  params?: ApiV2ItemListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ItemListQueryOptions(params, options);
+export function useApiV2ItemList<TData = Awaited<ReturnType<typeof apiV2ItemList>>, TError = unknown>(
+ params?: ApiV2ItemListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ItemListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * An item is an object in the games which the player can pick up, keep in their bag, and use in some manner. They have various uses, including healing, powering up, helping catch Pokémon, or to access a new area.
  * @summary Get item
  */
 export type apiV2ItemRetrieveResponse200 = {
-  data: ItemDetail;
-  status: 200;
-};
-
-export type apiV2ItemRetrieveResponseSuccess = apiV2ItemRetrieveResponse200 & {
+  data: ItemDetail
+  status: 200
+}
+    
+export type apiV2ItemRetrieveResponseSuccess = (apiV2ItemRetrieveResponse200) & {
   headers: Headers;
 };
-export type apiV2ItemRetrieveResponse = apiV2ItemRetrieveResponseSuccess;
+;
 
-export const getApiV2ItemRetrieveUrl = (id: string) => {
-  return `/api/v2/item/${id}/`;
-};
+export type apiV2ItemRetrieveResponse = (apiV2ItemRetrieveResponseSuccess)
 
-export const apiV2ItemRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2ItemRetrieveResponse> => {
-  const res = await fetch(getApiV2ItemRetrieveUrl(id), {
+export const getApiV2ItemRetrieveUrl = (id: string,) => {
+
+
+  
+
+  return `https://pokeapi.co/api/v2/item/${id}/`
+}
+
+export const apiV2ItemRetrieve = async (id: string, options?: RequestInit): Promise<apiV2ItemRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2ItemRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ItemRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ItemRetrieveResponse
+}
 
-  const data: apiV2ItemRetrieveResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ItemRetrieveResponse;
-};
 
-export const getApiV2ItemRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/item/${id}/`] as const;
-};
 
-export const getApiV2ItemRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ItemRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2ItemRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/item/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2ItemRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ItemRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2ItemRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ItemRetrieve>>
-  > = ({ signal }) => apiV2ItemRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ItemRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ItemRetrieveQueryKey(id);
 
-export type ApiV2ItemRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ItemRetrieve>>
->;
-export type ApiV2ItemRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ItemRetrieve>>> = ({ signal }) => apiV2ItemRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ItemRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ItemRetrieve>>>
+export type ApiV2ItemRetrieveQueryError = unknown
+
+
+export function useApiV2ItemRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get item
  */
 
-export function useApiV2ItemRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2ItemRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ItemRetrieveQueryOptions(id, options);
+export function useApiV2ItemRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ItemRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Item categories determine where items will be placed in the players bag.
  * @summary List item categories
  */
 export type apiV2ItemCategoryListResponse200 = {
-  data: PaginatedItemCategorySummaryList;
-  status: 200;
+  data: PaginatedItemCategorySummaryList
+  status: 200
+}
+    
+export type apiV2ItemCategoryListResponseSuccess = (apiV2ItemCategoryListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2ItemCategoryListResponseSuccess =
-  apiV2ItemCategoryListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2ItemCategoryListResponse =
-  apiV2ItemCategoryListResponseSuccess;
+export type apiV2ItemCategoryListResponse = (apiV2ItemCategoryListResponseSuccess)
 
-export const getApiV2ItemCategoryListUrl = (
-  params?: ApiV2ItemCategoryListParams,
-) => {
+export const getApiV2ItemCategoryListUrl = (params?: ApiV2ItemCategoryListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/item-category/?${stringifiedParams}`
-    : `/api/v2/item-category/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/item-category/?${stringifiedParams}` : `https://pokeapi.co/api/v2/item-category/`
+}
 
-export const apiV2ItemCategoryList = async (
-  params?: ApiV2ItemCategoryListParams,
-  options?: RequestInit,
-): Promise<apiV2ItemCategoryListResponse> => {
-  const res = await fetch(getApiV2ItemCategoryListUrl(params), {
+export const apiV2ItemCategoryList = async (params?: ApiV2ItemCategoryListParams, options?: RequestInit): Promise<apiV2ItemCategoryListResponse> => {
+  
+  const res = await fetch(getApiV2ItemCategoryListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ItemCategoryListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ItemCategoryListResponse
+}
 
-  const data: apiV2ItemCategoryListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ItemCategoryListResponse;
-};
 
-export const getApiV2ItemCategoryListQueryKey = (
-  params?: ApiV2ItemCategoryListParams,
+
+
+
+export const getApiV2ItemCategoryListQueryKey = (params?: ApiV2ItemCategoryListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/item-category/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2ItemCategoryListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ItemCategoryList>>, TError = unknown>(params?: ApiV2ItemCategoryListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemCategoryList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/item-category/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2ItemCategoryListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ItemCategoryList>>,
-  TError = unknown,
->(
-  params?: ApiV2ItemCategoryListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemCategoryList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2ItemCategoryListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ItemCategoryList>>
-  > = ({ signal }) =>
-    apiV2ItemCategoryList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ItemCategoryListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ItemCategoryList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2ItemCategoryListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ItemCategoryList>>
->;
-export type ApiV2ItemCategoryListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ItemCategoryList>>> = ({ signal }) => apiV2ItemCategoryList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemCategoryList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ItemCategoryListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ItemCategoryList>>>
+export type ApiV2ItemCategoryListQueryError = unknown
+
+
+export function useApiV2ItemCategoryList<TData = Awaited<ReturnType<typeof apiV2ItemCategoryList>>, TError = unknown>(
+ params: undefined |  ApiV2ItemCategoryListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemCategoryList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemCategoryList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemCategoryList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemCategoryList<TData = Awaited<ReturnType<typeof apiV2ItemCategoryList>>, TError = unknown>(
+ params?: ApiV2ItemCategoryListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemCategoryList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemCategoryList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemCategoryList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemCategoryList<TData = Awaited<ReturnType<typeof apiV2ItemCategoryList>>, TError = unknown>(
+ params?: ApiV2ItemCategoryListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemCategoryList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List item categories
  */
 
-export function useApiV2ItemCategoryList<
-  TData = Awaited<ReturnType<typeof apiV2ItemCategoryList>>,
-  TError = unknown,
->(
-  params?: ApiV2ItemCategoryListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemCategoryList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ItemCategoryListQueryOptions(params, options);
+export function useApiV2ItemCategoryList<TData = Awaited<ReturnType<typeof apiV2ItemCategoryList>>, TError = unknown>(
+ params?: ApiV2ItemCategoryListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemCategoryList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ItemCategoryListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Item categories determine where items will be placed in the players bag.
  * @summary Get item category
  */
 export type apiV2ItemCategoryRetrieveResponse200 = {
-  data: ItemCategoryDetail;
-  status: 200;
+  data: ItemCategoryDetail
+  status: 200
+}
+    
+export type apiV2ItemCategoryRetrieveResponseSuccess = (apiV2ItemCategoryRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2ItemCategoryRetrieveResponseSuccess =
-  apiV2ItemCategoryRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2ItemCategoryRetrieveResponse =
-  apiV2ItemCategoryRetrieveResponseSuccess;
+export type apiV2ItemCategoryRetrieveResponse = (apiV2ItemCategoryRetrieveResponseSuccess)
 
-export const getApiV2ItemCategoryRetrieveUrl = (id: string) => {
-  return `/api/v2/item-category/${id}/`;
-};
+export const getApiV2ItemCategoryRetrieveUrl = (id: string,) => {
 
-export const apiV2ItemCategoryRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2ItemCategoryRetrieveResponse> => {
-  const res = await fetch(getApiV2ItemCategoryRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/item-category/${id}/`
+}
+
+export const apiV2ItemCategoryRetrieve = async (id: string, options?: RequestInit): Promise<apiV2ItemCategoryRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2ItemCategoryRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ItemCategoryRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ItemCategoryRetrieveResponse
+}
 
-  const data: apiV2ItemCategoryRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ItemCategoryRetrieveResponse;
-};
 
-export const getApiV2ItemCategoryRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/item-category/${id}/`] as const;
-};
 
-export const getApiV2ItemCategoryRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2ItemCategoryRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/item-category/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2ItemCategoryRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2ItemCategoryRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>
-  > = ({ signal }) =>
-    apiV2ItemCategoryRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ItemCategoryRetrieveQueryKey(id);
 
-export type ApiV2ItemCategoryRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>
->;
-export type ApiV2ItemCategoryRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>> = ({ signal }) => apiV2ItemCategoryRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ItemCategoryRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>>
+export type ApiV2ItemCategoryRetrieveQueryError = unknown
+
+
+export function useApiV2ItemCategoryRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemCategoryRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemCategoryRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get item category
  */
 
-export function useApiV2ItemCategoryRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ItemCategoryRetrieveQueryOptions(id, options);
+export function useApiV2ItemCategoryRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemCategoryRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ItemCategoryRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Item attributes define particular aspects of items, e.g."usable in battle" or "consumable".
  * @summary List item attributes
  */
 export type apiV2ItemAttributeListResponse200 = {
-  data: PaginatedItemAttributeSummaryList;
-  status: 200;
+  data: PaginatedItemAttributeSummaryList
+  status: 200
+}
+    
+export type apiV2ItemAttributeListResponseSuccess = (apiV2ItemAttributeListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2ItemAttributeListResponseSuccess =
-  apiV2ItemAttributeListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2ItemAttributeListResponse =
-  apiV2ItemAttributeListResponseSuccess;
+export type apiV2ItemAttributeListResponse = (apiV2ItemAttributeListResponseSuccess)
 
-export const getApiV2ItemAttributeListUrl = (
-  params?: ApiV2ItemAttributeListParams,
-) => {
+export const getApiV2ItemAttributeListUrl = (params?: ApiV2ItemAttributeListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/item-attribute/?${stringifiedParams}`
-    : `/api/v2/item-attribute/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/item-attribute/?${stringifiedParams}` : `https://pokeapi.co/api/v2/item-attribute/`
+}
 
-export const apiV2ItemAttributeList = async (
-  params?: ApiV2ItemAttributeListParams,
-  options?: RequestInit,
-): Promise<apiV2ItemAttributeListResponse> => {
-  const res = await fetch(getApiV2ItemAttributeListUrl(params), {
+export const apiV2ItemAttributeList = async (params?: ApiV2ItemAttributeListParams, options?: RequestInit): Promise<apiV2ItemAttributeListResponse> => {
+  
+  const res = await fetch(getApiV2ItemAttributeListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ItemAttributeListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ItemAttributeListResponse
+}
 
-  const data: apiV2ItemAttributeListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ItemAttributeListResponse;
-};
 
-export const getApiV2ItemAttributeListQueryKey = (
-  params?: ApiV2ItemAttributeListParams,
+
+
+
+export const getApiV2ItemAttributeListQueryKey = (params?: ApiV2ItemAttributeListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/item-attribute/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2ItemAttributeListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ItemAttributeList>>, TError = unknown>(params?: ApiV2ItemAttributeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemAttributeList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/item-attribute/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2ItemAttributeListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ItemAttributeList>>,
-  TError = unknown,
->(
-  params?: ApiV2ItemAttributeListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemAttributeList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2ItemAttributeListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ItemAttributeList>>
-  > = ({ signal }) =>
-    apiV2ItemAttributeList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ItemAttributeListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ItemAttributeList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2ItemAttributeListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ItemAttributeList>>
->;
-export type ApiV2ItemAttributeListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ItemAttributeList>>> = ({ signal }) => apiV2ItemAttributeList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemAttributeList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ItemAttributeListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ItemAttributeList>>>
+export type ApiV2ItemAttributeListQueryError = unknown
+
+
+export function useApiV2ItemAttributeList<TData = Awaited<ReturnType<typeof apiV2ItemAttributeList>>, TError = unknown>(
+ params: undefined |  ApiV2ItemAttributeListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemAttributeList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemAttributeList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemAttributeList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemAttributeList<TData = Awaited<ReturnType<typeof apiV2ItemAttributeList>>, TError = unknown>(
+ params?: ApiV2ItemAttributeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemAttributeList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemAttributeList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemAttributeList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemAttributeList<TData = Awaited<ReturnType<typeof apiV2ItemAttributeList>>, TError = unknown>(
+ params?: ApiV2ItemAttributeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemAttributeList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List item attributes
  */
 
-export function useApiV2ItemAttributeList<
-  TData = Awaited<ReturnType<typeof apiV2ItemAttributeList>>,
-  TError = unknown,
->(
-  params?: ApiV2ItemAttributeListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemAttributeList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ItemAttributeListQueryOptions(params, options);
+export function useApiV2ItemAttributeList<TData = Awaited<ReturnType<typeof apiV2ItemAttributeList>>, TError = unknown>(
+ params?: ApiV2ItemAttributeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemAttributeList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ItemAttributeListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Item attributes define particular aspects of items, e.g."usable in battle" or "consumable".
  * @summary Get item attribute
  */
 export type apiV2ItemAttributeRetrieveResponse200 = {
-  data: ItemAttributeDetail;
-  status: 200;
+  data: ItemAttributeDetail
+  status: 200
+}
+    
+export type apiV2ItemAttributeRetrieveResponseSuccess = (apiV2ItemAttributeRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2ItemAttributeRetrieveResponseSuccess =
-  apiV2ItemAttributeRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2ItemAttributeRetrieveResponse =
-  apiV2ItemAttributeRetrieveResponseSuccess;
+export type apiV2ItemAttributeRetrieveResponse = (apiV2ItemAttributeRetrieveResponseSuccess)
 
-export const getApiV2ItemAttributeRetrieveUrl = (id: string) => {
-  return `/api/v2/item-attribute/${id}/`;
-};
+export const getApiV2ItemAttributeRetrieveUrl = (id: string,) => {
 
-export const apiV2ItemAttributeRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2ItemAttributeRetrieveResponse> => {
-  const res = await fetch(getApiV2ItemAttributeRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/item-attribute/${id}/`
+}
+
+export const apiV2ItemAttributeRetrieve = async (id: string, options?: RequestInit): Promise<apiV2ItemAttributeRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2ItemAttributeRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ItemAttributeRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ItemAttributeRetrieveResponse
+}
 
-  const data: apiV2ItemAttributeRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ItemAttributeRetrieveResponse;
-};
 
-export const getApiV2ItemAttributeRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/item-attribute/${id}/`] as const;
-};
 
-export const getApiV2ItemAttributeRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2ItemAttributeRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/item-attribute/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2ItemAttributeRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2ItemAttributeRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>
-  > = ({ signal }) =>
-    apiV2ItemAttributeRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ItemAttributeRetrieveQueryKey(id);
 
-export type ApiV2ItemAttributeRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>
->;
-export type ApiV2ItemAttributeRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>> = ({ signal }) => apiV2ItemAttributeRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ItemAttributeRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>>
+export type ApiV2ItemAttributeRetrieveQueryError = unknown
+
+
+export function useApiV2ItemAttributeRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemAttributeRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemAttributeRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get item attribute
  */
 
-export function useApiV2ItemAttributeRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ItemAttributeRetrieveQueryOptions(id, options);
+export function useApiV2ItemAttributeRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemAttributeRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ItemAttributeRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * The various effects of the move"Fling" when used with different items.
  * @summary List item fling effects
  */
 export type apiV2ItemFlingEffectListResponse200 = {
-  data: PaginatedItemFlingEffectSummaryList;
-  status: 200;
+  data: PaginatedItemFlingEffectSummaryList
+  status: 200
+}
+    
+export type apiV2ItemFlingEffectListResponseSuccess = (apiV2ItemFlingEffectListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2ItemFlingEffectListResponseSuccess =
-  apiV2ItemFlingEffectListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2ItemFlingEffectListResponse =
-  apiV2ItemFlingEffectListResponseSuccess;
+export type apiV2ItemFlingEffectListResponse = (apiV2ItemFlingEffectListResponseSuccess)
 
-export const getApiV2ItemFlingEffectListUrl = (
-  params?: ApiV2ItemFlingEffectListParams,
-) => {
+export const getApiV2ItemFlingEffectListUrl = (params?: ApiV2ItemFlingEffectListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/item-fling-effect/?${stringifiedParams}`
-    : `/api/v2/item-fling-effect/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/item-fling-effect/?${stringifiedParams}` : `https://pokeapi.co/api/v2/item-fling-effect/`
+}
 
-export const apiV2ItemFlingEffectList = async (
-  params?: ApiV2ItemFlingEffectListParams,
-  options?: RequestInit,
-): Promise<apiV2ItemFlingEffectListResponse> => {
-  const res = await fetch(getApiV2ItemFlingEffectListUrl(params), {
+export const apiV2ItemFlingEffectList = async (params?: ApiV2ItemFlingEffectListParams, options?: RequestInit): Promise<apiV2ItemFlingEffectListResponse> => {
+  
+  const res = await fetch(getApiV2ItemFlingEffectListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ItemFlingEffectListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ItemFlingEffectListResponse
+}
 
-  const data: apiV2ItemFlingEffectListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ItemFlingEffectListResponse;
-};
 
-export const getApiV2ItemFlingEffectListQueryKey = (
-  params?: ApiV2ItemFlingEffectListParams,
+
+
+
+export const getApiV2ItemFlingEffectListQueryKey = (params?: ApiV2ItemFlingEffectListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/item-fling-effect/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2ItemFlingEffectListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>, TError = unknown>(params?: ApiV2ItemFlingEffectListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/item-fling-effect/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2ItemFlingEffectListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>,
-  TError = unknown,
->(
-  params?: ApiV2ItemFlingEffectListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2ItemFlingEffectListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>
-  > = ({ signal }) =>
-    apiV2ItemFlingEffectList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ItemFlingEffectListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2ItemFlingEffectListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>
->;
-export type ApiV2ItemFlingEffectListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>> = ({ signal }) => apiV2ItemFlingEffectList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ItemFlingEffectListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>>
+export type ApiV2ItemFlingEffectListQueryError = unknown
+
+
+export function useApiV2ItemFlingEffectList<TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>, TError = unknown>(
+ params: undefined |  ApiV2ItemFlingEffectListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemFlingEffectList<TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>, TError = unknown>(
+ params?: ApiV2ItemFlingEffectListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemFlingEffectList<TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>, TError = unknown>(
+ params?: ApiV2ItemFlingEffectListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List item fling effects
  */
 
-export function useApiV2ItemFlingEffectList<
-  TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>,
-  TError = unknown,
->(
-  params?: ApiV2ItemFlingEffectListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ItemFlingEffectListQueryOptions(params, options);
+export function useApiV2ItemFlingEffectList<TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>, TError = unknown>(
+ params?: ApiV2ItemFlingEffectListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemFlingEffectList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ItemFlingEffectListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * The various effects of the move"Fling" when used with different items.
  * @summary Get item fling effect
  */
 export type apiV2ItemFlingEffectRetrieveResponse200 = {
-  data: ItemFlingEffectDetail;
-  status: 200;
+  data: ItemFlingEffectDetail
+  status: 200
+}
+    
+export type apiV2ItemFlingEffectRetrieveResponseSuccess = (apiV2ItemFlingEffectRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2ItemFlingEffectRetrieveResponseSuccess =
-  apiV2ItemFlingEffectRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2ItemFlingEffectRetrieveResponse =
-  apiV2ItemFlingEffectRetrieveResponseSuccess;
+export type apiV2ItemFlingEffectRetrieveResponse = (apiV2ItemFlingEffectRetrieveResponseSuccess)
 
-export const getApiV2ItemFlingEffectRetrieveUrl = (id: string) => {
-  return `/api/v2/item-fling-effect/${id}/`;
-};
+export const getApiV2ItemFlingEffectRetrieveUrl = (id: string,) => {
 
-export const apiV2ItemFlingEffectRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2ItemFlingEffectRetrieveResponse> => {
-  const res = await fetch(getApiV2ItemFlingEffectRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/item-fling-effect/${id}/`
+}
+
+export const apiV2ItemFlingEffectRetrieve = async (id: string, options?: RequestInit): Promise<apiV2ItemFlingEffectRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2ItemFlingEffectRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ItemFlingEffectRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ItemFlingEffectRetrieveResponse
+}
 
-  const data: apiV2ItemFlingEffectRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ItemFlingEffectRetrieveResponse;
-};
 
-export const getApiV2ItemFlingEffectRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/item-fling-effect/${id}/`] as const;
-};
 
-export const getApiV2ItemFlingEffectRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2ItemFlingEffectRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/item-fling-effect/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2ItemFlingEffectRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2ItemFlingEffectRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>
-  > = ({ signal }) =>
-    apiV2ItemFlingEffectRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ItemFlingEffectRetrieveQueryKey(id);
 
-export type ApiV2ItemFlingEffectRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>
->;
-export type ApiV2ItemFlingEffectRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>> = ({ signal }) => apiV2ItemFlingEffectRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ItemFlingEffectRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>>
+export type ApiV2ItemFlingEffectRetrieveQueryError = unknown
+
+
+export function useApiV2ItemFlingEffectRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemFlingEffectRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemFlingEffectRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get item fling effect
  */
 
-export function useApiV2ItemFlingEffectRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ItemFlingEffectRetrieveQueryOptions(id, options);
+export function useApiV2ItemFlingEffectRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemFlingEffectRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ItemFlingEffectRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Pockets within the players bag used for storing items by category.
  * @summary List item pockets
  */
 export type apiV2ItemPocketListResponse200 = {
-  data: PaginatedItemPocketSummaryList;
-  status: 200;
+  data: PaginatedItemPocketSummaryList
+  status: 200
+}
+    
+export type apiV2ItemPocketListResponseSuccess = (apiV2ItemPocketListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2ItemPocketListResponseSuccess =
-  apiV2ItemPocketListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2ItemPocketListResponse = apiV2ItemPocketListResponseSuccess;
+export type apiV2ItemPocketListResponse = (apiV2ItemPocketListResponseSuccess)
 
-export const getApiV2ItemPocketListUrl = (
-  params?: ApiV2ItemPocketListParams,
-) => {
+export const getApiV2ItemPocketListUrl = (params?: ApiV2ItemPocketListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/item-pocket/?${stringifiedParams}`
-    : `/api/v2/item-pocket/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/item-pocket/?${stringifiedParams}` : `https://pokeapi.co/api/v2/item-pocket/`
+}
 
-export const apiV2ItemPocketList = async (
-  params?: ApiV2ItemPocketListParams,
-  options?: RequestInit,
-): Promise<apiV2ItemPocketListResponse> => {
-  const res = await fetch(getApiV2ItemPocketListUrl(params), {
+export const apiV2ItemPocketList = async (params?: ApiV2ItemPocketListParams, options?: RequestInit): Promise<apiV2ItemPocketListResponse> => {
+  
+  const res = await fetch(getApiV2ItemPocketListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ItemPocketListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ItemPocketListResponse
+}
 
-  const data: apiV2ItemPocketListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ItemPocketListResponse;
-};
 
-export const getApiV2ItemPocketListQueryKey = (
-  params?: ApiV2ItemPocketListParams,
+
+
+
+export const getApiV2ItemPocketListQueryKey = (params?: ApiV2ItemPocketListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/item-pocket/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2ItemPocketListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ItemPocketList>>, TError = unknown>(params?: ApiV2ItemPocketListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemPocketList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/item-pocket/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2ItemPocketListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ItemPocketList>>,
-  TError = unknown,
->(
-  params?: ApiV2ItemPocketListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemPocketList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2ItemPocketListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ItemPocketList>>
-  > = ({ signal }) => apiV2ItemPocketList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ItemPocketListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ItemPocketList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2ItemPocketListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ItemPocketList>>
->;
-export type ApiV2ItemPocketListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ItemPocketList>>> = ({ signal }) => apiV2ItemPocketList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemPocketList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ItemPocketListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ItemPocketList>>>
+export type ApiV2ItemPocketListQueryError = unknown
+
+
+export function useApiV2ItemPocketList<TData = Awaited<ReturnType<typeof apiV2ItemPocketList>>, TError = unknown>(
+ params: undefined |  ApiV2ItemPocketListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemPocketList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemPocketList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemPocketList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemPocketList<TData = Awaited<ReturnType<typeof apiV2ItemPocketList>>, TError = unknown>(
+ params?: ApiV2ItemPocketListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemPocketList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemPocketList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemPocketList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemPocketList<TData = Awaited<ReturnType<typeof apiV2ItemPocketList>>, TError = unknown>(
+ params?: ApiV2ItemPocketListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemPocketList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List item pockets
  */
 
-export function useApiV2ItemPocketList<
-  TData = Awaited<ReturnType<typeof apiV2ItemPocketList>>,
-  TError = unknown,
->(
-  params?: ApiV2ItemPocketListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemPocketList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ItemPocketListQueryOptions(params, options);
+export function useApiV2ItemPocketList<TData = Awaited<ReturnType<typeof apiV2ItemPocketList>>, TError = unknown>(
+ params?: ApiV2ItemPocketListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemPocketList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ItemPocketListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Pockets within the players bag used for storing items by category.
  * @summary Get item pocket
  */
 export type apiV2ItemPocketRetrieveResponse200 = {
-  data: ItemPocketDetail;
-  status: 200;
+  data: ItemPocketDetail
+  status: 200
+}
+    
+export type apiV2ItemPocketRetrieveResponseSuccess = (apiV2ItemPocketRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2ItemPocketRetrieveResponseSuccess =
-  apiV2ItemPocketRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2ItemPocketRetrieveResponse =
-  apiV2ItemPocketRetrieveResponseSuccess;
+export type apiV2ItemPocketRetrieveResponse = (apiV2ItemPocketRetrieveResponseSuccess)
 
-export const getApiV2ItemPocketRetrieveUrl = (id: string) => {
-  return `/api/v2/item-pocket/${id}/`;
-};
+export const getApiV2ItemPocketRetrieveUrl = (id: string,) => {
 
-export const apiV2ItemPocketRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2ItemPocketRetrieveResponse> => {
-  const res = await fetch(getApiV2ItemPocketRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/item-pocket/${id}/`
+}
+
+export const apiV2ItemPocketRetrieve = async (id: string, options?: RequestInit): Promise<apiV2ItemPocketRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2ItemPocketRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2ItemPocketRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2ItemPocketRetrieveResponse
+}
 
-  const data: apiV2ItemPocketRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2ItemPocketRetrieveResponse;
-};
 
-export const getApiV2ItemPocketRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/item-pocket/${id}/`] as const;
-};
 
-export const getApiV2ItemPocketRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2ItemPocketRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/item-pocket/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2ItemPocketRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2ItemPocketRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>
-  > = ({ signal }) => apiV2ItemPocketRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2ItemPocketRetrieveQueryKey(id);
 
-export type ApiV2ItemPocketRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>
->;
-export type ApiV2ItemPocketRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>> = ({ signal }) => apiV2ItemPocketRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2ItemPocketRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>>
+export type ApiV2ItemPocketRetrieveQueryError = unknown
+
+
+export function useApiV2ItemPocketRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemPocketRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2ItemPocketRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get item pocket
  */
 
-export function useApiV2ItemPocketRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2ItemPocketRetrieveQueryOptions(id, options);
+export function useApiV2ItemPocketRetrieve<TData = Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2ItemPocketRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2ItemPocketRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Languages for translations of API resource information.
  * @summary List languages
  */
 export type apiV2LanguageListResponse200 = {
-  data: PaginatedLanguageSummaryList;
-  status: 200;
-};
-
-export type apiV2LanguageListResponseSuccess = apiV2LanguageListResponse200 & {
+  data: PaginatedLanguageSummaryList
+  status: 200
+}
+    
+export type apiV2LanguageListResponseSuccess = (apiV2LanguageListResponse200) & {
   headers: Headers;
 };
-export type apiV2LanguageListResponse = apiV2LanguageListResponseSuccess;
+;
 
-export const getApiV2LanguageListUrl = (params?: ApiV2LanguageListParams) => {
+export type apiV2LanguageListResponse = (apiV2LanguageListResponseSuccess)
+
+export const getApiV2LanguageListUrl = (params?: ApiV2LanguageListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/language/?${stringifiedParams}`
-    : `/api/v2/language/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/language/?${stringifiedParams}` : `https://pokeapi.co/api/v2/language/`
+}
 
-export const apiV2LanguageList = async (
-  params?: ApiV2LanguageListParams,
-  options?: RequestInit,
-): Promise<apiV2LanguageListResponse> => {
-  const res = await fetch(getApiV2LanguageListUrl(params), {
+export const apiV2LanguageList = async (params?: ApiV2LanguageListParams, options?: RequestInit): Promise<apiV2LanguageListResponse> => {
+  
+  const res = await fetch(getApiV2LanguageListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2LanguageListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2LanguageListResponse
+}
 
-  const data: apiV2LanguageListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2LanguageListResponse;
-};
 
-export const getApiV2LanguageListQueryKey = (
-  params?: ApiV2LanguageListParams,
+
+
+
+export const getApiV2LanguageListQueryKey = (params?: ApiV2LanguageListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/language/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2LanguageListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2LanguageList>>, TError = unknown>(params?: ApiV2LanguageListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LanguageList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/language/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2LanguageListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2LanguageList>>,
-  TError = unknown,
->(
-  params?: ApiV2LanguageListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2LanguageList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2LanguageListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2LanguageList>>
-  > = ({ signal }) => apiV2LanguageList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2LanguageListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2LanguageList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2LanguageListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2LanguageList>>
->;
-export type ApiV2LanguageListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2LanguageList>>> = ({ signal }) => apiV2LanguageList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2LanguageList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2LanguageListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2LanguageList>>>
+export type ApiV2LanguageListQueryError = unknown
+
+
+export function useApiV2LanguageList<TData = Awaited<ReturnType<typeof apiV2LanguageList>>, TError = unknown>(
+ params: undefined |  ApiV2LanguageListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LanguageList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2LanguageList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2LanguageList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2LanguageList<TData = Awaited<ReturnType<typeof apiV2LanguageList>>, TError = unknown>(
+ params?: ApiV2LanguageListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LanguageList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2LanguageList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2LanguageList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2LanguageList<TData = Awaited<ReturnType<typeof apiV2LanguageList>>, TError = unknown>(
+ params?: ApiV2LanguageListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LanguageList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List languages
  */
 
-export function useApiV2LanguageList<
-  TData = Awaited<ReturnType<typeof apiV2LanguageList>>,
-  TError = unknown,
->(
-  params?: ApiV2LanguageListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2LanguageList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2LanguageListQueryOptions(params, options);
+export function useApiV2LanguageList<TData = Awaited<ReturnType<typeof apiV2LanguageList>>, TError = unknown>(
+ params?: ApiV2LanguageListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LanguageList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2LanguageListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Languages for translations of API resource information.
  * @summary Get language
  */
 export type apiV2LanguageRetrieveResponse200 = {
-  data: LanguageDetail;
-  status: 200;
+  data: LanguageDetail
+  status: 200
+}
+    
+export type apiV2LanguageRetrieveResponseSuccess = (apiV2LanguageRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2LanguageRetrieveResponseSuccess =
-  apiV2LanguageRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2LanguageRetrieveResponse =
-  apiV2LanguageRetrieveResponseSuccess;
+export type apiV2LanguageRetrieveResponse = (apiV2LanguageRetrieveResponseSuccess)
 
-export const getApiV2LanguageRetrieveUrl = (id: string) => {
-  return `/api/v2/language/${id}/`;
-};
+export const getApiV2LanguageRetrieveUrl = (id: string,) => {
 
-export const apiV2LanguageRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2LanguageRetrieveResponse> => {
-  const res = await fetch(getApiV2LanguageRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/language/${id}/`
+}
+
+export const apiV2LanguageRetrieve = async (id: string, options?: RequestInit): Promise<apiV2LanguageRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2LanguageRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2LanguageRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2LanguageRetrieveResponse
+}
 
-  const data: apiV2LanguageRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2LanguageRetrieveResponse;
-};
 
-export const getApiV2LanguageRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/language/${id}/`] as const;
-};
 
-export const getApiV2LanguageRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2LanguageRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2LanguageRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2LanguageRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/language/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2LanguageRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2LanguageRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LanguageRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2LanguageRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2LanguageRetrieve>>
-  > = ({ signal }) => apiV2LanguageRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2LanguageRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2LanguageRetrieveQueryKey(id);
 
-export type ApiV2LanguageRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2LanguageRetrieve>>
->;
-export type ApiV2LanguageRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2LanguageRetrieve>>> = ({ signal }) => apiV2LanguageRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2LanguageRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2LanguageRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2LanguageRetrieve>>>
+export type ApiV2LanguageRetrieveQueryError = unknown
+
+
+export function useApiV2LanguageRetrieve<TData = Awaited<ReturnType<typeof apiV2LanguageRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LanguageRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2LanguageRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2LanguageRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2LanguageRetrieve<TData = Awaited<ReturnType<typeof apiV2LanguageRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LanguageRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2LanguageRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2LanguageRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2LanguageRetrieve<TData = Awaited<ReturnType<typeof apiV2LanguageRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LanguageRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get language
  */
 
-export function useApiV2LanguageRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2LanguageRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2LanguageRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2LanguageRetrieveQueryOptions(id, options);
+export function useApiV2LanguageRetrieve<TData = Awaited<ReturnType<typeof apiV2LanguageRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LanguageRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2LanguageRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Locations that can be visited within the games. Locations make up sizable portions of regions, like cities or routes.
  * @summary List locations
  */
 export type apiV2LocationListResponse200 = {
-  data: PaginatedLocationSummaryList;
-  status: 200;
-};
-
-export type apiV2LocationListResponseSuccess = apiV2LocationListResponse200 & {
+  data: PaginatedLocationSummaryList
+  status: 200
+}
+    
+export type apiV2LocationListResponseSuccess = (apiV2LocationListResponse200) & {
   headers: Headers;
 };
-export type apiV2LocationListResponse = apiV2LocationListResponseSuccess;
+;
 
-export const getApiV2LocationListUrl = (params?: ApiV2LocationListParams) => {
+export type apiV2LocationListResponse = (apiV2LocationListResponseSuccess)
+
+export const getApiV2LocationListUrl = (params?: ApiV2LocationListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/location/?${stringifiedParams}`
-    : `/api/v2/location/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/location/?${stringifiedParams}` : `https://pokeapi.co/api/v2/location/`
+}
 
-export const apiV2LocationList = async (
-  params?: ApiV2LocationListParams,
-  options?: RequestInit,
-): Promise<apiV2LocationListResponse> => {
-  const res = await fetch(getApiV2LocationListUrl(params), {
+export const apiV2LocationList = async (params?: ApiV2LocationListParams, options?: RequestInit): Promise<apiV2LocationListResponse> => {
+  
+  const res = await fetch(getApiV2LocationListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2LocationListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2LocationListResponse
+}
 
-  const data: apiV2LocationListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2LocationListResponse;
-};
 
-export const getApiV2LocationListQueryKey = (
-  params?: ApiV2LocationListParams,
+
+
+
+export const getApiV2LocationListQueryKey = (params?: ApiV2LocationListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/location/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2LocationListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2LocationList>>, TError = unknown>(params?: ApiV2LocationListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/location/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2LocationListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2LocationList>>,
-  TError = unknown,
->(
-  params?: ApiV2LocationListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2LocationList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2LocationListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2LocationList>>
-  > = ({ signal }) => apiV2LocationList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2LocationListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2LocationList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2LocationListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2LocationList>>
->;
-export type ApiV2LocationListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2LocationList>>> = ({ signal }) => apiV2LocationList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2LocationListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2LocationList>>>
+export type ApiV2LocationListQueryError = unknown
+
+
+export function useApiV2LocationList<TData = Awaited<ReturnType<typeof apiV2LocationList>>, TError = unknown>(
+ params: undefined |  ApiV2LocationListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2LocationList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2LocationList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2LocationList<TData = Awaited<ReturnType<typeof apiV2LocationList>>, TError = unknown>(
+ params?: ApiV2LocationListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2LocationList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2LocationList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2LocationList<TData = Awaited<ReturnType<typeof apiV2LocationList>>, TError = unknown>(
+ params?: ApiV2LocationListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List locations
  */
 
-export function useApiV2LocationList<
-  TData = Awaited<ReturnType<typeof apiV2LocationList>>,
-  TError = unknown,
->(
-  params?: ApiV2LocationListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2LocationList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2LocationListQueryOptions(params, options);
+export function useApiV2LocationList<TData = Awaited<ReturnType<typeof apiV2LocationList>>, TError = unknown>(
+ params?: ApiV2LocationListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2LocationListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Locations that can be visited within the games. Locations make up sizable portions of regions, like cities or routes.
  * @summary Get location
  */
 export type apiV2LocationRetrieveResponse200 = {
-  data: LocationDetail;
-  status: 200;
+  data: LocationDetail
+  status: 200
+}
+    
+export type apiV2LocationRetrieveResponseSuccess = (apiV2LocationRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2LocationRetrieveResponseSuccess =
-  apiV2LocationRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2LocationRetrieveResponse =
-  apiV2LocationRetrieveResponseSuccess;
+export type apiV2LocationRetrieveResponse = (apiV2LocationRetrieveResponseSuccess)
 
-export const getApiV2LocationRetrieveUrl = (id: string) => {
-  return `/api/v2/location/${id}/`;
-};
+export const getApiV2LocationRetrieveUrl = (id: string,) => {
 
-export const apiV2LocationRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2LocationRetrieveResponse> => {
-  const res = await fetch(getApiV2LocationRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/location/${id}/`
+}
+
+export const apiV2LocationRetrieve = async (id: string, options?: RequestInit): Promise<apiV2LocationRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2LocationRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2LocationRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2LocationRetrieveResponse
+}
 
-  const data: apiV2LocationRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2LocationRetrieveResponse;
-};
 
-export const getApiV2LocationRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/location/${id}/`] as const;
-};
 
-export const getApiV2LocationRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2LocationRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2LocationRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2LocationRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/location/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2LocationRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2LocationRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2LocationRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2LocationRetrieve>>
-  > = ({ signal }) => apiV2LocationRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2LocationRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2LocationRetrieveQueryKey(id);
 
-export type ApiV2LocationRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2LocationRetrieve>>
->;
-export type ApiV2LocationRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2LocationRetrieve>>> = ({ signal }) => apiV2LocationRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2LocationRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2LocationRetrieve>>>
+export type ApiV2LocationRetrieveQueryError = unknown
+
+
+export function useApiV2LocationRetrieve<TData = Awaited<ReturnType<typeof apiV2LocationRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2LocationRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2LocationRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2LocationRetrieve<TData = Awaited<ReturnType<typeof apiV2LocationRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2LocationRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2LocationRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2LocationRetrieve<TData = Awaited<ReturnType<typeof apiV2LocationRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get location
  */
 
-export function useApiV2LocationRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2LocationRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2LocationRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2LocationRetrieveQueryOptions(id, options);
+export function useApiV2LocationRetrieve<TData = Awaited<ReturnType<typeof apiV2LocationRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2LocationRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Location areas are sections of areas, such as floors in a building or cave. Each area has its own set of possible Pokémon encounters.
  * @summary List location areas
  */
 export type apiV2LocationAreaListResponse200 = {
-  data: PaginatedLocationAreaSummaryList;
-  status: 200;
+  data: PaginatedLocationAreaSummaryList
+  status: 200
+}
+    
+export type apiV2LocationAreaListResponseSuccess = (apiV2LocationAreaListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2LocationAreaListResponseSuccess =
-  apiV2LocationAreaListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2LocationAreaListResponse =
-  apiV2LocationAreaListResponseSuccess;
+export type apiV2LocationAreaListResponse = (apiV2LocationAreaListResponseSuccess)
 
-export const getApiV2LocationAreaListUrl = (
-  params?: ApiV2LocationAreaListParams,
-) => {
+export const getApiV2LocationAreaListUrl = (params?: ApiV2LocationAreaListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/location-area/?${stringifiedParams}`
-    : `/api/v2/location-area/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/location-area/?${stringifiedParams}` : `https://pokeapi.co/api/v2/location-area/`
+}
 
-export const apiV2LocationAreaList = async (
-  params?: ApiV2LocationAreaListParams,
-  options?: RequestInit,
-): Promise<apiV2LocationAreaListResponse> => {
-  const res = await fetch(getApiV2LocationAreaListUrl(params), {
+export const apiV2LocationAreaList = async (params?: ApiV2LocationAreaListParams, options?: RequestInit): Promise<apiV2LocationAreaListResponse> => {
+  
+  const res = await fetch(getApiV2LocationAreaListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2LocationAreaListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2LocationAreaListResponse
+}
 
-  const data: apiV2LocationAreaListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2LocationAreaListResponse;
-};
 
-export const getApiV2LocationAreaListQueryKey = (
-  params?: ApiV2LocationAreaListParams,
+
+
+
+export const getApiV2LocationAreaListQueryKey = (params?: ApiV2LocationAreaListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/location-area/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2LocationAreaListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2LocationAreaList>>, TError = unknown>(params?: ApiV2LocationAreaListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationAreaList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/location-area/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2LocationAreaListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2LocationAreaList>>,
-  TError = unknown,
->(
-  params?: ApiV2LocationAreaListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2LocationAreaList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2LocationAreaListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2LocationAreaList>>
-  > = ({ signal }) =>
-    apiV2LocationAreaList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2LocationAreaListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2LocationAreaList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2LocationAreaListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2LocationAreaList>>
->;
-export type ApiV2LocationAreaListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2LocationAreaList>>> = ({ signal }) => apiV2LocationAreaList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationAreaList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2LocationAreaListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2LocationAreaList>>>
+export type ApiV2LocationAreaListQueryError = unknown
+
+
+export function useApiV2LocationAreaList<TData = Awaited<ReturnType<typeof apiV2LocationAreaList>>, TError = unknown>(
+ params: undefined |  ApiV2LocationAreaListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationAreaList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2LocationAreaList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2LocationAreaList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2LocationAreaList<TData = Awaited<ReturnType<typeof apiV2LocationAreaList>>, TError = unknown>(
+ params?: ApiV2LocationAreaListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationAreaList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2LocationAreaList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2LocationAreaList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2LocationAreaList<TData = Awaited<ReturnType<typeof apiV2LocationAreaList>>, TError = unknown>(
+ params?: ApiV2LocationAreaListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationAreaList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List location areas
  */
 
-export function useApiV2LocationAreaList<
-  TData = Awaited<ReturnType<typeof apiV2LocationAreaList>>,
-  TError = unknown,
->(
-  params?: ApiV2LocationAreaListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2LocationAreaList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2LocationAreaListQueryOptions(params, options);
+export function useApiV2LocationAreaList<TData = Awaited<ReturnType<typeof apiV2LocationAreaList>>, TError = unknown>(
+ params?: ApiV2LocationAreaListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationAreaList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2LocationAreaListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Location areas are sections of areas, such as floors in a building or cave. Each area has its own set of possible Pokémon encounters.
  * @summary Get location area
  */
 export type apiV2LocationAreaRetrieveResponse200 = {
-  data: LocationAreaDetail;
-  status: 200;
+  data: LocationAreaDetail
+  status: 200
+}
+    
+export type apiV2LocationAreaRetrieveResponseSuccess = (apiV2LocationAreaRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2LocationAreaRetrieveResponseSuccess =
-  apiV2LocationAreaRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2LocationAreaRetrieveResponse =
-  apiV2LocationAreaRetrieveResponseSuccess;
+export type apiV2LocationAreaRetrieveResponse = (apiV2LocationAreaRetrieveResponseSuccess)
 
-export const getApiV2LocationAreaRetrieveUrl = (id: number) => {
-  return `/api/v2/location-area/${id}/`;
-};
+export const getApiV2LocationAreaRetrieveUrl = (id: number,) => {
 
-export const apiV2LocationAreaRetrieve = async (
-  id: number,
-  options?: RequestInit,
-): Promise<apiV2LocationAreaRetrieveResponse> => {
-  const res = await fetch(getApiV2LocationAreaRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/location-area/${id}/`
+}
+
+export const apiV2LocationAreaRetrieve = async (id: number, options?: RequestInit): Promise<apiV2LocationAreaRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2LocationAreaRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2LocationAreaRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2LocationAreaRetrieveResponse
+}
 
-  const data: apiV2LocationAreaRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2LocationAreaRetrieveResponse;
-};
 
-export const getApiV2LocationAreaRetrieveQueryKey = (id?: number) => {
-  return [`/api/v2/location-area/${id}/`] as const;
-};
 
-export const getApiV2LocationAreaRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>,
-  TError = unknown,
->(
-  id: number,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2LocationAreaRetrieveQueryKey = (id?: number,) => {
+    return [
+    `https://pokeapi.co/api/v2/location-area/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2LocationAreaRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2LocationAreaRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>
-  > = ({ signal }) =>
-    apiV2LocationAreaRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2LocationAreaRetrieveQueryKey(id);
 
-export type ApiV2LocationAreaRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>
->;
-export type ApiV2LocationAreaRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>> = ({ signal }) => apiV2LocationAreaRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2LocationAreaRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>>
+export type ApiV2LocationAreaRetrieveQueryError = unknown
+
+
+export function useApiV2LocationAreaRetrieve<TData = Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>, TError = unknown>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2LocationAreaRetrieve<TData = Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2LocationAreaRetrieve<TData = Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get location area
  */
 
-export function useApiV2LocationAreaRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>,
-  TError = unknown,
->(
-  id: number,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2LocationAreaRetrieveQueryOptions(id, options);
+export function useApiV2LocationAreaRetrieve<TData = Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2LocationAreaRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2LocationAreaRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Machines are the representation of items that teach moves to Pokémon. They vary from version to version, so it is not certain that one specific TM or HM corresponds to a single Machine.
  * @summary List machines
  */
 export type apiV2MachineListResponse200 = {
-  data: PaginatedMachineSummaryList;
-  status: 200;
-};
-
-export type apiV2MachineListResponseSuccess = apiV2MachineListResponse200 & {
+  data: PaginatedMachineSummaryList
+  status: 200
+}
+    
+export type apiV2MachineListResponseSuccess = (apiV2MachineListResponse200) & {
   headers: Headers;
 };
-export type apiV2MachineListResponse = apiV2MachineListResponseSuccess;
+;
 
-export const getApiV2MachineListUrl = (params?: ApiV2MachineListParams) => {
+export type apiV2MachineListResponse = (apiV2MachineListResponseSuccess)
+
+export const getApiV2MachineListUrl = (params?: ApiV2MachineListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/machine/?${stringifiedParams}`
-    : `/api/v2/machine/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/machine/?${stringifiedParams}` : `https://pokeapi.co/api/v2/machine/`
+}
 
-export const apiV2MachineList = async (
-  params?: ApiV2MachineListParams,
-  options?: RequestInit,
-): Promise<apiV2MachineListResponse> => {
-  const res = await fetch(getApiV2MachineListUrl(params), {
+export const apiV2MachineList = async (params?: ApiV2MachineListParams, options?: RequestInit): Promise<apiV2MachineListResponse> => {
+  
+  const res = await fetch(getApiV2MachineListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MachineListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MachineListResponse
+}
 
-  const data: apiV2MachineListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MachineListResponse;
-};
 
-export const getApiV2MachineListQueryKey = (
-  params?: ApiV2MachineListParams,
+
+
+
+export const getApiV2MachineListQueryKey = (params?: ApiV2MachineListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/machine/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2MachineListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MachineList>>, TError = unknown>(params?: ApiV2MachineListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MachineList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/machine/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2MachineListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MachineList>>,
-  TError = unknown,
->(
-  params?: ApiV2MachineListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MachineList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MachineListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MachineList>>
-  > = ({ signal }) => apiV2MachineList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MachineListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MachineList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2MachineListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MachineList>>
->;
-export type ApiV2MachineListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MachineList>>> = ({ signal }) => apiV2MachineList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MachineList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MachineListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MachineList>>>
+export type ApiV2MachineListQueryError = unknown
+
+
+export function useApiV2MachineList<TData = Awaited<ReturnType<typeof apiV2MachineList>>, TError = unknown>(
+ params: undefined |  ApiV2MachineListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MachineList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MachineList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MachineList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MachineList<TData = Awaited<ReturnType<typeof apiV2MachineList>>, TError = unknown>(
+ params?: ApiV2MachineListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MachineList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MachineList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MachineList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MachineList<TData = Awaited<ReturnType<typeof apiV2MachineList>>, TError = unknown>(
+ params?: ApiV2MachineListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MachineList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List machines
  */
 
-export function useApiV2MachineList<
-  TData = Awaited<ReturnType<typeof apiV2MachineList>>,
-  TError = unknown,
->(
-  params?: ApiV2MachineListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MachineList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MachineListQueryOptions(params, options);
+export function useApiV2MachineList<TData = Awaited<ReturnType<typeof apiV2MachineList>>, TError = unknown>(
+ params?: ApiV2MachineListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MachineList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MachineListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Machines are the representation of items that teach moves to Pokémon. They vary from version to version, so it is not certain that one specific TM or HM corresponds to a single Machine.
  * @summary Get machine
  */
 export type apiV2MachineRetrieveResponse200 = {
-  data: MachineDetail;
-  status: 200;
+  data: MachineDetail
+  status: 200
+}
+    
+export type apiV2MachineRetrieveResponseSuccess = (apiV2MachineRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MachineRetrieveResponseSuccess =
-  apiV2MachineRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MachineRetrieveResponse = apiV2MachineRetrieveResponseSuccess;
+export type apiV2MachineRetrieveResponse = (apiV2MachineRetrieveResponseSuccess)
 
-export const getApiV2MachineRetrieveUrl = (id: string) => {
-  return `/api/v2/machine/${id}/`;
-};
+export const getApiV2MachineRetrieveUrl = (id: string,) => {
 
-export const apiV2MachineRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2MachineRetrieveResponse> => {
-  const res = await fetch(getApiV2MachineRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/machine/${id}/`
+}
+
+export const apiV2MachineRetrieve = async (id: string, options?: RequestInit): Promise<apiV2MachineRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2MachineRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MachineRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MachineRetrieveResponse
+}
 
-  const data: apiV2MachineRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MachineRetrieveResponse;
-};
 
-export const getApiV2MachineRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/machine/${id}/`] as const;
-};
 
-export const getApiV2MachineRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MachineRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MachineRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2MachineRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/machine/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2MachineRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MachineRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MachineRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MachineRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MachineRetrieve>>
-  > = ({ signal }) => apiV2MachineRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MachineRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MachineRetrieveQueryKey(id);
 
-export type ApiV2MachineRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MachineRetrieve>>
->;
-export type ApiV2MachineRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MachineRetrieve>>> = ({ signal }) => apiV2MachineRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MachineRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MachineRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MachineRetrieve>>>
+export type ApiV2MachineRetrieveQueryError = unknown
+
+
+export function useApiV2MachineRetrieve<TData = Awaited<ReturnType<typeof apiV2MachineRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MachineRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MachineRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MachineRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MachineRetrieve<TData = Awaited<ReturnType<typeof apiV2MachineRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MachineRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MachineRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MachineRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MachineRetrieve<TData = Awaited<ReturnType<typeof apiV2MachineRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MachineRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get machine
  */
 
-export function useApiV2MachineRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2MachineRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MachineRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MachineRetrieveQueryOptions(id, options);
+export function useApiV2MachineRetrieve<TData = Awaited<ReturnType<typeof apiV2MachineRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MachineRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MachineRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Moves are the skills of Pokémon in battle. In battle, a Pokémon uses one move each turn. Some moves (including those learned by Hidden Machine) can be used outside of battle as well, usually for the purpose of removing obstacles or exploring new areas.
  * @summary List moves
  */
 export type apiV2MoveListResponse200 = {
-  data: PaginatedMoveSummaryList;
-  status: 200;
-};
-
-export type apiV2MoveListResponseSuccess = apiV2MoveListResponse200 & {
+  data: PaginatedMoveSummaryList
+  status: 200
+}
+    
+export type apiV2MoveListResponseSuccess = (apiV2MoveListResponse200) & {
   headers: Headers;
 };
-export type apiV2MoveListResponse = apiV2MoveListResponseSuccess;
+;
 
-export const getApiV2MoveListUrl = (params?: ApiV2MoveListParams) => {
+export type apiV2MoveListResponse = (apiV2MoveListResponseSuccess)
+
+export const getApiV2MoveListUrl = (params?: ApiV2MoveListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/move/?${stringifiedParams}`
-    : `/api/v2/move/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/move/?${stringifiedParams}` : `https://pokeapi.co/api/v2/move/`
+}
 
-export const apiV2MoveList = async (
-  params?: ApiV2MoveListParams,
-  options?: RequestInit,
-): Promise<apiV2MoveListResponse> => {
-  const res = await fetch(getApiV2MoveListUrl(params), {
+export const apiV2MoveList = async (params?: ApiV2MoveListParams, options?: RequestInit): Promise<apiV2MoveListResponse> => {
+  
+  const res = await fetch(getApiV2MoveListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveListResponse
+}
 
-  const data: apiV2MoveListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveListResponse;
-};
 
-export const getApiV2MoveListQueryKey = (params?: ApiV2MoveListParams) => {
-  return [`/api/v2/move/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2MoveListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2MoveListQueryKey = (params?: ApiV2MoveListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/move/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2MoveListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveList>>, TError = unknown>(params?: ApiV2MoveListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2MoveListQueryKey(params);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveList>>> = ({
-    signal,
-  }) => apiV2MoveList(params, { signal, ...fetchOptions });
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveListQueryKey(params);
 
-export type ApiV2MoveListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveList>>
->;
-export type ApiV2MoveListQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveList>>> = ({ signal }) => apiV2MoveList(params, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveList>>>
+export type ApiV2MoveListQueryError = unknown
+
+
+export function useApiV2MoveList<TData = Awaited<ReturnType<typeof apiV2MoveList>>, TError = unknown>(
+ params: undefined |  ApiV2MoveListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveList<TData = Awaited<ReturnType<typeof apiV2MoveList>>, TError = unknown>(
+ params?: ApiV2MoveListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveList<TData = Awaited<ReturnType<typeof apiV2MoveList>>, TError = unknown>(
+ params?: ApiV2MoveListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List moves
  */
 
-export function useApiV2MoveList<
-  TData = Awaited<ReturnType<typeof apiV2MoveList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveListQueryOptions(params, options);
+export function useApiV2MoveList<TData = Awaited<ReturnType<typeof apiV2MoveList>>, TError = unknown>(
+ params?: ApiV2MoveListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Moves are the skills of Pokémon in battle. In battle, a Pokémon uses one move each turn. Some moves (including those learned by Hidden Machine) can be used outside of battle as well, usually for the purpose of removing obstacles or exploring new areas.
  * @summary Get move
  */
 export type apiV2MoveRetrieveResponse200 = {
-  data: MoveDetail;
-  status: 200;
-};
-
-export type apiV2MoveRetrieveResponseSuccess = apiV2MoveRetrieveResponse200 & {
+  data: MoveDetail
+  status: 200
+}
+    
+export type apiV2MoveRetrieveResponseSuccess = (apiV2MoveRetrieveResponse200) & {
   headers: Headers;
 };
-export type apiV2MoveRetrieveResponse = apiV2MoveRetrieveResponseSuccess;
+;
 
-export const getApiV2MoveRetrieveUrl = (id: string) => {
-  return `/api/v2/move/${id}/`;
-};
+export type apiV2MoveRetrieveResponse = (apiV2MoveRetrieveResponseSuccess)
 
-export const apiV2MoveRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2MoveRetrieveResponse> => {
-  const res = await fetch(getApiV2MoveRetrieveUrl(id), {
+export const getApiV2MoveRetrieveUrl = (id: string,) => {
+
+
+  
+
+  return `https://pokeapi.co/api/v2/move/${id}/`
+}
+
+export const apiV2MoveRetrieve = async (id: string, options?: RequestInit): Promise<apiV2MoveRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2MoveRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveRetrieveResponse
+}
 
-  const data: apiV2MoveRetrieveResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveRetrieveResponse;
-};
 
-export const getApiV2MoveRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/move/${id}/`] as const;
-};
 
-export const getApiV2MoveRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2MoveRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/move/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2MoveRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2MoveRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveRetrieve>>
-  > = ({ signal }) => apiV2MoveRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveRetrieveQueryKey(id);
 
-export type ApiV2MoveRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveRetrieve>>
->;
-export type ApiV2MoveRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveRetrieve>>> = ({ signal }) => apiV2MoveRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveRetrieve>>>
+export type ApiV2MoveRetrieveQueryError = unknown
+
+
+export function useApiV2MoveRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get move
  */
 
-export function useApiV2MoveRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2MoveRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveRetrieveQueryOptions(id, options);
+export function useApiV2MoveRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Move Ailments are status conditions caused by moves used during battle. See [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Status_condition) for greater detail.
  * @summary List move meta ailments
  */
 export type apiV2MoveAilmentListResponse200 = {
-  data: PaginatedMoveMetaAilmentSummaryList;
-  status: 200;
+  data: PaginatedMoveMetaAilmentSummaryList
+  status: 200
+}
+    
+export type apiV2MoveAilmentListResponseSuccess = (apiV2MoveAilmentListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MoveAilmentListResponseSuccess =
-  apiV2MoveAilmentListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MoveAilmentListResponse = apiV2MoveAilmentListResponseSuccess;
+export type apiV2MoveAilmentListResponse = (apiV2MoveAilmentListResponseSuccess)
 
-export const getApiV2MoveAilmentListUrl = (
-  params?: ApiV2MoveAilmentListParams,
-) => {
+export const getApiV2MoveAilmentListUrl = (params?: ApiV2MoveAilmentListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/move-ailment/?${stringifiedParams}`
-    : `/api/v2/move-ailment/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/move-ailment/?${stringifiedParams}` : `https://pokeapi.co/api/v2/move-ailment/`
+}
 
-export const apiV2MoveAilmentList = async (
-  params?: ApiV2MoveAilmentListParams,
-  options?: RequestInit,
-): Promise<apiV2MoveAilmentListResponse> => {
-  const res = await fetch(getApiV2MoveAilmentListUrl(params), {
+export const apiV2MoveAilmentList = async (params?: ApiV2MoveAilmentListParams, options?: RequestInit): Promise<apiV2MoveAilmentListResponse> => {
+  
+  const res = await fetch(getApiV2MoveAilmentListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveAilmentListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveAilmentListResponse
+}
 
-  const data: apiV2MoveAilmentListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveAilmentListResponse;
-};
 
-export const getApiV2MoveAilmentListQueryKey = (
-  params?: ApiV2MoveAilmentListParams,
+
+
+
+export const getApiV2MoveAilmentListQueryKey = (params?: ApiV2MoveAilmentListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/move-ailment/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2MoveAilmentListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveAilmentList>>, TError = unknown>(params?: ApiV2MoveAilmentListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveAilmentList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/move-ailment/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2MoveAilmentListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveAilmentList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveAilmentListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveAilmentList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MoveAilmentListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveAilmentList>>
-  > = ({ signal }) => apiV2MoveAilmentList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveAilmentListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveAilmentList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2MoveAilmentListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveAilmentList>>
->;
-export type ApiV2MoveAilmentListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveAilmentList>>> = ({ signal }) => apiV2MoveAilmentList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveAilmentList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveAilmentListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveAilmentList>>>
+export type ApiV2MoveAilmentListQueryError = unknown
+
+
+export function useApiV2MoveAilmentList<TData = Awaited<ReturnType<typeof apiV2MoveAilmentList>>, TError = unknown>(
+ params: undefined |  ApiV2MoveAilmentListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveAilmentList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveAilmentList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveAilmentList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveAilmentList<TData = Awaited<ReturnType<typeof apiV2MoveAilmentList>>, TError = unknown>(
+ params?: ApiV2MoveAilmentListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveAilmentList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveAilmentList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveAilmentList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveAilmentList<TData = Awaited<ReturnType<typeof apiV2MoveAilmentList>>, TError = unknown>(
+ params?: ApiV2MoveAilmentListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveAilmentList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List move meta ailments
  */
 
-export function useApiV2MoveAilmentList<
-  TData = Awaited<ReturnType<typeof apiV2MoveAilmentList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveAilmentListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveAilmentList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveAilmentListQueryOptions(params, options);
+export function useApiV2MoveAilmentList<TData = Awaited<ReturnType<typeof apiV2MoveAilmentList>>, TError = unknown>(
+ params?: ApiV2MoveAilmentListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveAilmentList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveAilmentListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Move Ailments are status conditions caused by moves used during battle. See [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Status_condition) for greater detail.
  * @summary Get move meta ailment
  */
 export type apiV2MoveAilmentRetrieveResponse200 = {
-  data: MoveMetaAilmentDetail;
-  status: 200;
+  data: MoveMetaAilmentDetail
+  status: 200
+}
+    
+export type apiV2MoveAilmentRetrieveResponseSuccess = (apiV2MoveAilmentRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MoveAilmentRetrieveResponseSuccess =
-  apiV2MoveAilmentRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MoveAilmentRetrieveResponse =
-  apiV2MoveAilmentRetrieveResponseSuccess;
+export type apiV2MoveAilmentRetrieveResponse = (apiV2MoveAilmentRetrieveResponseSuccess)
 
-export const getApiV2MoveAilmentRetrieveUrl = (id: string) => {
-  return `/api/v2/move-ailment/${id}/`;
-};
+export const getApiV2MoveAilmentRetrieveUrl = (id: string,) => {
 
-export const apiV2MoveAilmentRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2MoveAilmentRetrieveResponse> => {
-  const res = await fetch(getApiV2MoveAilmentRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/move-ailment/${id}/`
+}
+
+export const apiV2MoveAilmentRetrieve = async (id: string, options?: RequestInit): Promise<apiV2MoveAilmentRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2MoveAilmentRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveAilmentRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveAilmentRetrieveResponse
+}
 
-  const data: apiV2MoveAilmentRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveAilmentRetrieveResponse;
-};
 
-export const getApiV2MoveAilmentRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/move-ailment/${id}/`] as const;
-};
 
-export const getApiV2MoveAilmentRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2MoveAilmentRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/move-ailment/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2MoveAilmentRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MoveAilmentRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>
-  > = ({ signal }) => apiV2MoveAilmentRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveAilmentRetrieveQueryKey(id);
 
-export type ApiV2MoveAilmentRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>
->;
-export type ApiV2MoveAilmentRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>> = ({ signal }) => apiV2MoveAilmentRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveAilmentRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>>
+export type ApiV2MoveAilmentRetrieveQueryError = unknown
+
+
+export function useApiV2MoveAilmentRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveAilmentRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveAilmentRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get move meta ailment
  */
 
-export function useApiV2MoveAilmentRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveAilmentRetrieveQueryOptions(id, options);
+export function useApiV2MoveAilmentRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveAilmentRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveAilmentRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Styles of moves when used in the Battle Palace. See [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Battle_Frontier_(Generation_III)) for greater detail.
  * @summary List move battle styles
  */
 export type apiV2MoveBattleStyleListResponse200 = {
-  data: PaginatedMoveBattleStyleSummaryList;
-  status: 200;
+  data: PaginatedMoveBattleStyleSummaryList
+  status: 200
+}
+    
+export type apiV2MoveBattleStyleListResponseSuccess = (apiV2MoveBattleStyleListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MoveBattleStyleListResponseSuccess =
-  apiV2MoveBattleStyleListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MoveBattleStyleListResponse =
-  apiV2MoveBattleStyleListResponseSuccess;
+export type apiV2MoveBattleStyleListResponse = (apiV2MoveBattleStyleListResponseSuccess)
 
-export const getApiV2MoveBattleStyleListUrl = (
-  params?: ApiV2MoveBattleStyleListParams,
-) => {
+export const getApiV2MoveBattleStyleListUrl = (params?: ApiV2MoveBattleStyleListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/move-battle-style/?${stringifiedParams}`
-    : `/api/v2/move-battle-style/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/move-battle-style/?${stringifiedParams}` : `https://pokeapi.co/api/v2/move-battle-style/`
+}
 
-export const apiV2MoveBattleStyleList = async (
-  params?: ApiV2MoveBattleStyleListParams,
-  options?: RequestInit,
-): Promise<apiV2MoveBattleStyleListResponse> => {
-  const res = await fetch(getApiV2MoveBattleStyleListUrl(params), {
+export const apiV2MoveBattleStyleList = async (params?: ApiV2MoveBattleStyleListParams, options?: RequestInit): Promise<apiV2MoveBattleStyleListResponse> => {
+  
+  const res = await fetch(getApiV2MoveBattleStyleListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveBattleStyleListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveBattleStyleListResponse
+}
 
-  const data: apiV2MoveBattleStyleListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveBattleStyleListResponse;
-};
 
-export const getApiV2MoveBattleStyleListQueryKey = (
-  params?: ApiV2MoveBattleStyleListParams,
+
+
+
+export const getApiV2MoveBattleStyleListQueryKey = (params?: ApiV2MoveBattleStyleListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/move-battle-style/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2MoveBattleStyleListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>, TError = unknown>(params?: ApiV2MoveBattleStyleListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/move-battle-style/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2MoveBattleStyleListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveBattleStyleListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MoveBattleStyleListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>
-  > = ({ signal }) =>
-    apiV2MoveBattleStyleList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveBattleStyleListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2MoveBattleStyleListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>
->;
-export type ApiV2MoveBattleStyleListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>> = ({ signal }) => apiV2MoveBattleStyleList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveBattleStyleListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>>
+export type ApiV2MoveBattleStyleListQueryError = unknown
+
+
+export function useApiV2MoveBattleStyleList<TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>, TError = unknown>(
+ params: undefined |  ApiV2MoveBattleStyleListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveBattleStyleList<TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>, TError = unknown>(
+ params?: ApiV2MoveBattleStyleListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveBattleStyleList<TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>, TError = unknown>(
+ params?: ApiV2MoveBattleStyleListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List move battle styles
  */
 
-export function useApiV2MoveBattleStyleList<
-  TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveBattleStyleListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveBattleStyleListQueryOptions(params, options);
+export function useApiV2MoveBattleStyleList<TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>, TError = unknown>(
+ params?: ApiV2MoveBattleStyleListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveBattleStyleList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveBattleStyleListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Styles of moves when used in the Battle Palace. See [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Battle_Frontier_(Generation_III)) for greater detail.
  * @summary Get move battle style
  */
 export type apiV2MoveBattleStyleRetrieveResponse200 = {
-  data: MoveBattleStyleDetail;
-  status: 200;
+  data: MoveBattleStyleDetail
+  status: 200
+}
+    
+export type apiV2MoveBattleStyleRetrieveResponseSuccess = (apiV2MoveBattleStyleRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MoveBattleStyleRetrieveResponseSuccess =
-  apiV2MoveBattleStyleRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MoveBattleStyleRetrieveResponse =
-  apiV2MoveBattleStyleRetrieveResponseSuccess;
+export type apiV2MoveBattleStyleRetrieveResponse = (apiV2MoveBattleStyleRetrieveResponseSuccess)
 
-export const getApiV2MoveBattleStyleRetrieveUrl = (id: string) => {
-  return `/api/v2/move-battle-style/${id}/`;
-};
+export const getApiV2MoveBattleStyleRetrieveUrl = (id: string,) => {
 
-export const apiV2MoveBattleStyleRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2MoveBattleStyleRetrieveResponse> => {
-  const res = await fetch(getApiV2MoveBattleStyleRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/move-battle-style/${id}/`
+}
+
+export const apiV2MoveBattleStyleRetrieve = async (id: string, options?: RequestInit): Promise<apiV2MoveBattleStyleRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2MoveBattleStyleRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveBattleStyleRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveBattleStyleRetrieveResponse
+}
 
-  const data: apiV2MoveBattleStyleRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveBattleStyleRetrieveResponse;
-};
 
-export const getApiV2MoveBattleStyleRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/move-battle-style/${id}/`] as const;
-};
 
-export const getApiV2MoveBattleStyleRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2MoveBattleStyleRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/move-battle-style/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2MoveBattleStyleRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MoveBattleStyleRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>
-  > = ({ signal }) =>
-    apiV2MoveBattleStyleRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveBattleStyleRetrieveQueryKey(id);
 
-export type ApiV2MoveBattleStyleRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>
->;
-export type ApiV2MoveBattleStyleRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>> = ({ signal }) => apiV2MoveBattleStyleRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveBattleStyleRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>>
+export type ApiV2MoveBattleStyleRetrieveQueryError = unknown
+
+
+export function useApiV2MoveBattleStyleRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveBattleStyleRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveBattleStyleRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get move battle style
  */
 
-export function useApiV2MoveBattleStyleRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveBattleStyleRetrieveQueryOptions(id, options);
+export function useApiV2MoveBattleStyleRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveBattleStyleRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveBattleStyleRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Very general categories that loosely group move effects.
  * @summary List move meta categories
  */
 export type apiV2MoveCategoryListResponse200 = {
-  data: PaginatedMoveMetaCategorySummaryList;
-  status: 200;
+  data: PaginatedMoveMetaCategorySummaryList
+  status: 200
+}
+    
+export type apiV2MoveCategoryListResponseSuccess = (apiV2MoveCategoryListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MoveCategoryListResponseSuccess =
-  apiV2MoveCategoryListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MoveCategoryListResponse =
-  apiV2MoveCategoryListResponseSuccess;
+export type apiV2MoveCategoryListResponse = (apiV2MoveCategoryListResponseSuccess)
 
-export const getApiV2MoveCategoryListUrl = (
-  params?: ApiV2MoveCategoryListParams,
-) => {
+export const getApiV2MoveCategoryListUrl = (params?: ApiV2MoveCategoryListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/move-category/?${stringifiedParams}`
-    : `/api/v2/move-category/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/move-category/?${stringifiedParams}` : `https://pokeapi.co/api/v2/move-category/`
+}
 
-export const apiV2MoveCategoryList = async (
-  params?: ApiV2MoveCategoryListParams,
-  options?: RequestInit,
-): Promise<apiV2MoveCategoryListResponse> => {
-  const res = await fetch(getApiV2MoveCategoryListUrl(params), {
+export const apiV2MoveCategoryList = async (params?: ApiV2MoveCategoryListParams, options?: RequestInit): Promise<apiV2MoveCategoryListResponse> => {
+  
+  const res = await fetch(getApiV2MoveCategoryListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveCategoryListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveCategoryListResponse
+}
 
-  const data: apiV2MoveCategoryListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveCategoryListResponse;
-};
 
-export const getApiV2MoveCategoryListQueryKey = (
-  params?: ApiV2MoveCategoryListParams,
+
+
+
+export const getApiV2MoveCategoryListQueryKey = (params?: ApiV2MoveCategoryListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/move-category/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2MoveCategoryListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveCategoryList>>, TError = unknown>(params?: ApiV2MoveCategoryListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveCategoryList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/move-category/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2MoveCategoryListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveCategoryList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveCategoryListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveCategoryList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MoveCategoryListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveCategoryList>>
-  > = ({ signal }) =>
-    apiV2MoveCategoryList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveCategoryListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveCategoryList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2MoveCategoryListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveCategoryList>>
->;
-export type ApiV2MoveCategoryListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveCategoryList>>> = ({ signal }) => apiV2MoveCategoryList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveCategoryList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveCategoryListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveCategoryList>>>
+export type ApiV2MoveCategoryListQueryError = unknown
+
+
+export function useApiV2MoveCategoryList<TData = Awaited<ReturnType<typeof apiV2MoveCategoryList>>, TError = unknown>(
+ params: undefined |  ApiV2MoveCategoryListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveCategoryList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveCategoryList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveCategoryList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveCategoryList<TData = Awaited<ReturnType<typeof apiV2MoveCategoryList>>, TError = unknown>(
+ params?: ApiV2MoveCategoryListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveCategoryList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveCategoryList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveCategoryList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveCategoryList<TData = Awaited<ReturnType<typeof apiV2MoveCategoryList>>, TError = unknown>(
+ params?: ApiV2MoveCategoryListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveCategoryList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List move meta categories
  */
 
-export function useApiV2MoveCategoryList<
-  TData = Awaited<ReturnType<typeof apiV2MoveCategoryList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveCategoryListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveCategoryList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveCategoryListQueryOptions(params, options);
+export function useApiV2MoveCategoryList<TData = Awaited<ReturnType<typeof apiV2MoveCategoryList>>, TError = unknown>(
+ params?: ApiV2MoveCategoryListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveCategoryList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveCategoryListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Very general categories that loosely group move effects.
  * @summary Get move meta category
  */
 export type apiV2MoveCategoryRetrieveResponse200 = {
-  data: MoveMetaCategoryDetail;
-  status: 200;
+  data: MoveMetaCategoryDetail
+  status: 200
+}
+    
+export type apiV2MoveCategoryRetrieveResponseSuccess = (apiV2MoveCategoryRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MoveCategoryRetrieveResponseSuccess =
-  apiV2MoveCategoryRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MoveCategoryRetrieveResponse =
-  apiV2MoveCategoryRetrieveResponseSuccess;
+export type apiV2MoveCategoryRetrieveResponse = (apiV2MoveCategoryRetrieveResponseSuccess)
 
-export const getApiV2MoveCategoryRetrieveUrl = (id: string) => {
-  return `/api/v2/move-category/${id}/`;
-};
+export const getApiV2MoveCategoryRetrieveUrl = (id: string,) => {
 
-export const apiV2MoveCategoryRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2MoveCategoryRetrieveResponse> => {
-  const res = await fetch(getApiV2MoveCategoryRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/move-category/${id}/`
+}
+
+export const apiV2MoveCategoryRetrieve = async (id: string, options?: RequestInit): Promise<apiV2MoveCategoryRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2MoveCategoryRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveCategoryRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveCategoryRetrieveResponse
+}
 
-  const data: apiV2MoveCategoryRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveCategoryRetrieveResponse;
-};
 
-export const getApiV2MoveCategoryRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/move-category/${id}/`] as const;
-};
 
-export const getApiV2MoveCategoryRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2MoveCategoryRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/move-category/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2MoveCategoryRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MoveCategoryRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>
-  > = ({ signal }) =>
-    apiV2MoveCategoryRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveCategoryRetrieveQueryKey(id);
 
-export type ApiV2MoveCategoryRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>
->;
-export type ApiV2MoveCategoryRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>> = ({ signal }) => apiV2MoveCategoryRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveCategoryRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>>
+export type ApiV2MoveCategoryRetrieveQueryError = unknown
+
+
+export function useApiV2MoveCategoryRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveCategoryRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveCategoryRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get move meta category
  */
 
-export function useApiV2MoveCategoryRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveCategoryRetrieveQueryOptions(id, options);
+export function useApiV2MoveCategoryRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveCategoryRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveCategoryRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Damage classes moves can have, e.g. physical, special, or non-damaging.
  * @summary List move damage classes
  */
 export type apiV2MoveDamageClassListResponse200 = {
-  data: PaginatedMoveDamageClassSummaryList;
-  status: 200;
+  data: PaginatedMoveDamageClassSummaryList
+  status: 200
+}
+    
+export type apiV2MoveDamageClassListResponseSuccess = (apiV2MoveDamageClassListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MoveDamageClassListResponseSuccess =
-  apiV2MoveDamageClassListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MoveDamageClassListResponse =
-  apiV2MoveDamageClassListResponseSuccess;
+export type apiV2MoveDamageClassListResponse = (apiV2MoveDamageClassListResponseSuccess)
 
-export const getApiV2MoveDamageClassListUrl = (
-  params?: ApiV2MoveDamageClassListParams,
-) => {
+export const getApiV2MoveDamageClassListUrl = (params?: ApiV2MoveDamageClassListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/move-damage-class/?${stringifiedParams}`
-    : `/api/v2/move-damage-class/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/move-damage-class/?${stringifiedParams}` : `https://pokeapi.co/api/v2/move-damage-class/`
+}
 
-export const apiV2MoveDamageClassList = async (
-  params?: ApiV2MoveDamageClassListParams,
-  options?: RequestInit,
-): Promise<apiV2MoveDamageClassListResponse> => {
-  const res = await fetch(getApiV2MoveDamageClassListUrl(params), {
+export const apiV2MoveDamageClassList = async (params?: ApiV2MoveDamageClassListParams, options?: RequestInit): Promise<apiV2MoveDamageClassListResponse> => {
+  
+  const res = await fetch(getApiV2MoveDamageClassListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveDamageClassListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveDamageClassListResponse
+}
 
-  const data: apiV2MoveDamageClassListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveDamageClassListResponse;
-};
 
-export const getApiV2MoveDamageClassListQueryKey = (
-  params?: ApiV2MoveDamageClassListParams,
+
+
+
+export const getApiV2MoveDamageClassListQueryKey = (params?: ApiV2MoveDamageClassListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/move-damage-class/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2MoveDamageClassListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveDamageClassList>>, TError = unknown>(params?: ApiV2MoveDamageClassListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveDamageClassList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/move-damage-class/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2MoveDamageClassListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveDamageClassList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveDamageClassListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveDamageClassList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MoveDamageClassListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveDamageClassList>>
-  > = ({ signal }) =>
-    apiV2MoveDamageClassList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveDamageClassListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveDamageClassList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2MoveDamageClassListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveDamageClassList>>
->;
-export type ApiV2MoveDamageClassListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveDamageClassList>>> = ({ signal }) => apiV2MoveDamageClassList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveDamageClassList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveDamageClassListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveDamageClassList>>>
+export type ApiV2MoveDamageClassListQueryError = unknown
+
+
+export function useApiV2MoveDamageClassList<TData = Awaited<ReturnType<typeof apiV2MoveDamageClassList>>, TError = unknown>(
+ params: undefined |  ApiV2MoveDamageClassListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveDamageClassList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveDamageClassList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveDamageClassList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveDamageClassList<TData = Awaited<ReturnType<typeof apiV2MoveDamageClassList>>, TError = unknown>(
+ params?: ApiV2MoveDamageClassListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveDamageClassList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveDamageClassList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveDamageClassList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveDamageClassList<TData = Awaited<ReturnType<typeof apiV2MoveDamageClassList>>, TError = unknown>(
+ params?: ApiV2MoveDamageClassListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveDamageClassList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List move damage classes
  */
 
-export function useApiV2MoveDamageClassList<
-  TData = Awaited<ReturnType<typeof apiV2MoveDamageClassList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveDamageClassListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveDamageClassList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveDamageClassListQueryOptions(params, options);
+export function useApiV2MoveDamageClassList<TData = Awaited<ReturnType<typeof apiV2MoveDamageClassList>>, TError = unknown>(
+ params?: ApiV2MoveDamageClassListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveDamageClassList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveDamageClassListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Damage classes moves can have, e.g. physical, special, or non-damaging.
  * @summary Get move damage class
  */
 export type apiV2MoveDamageClassRetrieveResponse200 = {
-  data: MoveDamageClassDetail;
-  status: 200;
+  data: MoveDamageClassDetail
+  status: 200
+}
+    
+export type apiV2MoveDamageClassRetrieveResponseSuccess = (apiV2MoveDamageClassRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MoveDamageClassRetrieveResponseSuccess =
-  apiV2MoveDamageClassRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MoveDamageClassRetrieveResponse =
-  apiV2MoveDamageClassRetrieveResponseSuccess;
+export type apiV2MoveDamageClassRetrieveResponse = (apiV2MoveDamageClassRetrieveResponseSuccess)
 
-export const getApiV2MoveDamageClassRetrieveUrl = (id: string) => {
-  return `/api/v2/move-damage-class/${id}/`;
-};
+export const getApiV2MoveDamageClassRetrieveUrl = (id: string,) => {
 
-export const apiV2MoveDamageClassRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2MoveDamageClassRetrieveResponse> => {
-  const res = await fetch(getApiV2MoveDamageClassRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/move-damage-class/${id}/`
+}
+
+export const apiV2MoveDamageClassRetrieve = async (id: string, options?: RequestInit): Promise<apiV2MoveDamageClassRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2MoveDamageClassRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveDamageClassRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveDamageClassRetrieveResponse
+}
 
-  const data: apiV2MoveDamageClassRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveDamageClassRetrieveResponse;
-};
 
-export const getApiV2MoveDamageClassRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/move-damage-class/${id}/`] as const;
-};
 
-export const getApiV2MoveDamageClassRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2MoveDamageClassRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/move-damage-class/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2MoveDamageClassRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MoveDamageClassRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>
-  > = ({ signal }) =>
-    apiV2MoveDamageClassRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveDamageClassRetrieveQueryKey(id);
 
-export type ApiV2MoveDamageClassRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>
->;
-export type ApiV2MoveDamageClassRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>> = ({ signal }) => apiV2MoveDamageClassRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveDamageClassRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>>
+export type ApiV2MoveDamageClassRetrieveQueryError = unknown
+
+
+export function useApiV2MoveDamageClassRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveDamageClassRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveDamageClassRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get move damage class
  */
 
-export function useApiV2MoveDamageClassRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveDamageClassRetrieveQueryOptions(id, options);
+export function useApiV2MoveDamageClassRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveDamageClassRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveDamageClassRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Methods by which Pokémon can learn moves.
  * @summary List move learn methods
  */
 export type apiV2MoveLearnMethodListResponse200 = {
-  data: PaginatedMoveLearnMethodSummaryList;
-  status: 200;
+  data: PaginatedMoveLearnMethodSummaryList
+  status: 200
+}
+    
+export type apiV2MoveLearnMethodListResponseSuccess = (apiV2MoveLearnMethodListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MoveLearnMethodListResponseSuccess =
-  apiV2MoveLearnMethodListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MoveLearnMethodListResponse =
-  apiV2MoveLearnMethodListResponseSuccess;
+export type apiV2MoveLearnMethodListResponse = (apiV2MoveLearnMethodListResponseSuccess)
 
-export const getApiV2MoveLearnMethodListUrl = (
-  params?: ApiV2MoveLearnMethodListParams,
-) => {
+export const getApiV2MoveLearnMethodListUrl = (params?: ApiV2MoveLearnMethodListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/move-learn-method/?${stringifiedParams}`
-    : `/api/v2/move-learn-method/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/move-learn-method/?${stringifiedParams}` : `https://pokeapi.co/api/v2/move-learn-method/`
+}
 
-export const apiV2MoveLearnMethodList = async (
-  params?: ApiV2MoveLearnMethodListParams,
-  options?: RequestInit,
-): Promise<apiV2MoveLearnMethodListResponse> => {
-  const res = await fetch(getApiV2MoveLearnMethodListUrl(params), {
+export const apiV2MoveLearnMethodList = async (params?: ApiV2MoveLearnMethodListParams, options?: RequestInit): Promise<apiV2MoveLearnMethodListResponse> => {
+  
+  const res = await fetch(getApiV2MoveLearnMethodListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveLearnMethodListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveLearnMethodListResponse
+}
 
-  const data: apiV2MoveLearnMethodListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveLearnMethodListResponse;
-};
 
-export const getApiV2MoveLearnMethodListQueryKey = (
-  params?: ApiV2MoveLearnMethodListParams,
+
+
+
+export const getApiV2MoveLearnMethodListQueryKey = (params?: ApiV2MoveLearnMethodListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/move-learn-method/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2MoveLearnMethodListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>, TError = unknown>(params?: ApiV2MoveLearnMethodListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/move-learn-method/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2MoveLearnMethodListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveLearnMethodListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MoveLearnMethodListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>
-  > = ({ signal }) =>
-    apiV2MoveLearnMethodList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveLearnMethodListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2MoveLearnMethodListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>
->;
-export type ApiV2MoveLearnMethodListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>> = ({ signal }) => apiV2MoveLearnMethodList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveLearnMethodListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>>
+export type ApiV2MoveLearnMethodListQueryError = unknown
+
+
+export function useApiV2MoveLearnMethodList<TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>, TError = unknown>(
+ params: undefined |  ApiV2MoveLearnMethodListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveLearnMethodList<TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>, TError = unknown>(
+ params?: ApiV2MoveLearnMethodListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveLearnMethodList<TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>, TError = unknown>(
+ params?: ApiV2MoveLearnMethodListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List move learn methods
  */
 
-export function useApiV2MoveLearnMethodList<
-  TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveLearnMethodListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveLearnMethodListQueryOptions(params, options);
+export function useApiV2MoveLearnMethodList<TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>, TError = unknown>(
+ params?: ApiV2MoveLearnMethodListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveLearnMethodList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveLearnMethodListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Methods by which Pokémon can learn moves.
  * @summary Get move learn method
  */
 export type apiV2MoveLearnMethodRetrieveResponse200 = {
-  data: MoveLearnMethodDetail;
-  status: 200;
+  data: MoveLearnMethodDetail
+  status: 200
+}
+    
+export type apiV2MoveLearnMethodRetrieveResponseSuccess = (apiV2MoveLearnMethodRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MoveLearnMethodRetrieveResponseSuccess =
-  apiV2MoveLearnMethodRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MoveLearnMethodRetrieveResponse =
-  apiV2MoveLearnMethodRetrieveResponseSuccess;
+export type apiV2MoveLearnMethodRetrieveResponse = (apiV2MoveLearnMethodRetrieveResponseSuccess)
 
-export const getApiV2MoveLearnMethodRetrieveUrl = (id: string) => {
-  return `/api/v2/move-learn-method/${id}/`;
-};
+export const getApiV2MoveLearnMethodRetrieveUrl = (id: string,) => {
 
-export const apiV2MoveLearnMethodRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2MoveLearnMethodRetrieveResponse> => {
-  const res = await fetch(getApiV2MoveLearnMethodRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/move-learn-method/${id}/`
+}
+
+export const apiV2MoveLearnMethodRetrieve = async (id: string, options?: RequestInit): Promise<apiV2MoveLearnMethodRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2MoveLearnMethodRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveLearnMethodRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveLearnMethodRetrieveResponse
+}
 
-  const data: apiV2MoveLearnMethodRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveLearnMethodRetrieveResponse;
-};
 
-export const getApiV2MoveLearnMethodRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/move-learn-method/${id}/`] as const;
-};
 
-export const getApiV2MoveLearnMethodRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2MoveLearnMethodRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/move-learn-method/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2MoveLearnMethodRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MoveLearnMethodRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>
-  > = ({ signal }) =>
-    apiV2MoveLearnMethodRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveLearnMethodRetrieveQueryKey(id);
 
-export type ApiV2MoveLearnMethodRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>
->;
-export type ApiV2MoveLearnMethodRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>> = ({ signal }) => apiV2MoveLearnMethodRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveLearnMethodRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>>
+export type ApiV2MoveLearnMethodRetrieveQueryError = unknown
+
+
+export function useApiV2MoveLearnMethodRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveLearnMethodRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveLearnMethodRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get move learn method
  */
 
-export function useApiV2MoveLearnMethodRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveLearnMethodRetrieveQueryOptions(id, options);
+export function useApiV2MoveLearnMethodRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveLearnMethodRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveLearnMethodRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Targets moves can be directed at during battle. Targets can be Pokémon, environments or even other moves.
  * @summary List move targets
  */
 export type apiV2MoveTargetListResponse200 = {
-  data: PaginatedMoveTargetSummaryList;
-  status: 200;
+  data: PaginatedMoveTargetSummaryList
+  status: 200
+}
+    
+export type apiV2MoveTargetListResponseSuccess = (apiV2MoveTargetListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MoveTargetListResponseSuccess =
-  apiV2MoveTargetListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MoveTargetListResponse = apiV2MoveTargetListResponseSuccess;
+export type apiV2MoveTargetListResponse = (apiV2MoveTargetListResponseSuccess)
 
-export const getApiV2MoveTargetListUrl = (
-  params?: ApiV2MoveTargetListParams,
-) => {
+export const getApiV2MoveTargetListUrl = (params?: ApiV2MoveTargetListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/move-target/?${stringifiedParams}`
-    : `/api/v2/move-target/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/move-target/?${stringifiedParams}` : `https://pokeapi.co/api/v2/move-target/`
+}
 
-export const apiV2MoveTargetList = async (
-  params?: ApiV2MoveTargetListParams,
-  options?: RequestInit,
-): Promise<apiV2MoveTargetListResponse> => {
-  const res = await fetch(getApiV2MoveTargetListUrl(params), {
+export const apiV2MoveTargetList = async (params?: ApiV2MoveTargetListParams, options?: RequestInit): Promise<apiV2MoveTargetListResponse> => {
+  
+  const res = await fetch(getApiV2MoveTargetListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveTargetListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveTargetListResponse
+}
 
-  const data: apiV2MoveTargetListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveTargetListResponse;
-};
 
-export const getApiV2MoveTargetListQueryKey = (
-  params?: ApiV2MoveTargetListParams,
+
+
+
+export const getApiV2MoveTargetListQueryKey = (params?: ApiV2MoveTargetListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/move-target/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2MoveTargetListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveTargetList>>, TError = unknown>(params?: ApiV2MoveTargetListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveTargetList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/move-target/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2MoveTargetListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveTargetList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveTargetListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveTargetList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MoveTargetListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveTargetList>>
-  > = ({ signal }) => apiV2MoveTargetList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveTargetListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveTargetList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2MoveTargetListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveTargetList>>
->;
-export type ApiV2MoveTargetListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveTargetList>>> = ({ signal }) => apiV2MoveTargetList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveTargetList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveTargetListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveTargetList>>>
+export type ApiV2MoveTargetListQueryError = unknown
+
+
+export function useApiV2MoveTargetList<TData = Awaited<ReturnType<typeof apiV2MoveTargetList>>, TError = unknown>(
+ params: undefined |  ApiV2MoveTargetListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveTargetList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveTargetList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveTargetList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveTargetList<TData = Awaited<ReturnType<typeof apiV2MoveTargetList>>, TError = unknown>(
+ params?: ApiV2MoveTargetListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveTargetList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveTargetList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveTargetList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveTargetList<TData = Awaited<ReturnType<typeof apiV2MoveTargetList>>, TError = unknown>(
+ params?: ApiV2MoveTargetListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveTargetList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List move targets
  */
 
-export function useApiV2MoveTargetList<
-  TData = Awaited<ReturnType<typeof apiV2MoveTargetList>>,
-  TError = unknown,
->(
-  params?: ApiV2MoveTargetListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveTargetList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveTargetListQueryOptions(params, options);
+export function useApiV2MoveTargetList<TData = Awaited<ReturnType<typeof apiV2MoveTargetList>>, TError = unknown>(
+ params?: ApiV2MoveTargetListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveTargetList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveTargetListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Targets moves can be directed at during battle. Targets can be Pokémon, environments or even other moves.
  * @summary Get move target
  */
 export type apiV2MoveTargetRetrieveResponse200 = {
-  data: MoveTargetDetail;
-  status: 200;
+  data: MoveTargetDetail
+  status: 200
+}
+    
+export type apiV2MoveTargetRetrieveResponseSuccess = (apiV2MoveTargetRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2MoveTargetRetrieveResponseSuccess =
-  apiV2MoveTargetRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2MoveTargetRetrieveResponse =
-  apiV2MoveTargetRetrieveResponseSuccess;
+export type apiV2MoveTargetRetrieveResponse = (apiV2MoveTargetRetrieveResponseSuccess)
 
-export const getApiV2MoveTargetRetrieveUrl = (id: string) => {
-  return `/api/v2/move-target/${id}/`;
-};
+export const getApiV2MoveTargetRetrieveUrl = (id: string,) => {
 
-export const apiV2MoveTargetRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2MoveTargetRetrieveResponse> => {
-  const res = await fetch(getApiV2MoveTargetRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/move-target/${id}/`
+}
+
+export const apiV2MoveTargetRetrieve = async (id: string, options?: RequestInit): Promise<apiV2MoveTargetRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2MoveTargetRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2MoveTargetRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2MoveTargetRetrieveResponse
+}
 
-  const data: apiV2MoveTargetRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2MoveTargetRetrieveResponse;
-};
 
-export const getApiV2MoveTargetRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/move-target/${id}/`] as const;
-};
 
-export const getApiV2MoveTargetRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2MoveTargetRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/move-target/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2MoveTargetRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2MoveTargetRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>
-  > = ({ signal }) => apiV2MoveTargetRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2MoveTargetRetrieveQueryKey(id);
 
-export type ApiV2MoveTargetRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>
->;
-export type ApiV2MoveTargetRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>> = ({ signal }) => apiV2MoveTargetRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2MoveTargetRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>>
+export type ApiV2MoveTargetRetrieveQueryError = unknown
+
+
+export function useApiV2MoveTargetRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveTargetRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2MoveTargetRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get move target
  */
 
-export function useApiV2MoveTargetRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2MoveTargetRetrieveQueryOptions(id, options);
+export function useApiV2MoveTargetRetrieve<TData = Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2MoveTargetRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2MoveTargetRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Natures influence how a Pokémon's stats grow. See [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Nature) for greater detail.
  * @summary List natures
  */
 export type apiV2NatureListResponse200 = {
-  data: PaginatedNatureSummaryList;
-  status: 200;
-};
-
-export type apiV2NatureListResponseSuccess = apiV2NatureListResponse200 & {
+  data: PaginatedNatureSummaryList
+  status: 200
+}
+    
+export type apiV2NatureListResponseSuccess = (apiV2NatureListResponse200) & {
   headers: Headers;
 };
-export type apiV2NatureListResponse = apiV2NatureListResponseSuccess;
+;
 
-export const getApiV2NatureListUrl = (params?: ApiV2NatureListParams) => {
+export type apiV2NatureListResponse = (apiV2NatureListResponseSuccess)
+
+export const getApiV2NatureListUrl = (params?: ApiV2NatureListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/nature/?${stringifiedParams}`
-    : `/api/v2/nature/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/nature/?${stringifiedParams}` : `https://pokeapi.co/api/v2/nature/`
+}
 
-export const apiV2NatureList = async (
-  params?: ApiV2NatureListParams,
-  options?: RequestInit,
-): Promise<apiV2NatureListResponse> => {
-  const res = await fetch(getApiV2NatureListUrl(params), {
+export const apiV2NatureList = async (params?: ApiV2NatureListParams, options?: RequestInit): Promise<apiV2NatureListResponse> => {
+  
+  const res = await fetch(getApiV2NatureListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2NatureListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2NatureListResponse
+}
 
-  const data: apiV2NatureListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2NatureListResponse;
-};
 
-export const getApiV2NatureListQueryKey = (params?: ApiV2NatureListParams) => {
-  return [`/api/v2/nature/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2NatureListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2NatureList>>,
-  TError = unknown,
->(
-  params?: ApiV2NatureListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2NatureList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2NatureListQueryKey = (params?: ApiV2NatureListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/nature/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2NatureListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2NatureList>>, TError = unknown>(params?: ApiV2NatureListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2NatureList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2NatureListQueryKey(params);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2NatureList>>> = ({
-    signal,
-  }) => apiV2NatureList(params, { signal, ...fetchOptions });
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2NatureList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2NatureListQueryKey(params);
 
-export type ApiV2NatureListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2NatureList>>
->;
-export type ApiV2NatureListQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2NatureList>>> = ({ signal }) => apiV2NatureList(params, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2NatureList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2NatureListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2NatureList>>>
+export type ApiV2NatureListQueryError = unknown
+
+
+export function useApiV2NatureList<TData = Awaited<ReturnType<typeof apiV2NatureList>>, TError = unknown>(
+ params: undefined |  ApiV2NatureListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2NatureList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2NatureList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2NatureList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2NatureList<TData = Awaited<ReturnType<typeof apiV2NatureList>>, TError = unknown>(
+ params?: ApiV2NatureListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2NatureList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2NatureList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2NatureList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2NatureList<TData = Awaited<ReturnType<typeof apiV2NatureList>>, TError = unknown>(
+ params?: ApiV2NatureListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2NatureList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List natures
  */
 
-export function useApiV2NatureList<
-  TData = Awaited<ReturnType<typeof apiV2NatureList>>,
-  TError = unknown,
->(
-  params?: ApiV2NatureListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2NatureList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2NatureListQueryOptions(params, options);
+export function useApiV2NatureList<TData = Awaited<ReturnType<typeof apiV2NatureList>>, TError = unknown>(
+ params?: ApiV2NatureListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2NatureList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2NatureListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Natures influence how a Pokémon's stats grow. See [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Nature) for greater detail.
  * @summary Get nature
  */
 export type apiV2NatureRetrieveResponse200 = {
-  data: NatureDetail;
-  status: 200;
+  data: NatureDetail
+  status: 200
+}
+    
+export type apiV2NatureRetrieveResponseSuccess = (apiV2NatureRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2NatureRetrieveResponseSuccess =
-  apiV2NatureRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2NatureRetrieveResponse = apiV2NatureRetrieveResponseSuccess;
+export type apiV2NatureRetrieveResponse = (apiV2NatureRetrieveResponseSuccess)
 
-export const getApiV2NatureRetrieveUrl = (id: string) => {
-  return `/api/v2/nature/${id}/`;
-};
+export const getApiV2NatureRetrieveUrl = (id: string,) => {
 
-export const apiV2NatureRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2NatureRetrieveResponse> => {
-  const res = await fetch(getApiV2NatureRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/nature/${id}/`
+}
+
+export const apiV2NatureRetrieve = async (id: string, options?: RequestInit): Promise<apiV2NatureRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2NatureRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2NatureRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2NatureRetrieveResponse
+}
 
-  const data: apiV2NatureRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2NatureRetrieveResponse;
-};
 
-export const getApiV2NatureRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/nature/${id}/`] as const;
-};
 
-export const getApiV2NatureRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2NatureRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2NatureRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2NatureRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/nature/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2NatureRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2NatureRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2NatureRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2NatureRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2NatureRetrieve>>
-  > = ({ signal }) => apiV2NatureRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2NatureRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2NatureRetrieveQueryKey(id);
 
-export type ApiV2NatureRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2NatureRetrieve>>
->;
-export type ApiV2NatureRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2NatureRetrieve>>> = ({ signal }) => apiV2NatureRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2NatureRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2NatureRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2NatureRetrieve>>>
+export type ApiV2NatureRetrieveQueryError = unknown
+
+
+export function useApiV2NatureRetrieve<TData = Awaited<ReturnType<typeof apiV2NatureRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2NatureRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2NatureRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2NatureRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2NatureRetrieve<TData = Awaited<ReturnType<typeof apiV2NatureRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2NatureRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2NatureRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2NatureRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2NatureRetrieve<TData = Awaited<ReturnType<typeof apiV2NatureRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2NatureRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get nature
  */
 
-export function useApiV2NatureRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2NatureRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2NatureRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2NatureRetrieveQueryOptions(id, options);
+export function useApiV2NatureRetrieve<TData = Awaited<ReturnType<typeof apiV2NatureRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2NatureRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2NatureRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Areas used for grouping Pokémon encounters in Pal Park. They're like habitats that are specific to Pal Park.
  * @summary List pal park areas
  */
 export type apiV2PalParkAreaListResponse200 = {
-  data: PaginatedPalParkAreaSummaryList;
-  status: 200;
+  data: PaginatedPalParkAreaSummaryList
+  status: 200
+}
+    
+export type apiV2PalParkAreaListResponseSuccess = (apiV2PalParkAreaListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PalParkAreaListResponseSuccess =
-  apiV2PalParkAreaListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PalParkAreaListResponse = apiV2PalParkAreaListResponseSuccess;
+export type apiV2PalParkAreaListResponse = (apiV2PalParkAreaListResponseSuccess)
 
-export const getApiV2PalParkAreaListUrl = (
-  params?: ApiV2PalParkAreaListParams,
-) => {
+export const getApiV2PalParkAreaListUrl = (params?: ApiV2PalParkAreaListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/pal-park-area/?${stringifiedParams}`
-    : `/api/v2/pal-park-area/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/pal-park-area/?${stringifiedParams}` : `https://pokeapi.co/api/v2/pal-park-area/`
+}
 
-export const apiV2PalParkAreaList = async (
-  params?: ApiV2PalParkAreaListParams,
-  options?: RequestInit,
-): Promise<apiV2PalParkAreaListResponse> => {
-  const res = await fetch(getApiV2PalParkAreaListUrl(params), {
+export const apiV2PalParkAreaList = async (params?: ApiV2PalParkAreaListParams, options?: RequestInit): Promise<apiV2PalParkAreaListResponse> => {
+  
+  const res = await fetch(getApiV2PalParkAreaListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PalParkAreaListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PalParkAreaListResponse
+}
 
-  const data: apiV2PalParkAreaListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PalParkAreaListResponse;
-};
 
-export const getApiV2PalParkAreaListQueryKey = (
-  params?: ApiV2PalParkAreaListParams,
+
+
+
+export const getApiV2PalParkAreaListQueryKey = (params?: ApiV2PalParkAreaListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/pal-park-area/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2PalParkAreaListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PalParkAreaList>>, TError = unknown>(params?: ApiV2PalParkAreaListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PalParkAreaList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/pal-park-area/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2PalParkAreaListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PalParkAreaList>>,
-  TError = unknown,
->(
-  params?: ApiV2PalParkAreaListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PalParkAreaList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PalParkAreaListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PalParkAreaList>>
-  > = ({ signal }) => apiV2PalParkAreaList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PalParkAreaListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PalParkAreaList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2PalParkAreaListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PalParkAreaList>>
->;
-export type ApiV2PalParkAreaListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PalParkAreaList>>> = ({ signal }) => apiV2PalParkAreaList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PalParkAreaList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PalParkAreaListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PalParkAreaList>>>
+export type ApiV2PalParkAreaListQueryError = unknown
+
+
+export function useApiV2PalParkAreaList<TData = Awaited<ReturnType<typeof apiV2PalParkAreaList>>, TError = unknown>(
+ params: undefined |  ApiV2PalParkAreaListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PalParkAreaList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PalParkAreaList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PalParkAreaList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PalParkAreaList<TData = Awaited<ReturnType<typeof apiV2PalParkAreaList>>, TError = unknown>(
+ params?: ApiV2PalParkAreaListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PalParkAreaList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PalParkAreaList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PalParkAreaList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PalParkAreaList<TData = Awaited<ReturnType<typeof apiV2PalParkAreaList>>, TError = unknown>(
+ params?: ApiV2PalParkAreaListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PalParkAreaList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List pal park areas
  */
 
-export function useApiV2PalParkAreaList<
-  TData = Awaited<ReturnType<typeof apiV2PalParkAreaList>>,
-  TError = unknown,
->(
-  params?: ApiV2PalParkAreaListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PalParkAreaList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PalParkAreaListQueryOptions(params, options);
+export function useApiV2PalParkAreaList<TData = Awaited<ReturnType<typeof apiV2PalParkAreaList>>, TError = unknown>(
+ params?: ApiV2PalParkAreaListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PalParkAreaList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PalParkAreaListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Areas used for grouping Pokémon encounters in Pal Park. They're like habitats that are specific to Pal Park.
  * @summary Get pal park area
  */
 export type apiV2PalParkAreaRetrieveResponse200 = {
-  data: PalParkAreaDetail;
-  status: 200;
+  data: PalParkAreaDetail
+  status: 200
+}
+    
+export type apiV2PalParkAreaRetrieveResponseSuccess = (apiV2PalParkAreaRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PalParkAreaRetrieveResponseSuccess =
-  apiV2PalParkAreaRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PalParkAreaRetrieveResponse =
-  apiV2PalParkAreaRetrieveResponseSuccess;
+export type apiV2PalParkAreaRetrieveResponse = (apiV2PalParkAreaRetrieveResponseSuccess)
 
-export const getApiV2PalParkAreaRetrieveUrl = (id: string) => {
-  return `/api/v2/pal-park-area/${id}/`;
-};
+export const getApiV2PalParkAreaRetrieveUrl = (id: string,) => {
 
-export const apiV2PalParkAreaRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2PalParkAreaRetrieveResponse> => {
-  const res = await fetch(getApiV2PalParkAreaRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/pal-park-area/${id}/`
+}
+
+export const apiV2PalParkAreaRetrieve = async (id: string, options?: RequestInit): Promise<apiV2PalParkAreaRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2PalParkAreaRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PalParkAreaRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PalParkAreaRetrieveResponse
+}
 
-  const data: apiV2PalParkAreaRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PalParkAreaRetrieveResponse;
-};
 
-export const getApiV2PalParkAreaRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/pal-park-area/${id}/`] as const;
-};
 
-export const getApiV2PalParkAreaRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2PalParkAreaRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/pal-park-area/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2PalParkAreaRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PalParkAreaRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>
-  > = ({ signal }) => apiV2PalParkAreaRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PalParkAreaRetrieveQueryKey(id);
 
-export type ApiV2PalParkAreaRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>
->;
-export type ApiV2PalParkAreaRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>> = ({ signal }) => apiV2PalParkAreaRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PalParkAreaRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>>
+export type ApiV2PalParkAreaRetrieveQueryError = unknown
+
+
+export function useApiV2PalParkAreaRetrieve<TData = Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PalParkAreaRetrieve<TData = Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PalParkAreaRetrieve<TData = Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get pal park area
  */
 
-export function useApiV2PalParkAreaRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PalParkAreaRetrieveQueryOptions(id, options);
+export function useApiV2PalParkAreaRetrieve<TData = Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PalParkAreaRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PalParkAreaRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * A Pokédex is a handheld electronic encyclopedia device; one which is capable of recording and retaining information of the various Pokémon in a given region with the exception of the national dex and some smaller dexes related to portions of a region. See [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Pokedex) for greater detail.
  * @summary List pokedex
  */
 export type apiV2PokedexListResponse200 = {
-  data: PaginatedPokedexSummaryList;
-  status: 200;
-};
-
-export type apiV2PokedexListResponseSuccess = apiV2PokedexListResponse200 & {
+  data: PaginatedPokedexSummaryList
+  status: 200
+}
+    
+export type apiV2PokedexListResponseSuccess = (apiV2PokedexListResponse200) & {
   headers: Headers;
 };
-export type apiV2PokedexListResponse = apiV2PokedexListResponseSuccess;
+;
 
-export const getApiV2PokedexListUrl = (params?: ApiV2PokedexListParams) => {
+export type apiV2PokedexListResponse = (apiV2PokedexListResponseSuccess)
+
+export const getApiV2PokedexListUrl = (params?: ApiV2PokedexListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/pokedex/?${stringifiedParams}`
-    : `/api/v2/pokedex/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/pokedex/?${stringifiedParams}` : `https://pokeapi.co/api/v2/pokedex/`
+}
 
-export const apiV2PokedexList = async (
-  params?: ApiV2PokedexListParams,
-  options?: RequestInit,
-): Promise<apiV2PokedexListResponse> => {
-  const res = await fetch(getApiV2PokedexListUrl(params), {
+export const apiV2PokedexList = async (params?: ApiV2PokedexListParams, options?: RequestInit): Promise<apiV2PokedexListResponse> => {
+  
+  const res = await fetch(getApiV2PokedexListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokedexListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokedexListResponse
+}
 
-  const data: apiV2PokedexListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokedexListResponse;
-};
 
-export const getApiV2PokedexListQueryKey = (
-  params?: ApiV2PokedexListParams,
+
+
+
+export const getApiV2PokedexListQueryKey = (params?: ApiV2PokedexListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokedex/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2PokedexListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokedexList>>, TError = unknown>(params?: ApiV2PokedexListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokedexList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/pokedex/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2PokedexListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokedexList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokedexListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokedexList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokedexListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokedexList>>
-  > = ({ signal }) => apiV2PokedexList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokedexListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokedexList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2PokedexListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokedexList>>
->;
-export type ApiV2PokedexListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokedexList>>> = ({ signal }) => apiV2PokedexList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokedexList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokedexListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokedexList>>>
+export type ApiV2PokedexListQueryError = unknown
+
+
+export function useApiV2PokedexList<TData = Awaited<ReturnType<typeof apiV2PokedexList>>, TError = unknown>(
+ params: undefined |  ApiV2PokedexListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokedexList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokedexList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokedexList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokedexList<TData = Awaited<ReturnType<typeof apiV2PokedexList>>, TError = unknown>(
+ params?: ApiV2PokedexListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokedexList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokedexList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokedexList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokedexList<TData = Awaited<ReturnType<typeof apiV2PokedexList>>, TError = unknown>(
+ params?: ApiV2PokedexListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokedexList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List pokedex
  */
 
-export function useApiV2PokedexList<
-  TData = Awaited<ReturnType<typeof apiV2PokedexList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokedexListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokedexList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokedexListQueryOptions(params, options);
+export function useApiV2PokedexList<TData = Awaited<ReturnType<typeof apiV2PokedexList>>, TError = unknown>(
+ params?: ApiV2PokedexListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokedexList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokedexListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * A Pokédex is a handheld electronic encyclopedia device; one which is capable of recording and retaining information of the various Pokémon in a given region with the exception of the national dex and some smaller dexes related to portions of a region. See [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Pokedex) for greater detail.
  * @summary Get pokedex
  */
 export type apiV2PokedexRetrieveResponse200 = {
-  data: PokedexDetail;
-  status: 200;
+  data: PokedexDetail
+  status: 200
+}
+    
+export type apiV2PokedexRetrieveResponseSuccess = (apiV2PokedexRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokedexRetrieveResponseSuccess =
-  apiV2PokedexRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokedexRetrieveResponse = apiV2PokedexRetrieveResponseSuccess;
+export type apiV2PokedexRetrieveResponse = (apiV2PokedexRetrieveResponseSuccess)
 
-export const getApiV2PokedexRetrieveUrl = (id: string) => {
-  return `/api/v2/pokedex/${id}/`;
-};
+export const getApiV2PokedexRetrieveUrl = (id: string,) => {
 
-export const apiV2PokedexRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2PokedexRetrieveResponse> => {
-  const res = await fetch(getApiV2PokedexRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/pokedex/${id}/`
+}
+
+export const apiV2PokedexRetrieve = async (id: string, options?: RequestInit): Promise<apiV2PokedexRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2PokedexRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokedexRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokedexRetrieveResponse
+}
 
-  const data: apiV2PokedexRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokedexRetrieveResponse;
-};
 
-export const getApiV2PokedexRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/pokedex/${id}/`] as const;
-};
 
-export const getApiV2PokedexRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokedexRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokedexRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2PokedexRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokedex/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2PokedexRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokedexRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokedexRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokedexRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokedexRetrieve>>
-  > = ({ signal }) => apiV2PokedexRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokedexRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokedexRetrieveQueryKey(id);
 
-export type ApiV2PokedexRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokedexRetrieve>>
->;
-export type ApiV2PokedexRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokedexRetrieve>>> = ({ signal }) => apiV2PokedexRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokedexRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokedexRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokedexRetrieve>>>
+export type ApiV2PokedexRetrieveQueryError = unknown
+
+
+export function useApiV2PokedexRetrieve<TData = Awaited<ReturnType<typeof apiV2PokedexRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokedexRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokedexRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokedexRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokedexRetrieve<TData = Awaited<ReturnType<typeof apiV2PokedexRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokedexRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokedexRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokedexRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokedexRetrieve<TData = Awaited<ReturnType<typeof apiV2PokedexRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokedexRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get pokedex
  */
 
-export function useApiV2PokedexRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2PokedexRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokedexRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokedexRetrieveQueryOptions(id, options);
+export function useApiV2PokedexRetrieve<TData = Awaited<ReturnType<typeof apiV2PokedexRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokedexRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokedexRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Pokémon are the creatures that inhabit the world of the Pokémon games. They can be caught using Pokéballs and trained by battling with other Pokémon. Each Pokémon belongs to a specific species but may take on a variant which makes it differ from other Pokémon of the same species, such as base stats, available abilities and typings. See [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_(species)) for greater detail.
  * @summary List pokemon
  */
 export type apiV2PokemonListResponse200 = {
-  data: PaginatedPokemonSummaryList;
-  status: 200;
-};
-
-export type apiV2PokemonListResponseSuccess = apiV2PokemonListResponse200 & {
+  data: PaginatedPokemonSummaryList
+  status: 200
+}
+    
+export type apiV2PokemonListResponseSuccess = (apiV2PokemonListResponse200) & {
   headers: Headers;
 };
-export type apiV2PokemonListResponse = apiV2PokemonListResponseSuccess;
+;
 
-export const getApiV2PokemonListUrl = (params?: ApiV2PokemonListParams) => {
+export type apiV2PokemonListResponse = (apiV2PokemonListResponseSuccess)
+
+export const getApiV2PokemonListUrl = (params?: ApiV2PokemonListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/pokemon/?${stringifiedParams}`
-    : `/api/v2/pokemon/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/pokemon/?${stringifiedParams}` : `https://pokeapi.co/api/v2/pokemon/`
+}
 
-export const apiV2PokemonList = async (
-  params?: ApiV2PokemonListParams,
-  options?: RequestInit,
-): Promise<apiV2PokemonListResponse> => {
-  const res = await fetch(getApiV2PokemonListUrl(params), {
+export const apiV2PokemonList = async (params?: ApiV2PokemonListParams, options?: RequestInit): Promise<apiV2PokemonListResponse> => {
+  
+  const res = await fetch(getApiV2PokemonListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonListResponse
+}
 
-  const data: apiV2PokemonListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonListResponse;
-};
 
-export const getApiV2PokemonListQueryKey = (
-  params?: ApiV2PokemonListParams,
+
+
+
+export const getApiV2PokemonListQueryKey = (params?: ApiV2PokemonListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonList>>, TError = unknown>(params?: ApiV2PokemonListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/pokemon/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2PokemonListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokemonListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokemonListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonList>>
-  > = ({ signal }) => apiV2PokemonList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2PokemonListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonList>>
->;
-export type ApiV2PokemonListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonList>>> = ({ signal }) => apiV2PokemonList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonList>>>
+export type ApiV2PokemonListQueryError = unknown
+
+
+export function useApiV2PokemonList<TData = Awaited<ReturnType<typeof apiV2PokemonList>>, TError = unknown>(
+ params: undefined |  ApiV2PokemonListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonList<TData = Awaited<ReturnType<typeof apiV2PokemonList>>, TError = unknown>(
+ params?: ApiV2PokemonListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonList<TData = Awaited<ReturnType<typeof apiV2PokemonList>>, TError = unknown>(
+ params?: ApiV2PokemonListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List pokemon
  */
 
-export function useApiV2PokemonList<
-  TData = Awaited<ReturnType<typeof apiV2PokemonList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokemonListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonListQueryOptions(params, options);
+export function useApiV2PokemonList<TData = Awaited<ReturnType<typeof apiV2PokemonList>>, TError = unknown>(
+ params?: ApiV2PokemonListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Pokémon are the creatures that inhabit the world of the Pokémon games. They can be caught using Pokéballs and trained by battling with other Pokémon. Each Pokémon belongs to a specific species but may take on a variant which makes it differ from other Pokémon of the same species, such as base stats, available abilities and typings. See [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_(species)) for greater detail.
  * @summary Get pokemon
  */
 export type apiV2PokemonRetrieveResponse200 = {
-  data: PokemonDetail;
-  status: 200;
+  data: PokemonDetail
+  status: 200
+}
+    
+export type apiV2PokemonRetrieveResponseSuccess = (apiV2PokemonRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokemonRetrieveResponseSuccess =
-  apiV2PokemonRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokemonRetrieveResponse = apiV2PokemonRetrieveResponseSuccess;
+export type apiV2PokemonRetrieveResponse = (apiV2PokemonRetrieveResponseSuccess)
 
-export const getApiV2PokemonRetrieveUrl = (id: string) => {
-  return `/api/v2/pokemon/${id}/`;
-};
+export const getApiV2PokemonRetrieveUrl = (id: string,) => {
 
-export const apiV2PokemonRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2PokemonRetrieveResponse> => {
-  const res = await fetch(getApiV2PokemonRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/pokemon/${id}/`
+}
+
+export const apiV2PokemonRetrieve = async (id: string, options?: RequestInit): Promise<apiV2PokemonRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2PokemonRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonRetrieveResponse
+}
 
-  const data: apiV2PokemonRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonRetrieveResponse;
-};
 
-export const getApiV2PokemonRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/pokemon/${id}/`] as const;
-};
 
-export const getApiV2PokemonRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2PokemonRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokemonRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonRetrieve>>
-  > = ({ signal }) => apiV2PokemonRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonRetrieveQueryKey(id);
 
-export type ApiV2PokemonRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonRetrieve>>
->;
-export type ApiV2PokemonRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonRetrieve>>> = ({ signal }) => apiV2PokemonRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonRetrieve>>>
+export type ApiV2PokemonRetrieveQueryError = unknown
+
+
+export function useApiV2PokemonRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get pokemon
  */
 
-export function useApiV2PokemonRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2PokemonRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonRetrieveQueryOptions(id, options);
+export function useApiV2PokemonRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Colors used for sorting Pokémon in a Pokédex. The color listed in the Pokédex is usually the color most apparent or covering each Pokémon's body. No orange category exists; Pokémon that are primarily orange are listed as red or brown.
  * @summary List pokemon colors
  */
 export type apiV2PokemonColorListResponse200 = {
-  data: PaginatedPokemonColorSummaryList;
-  status: 200;
+  data: PaginatedPokemonColorSummaryList
+  status: 200
+}
+    
+export type apiV2PokemonColorListResponseSuccess = (apiV2PokemonColorListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokemonColorListResponseSuccess =
-  apiV2PokemonColorListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokemonColorListResponse =
-  apiV2PokemonColorListResponseSuccess;
+export type apiV2PokemonColorListResponse = (apiV2PokemonColorListResponseSuccess)
 
-export const getApiV2PokemonColorListUrl = (
-  params?: ApiV2PokemonColorListParams,
-) => {
+export const getApiV2PokemonColorListUrl = (params?: ApiV2PokemonColorListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/pokemon-color/?${stringifiedParams}`
-    : `/api/v2/pokemon-color/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/pokemon-color/?${stringifiedParams}` : `https://pokeapi.co/api/v2/pokemon-color/`
+}
 
-export const apiV2PokemonColorList = async (
-  params?: ApiV2PokemonColorListParams,
-  options?: RequestInit,
-): Promise<apiV2PokemonColorListResponse> => {
-  const res = await fetch(getApiV2PokemonColorListUrl(params), {
+export const apiV2PokemonColorList = async (params?: ApiV2PokemonColorListParams, options?: RequestInit): Promise<apiV2PokemonColorListResponse> => {
+  
+  const res = await fetch(getApiV2PokemonColorListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonColorListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonColorListResponse
+}
 
-  const data: apiV2PokemonColorListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonColorListResponse;
-};
 
-export const getApiV2PokemonColorListQueryKey = (
-  params?: ApiV2PokemonColorListParams,
+
+
+
+export const getApiV2PokemonColorListQueryKey = (params?: ApiV2PokemonColorListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon-color/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonColorListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonColorList>>, TError = unknown>(params?: ApiV2PokemonColorListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonColorList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/pokemon-color/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2PokemonColorListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonColorList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokemonColorListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonColorList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokemonColorListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonColorList>>
-  > = ({ signal }) =>
-    apiV2PokemonColorList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonColorListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonColorList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2PokemonColorListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonColorList>>
->;
-export type ApiV2PokemonColorListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonColorList>>> = ({ signal }) => apiV2PokemonColorList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonColorList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonColorListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonColorList>>>
+export type ApiV2PokemonColorListQueryError = unknown
+
+
+export function useApiV2PokemonColorList<TData = Awaited<ReturnType<typeof apiV2PokemonColorList>>, TError = unknown>(
+ params: undefined |  ApiV2PokemonColorListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonColorList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonColorList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonColorList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonColorList<TData = Awaited<ReturnType<typeof apiV2PokemonColorList>>, TError = unknown>(
+ params?: ApiV2PokemonColorListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonColorList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonColorList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonColorList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonColorList<TData = Awaited<ReturnType<typeof apiV2PokemonColorList>>, TError = unknown>(
+ params?: ApiV2PokemonColorListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonColorList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List pokemon colors
  */
 
-export function useApiV2PokemonColorList<
-  TData = Awaited<ReturnType<typeof apiV2PokemonColorList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokemonColorListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonColorList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonColorListQueryOptions(params, options);
+export function useApiV2PokemonColorList<TData = Awaited<ReturnType<typeof apiV2PokemonColorList>>, TError = unknown>(
+ params?: ApiV2PokemonColorListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonColorList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonColorListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Colors used for sorting Pokémon in a Pokédex. The color listed in the Pokédex is usually the color most apparent or covering each Pokémon's body. No orange category exists; Pokémon that are primarily orange are listed as red or brown.
  * @summary Get pokemon color
  */
 export type apiV2PokemonColorRetrieveResponse200 = {
-  data: PokemonColorDetail;
-  status: 200;
+  data: PokemonColorDetail
+  status: 200
+}
+    
+export type apiV2PokemonColorRetrieveResponseSuccess = (apiV2PokemonColorRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokemonColorRetrieveResponseSuccess =
-  apiV2PokemonColorRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokemonColorRetrieveResponse =
-  apiV2PokemonColorRetrieveResponseSuccess;
+export type apiV2PokemonColorRetrieveResponse = (apiV2PokemonColorRetrieveResponseSuccess)
 
-export const getApiV2PokemonColorRetrieveUrl = (id: string) => {
-  return `/api/v2/pokemon-color/${id}/`;
-};
+export const getApiV2PokemonColorRetrieveUrl = (id: string,) => {
 
-export const apiV2PokemonColorRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2PokemonColorRetrieveResponse> => {
-  const res = await fetch(getApiV2PokemonColorRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/pokemon-color/${id}/`
+}
+
+export const apiV2PokemonColorRetrieve = async (id: string, options?: RequestInit): Promise<apiV2PokemonColorRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2PokemonColorRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonColorRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonColorRetrieveResponse
+}
 
-  const data: apiV2PokemonColorRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonColorRetrieveResponse;
-};
 
-export const getApiV2PokemonColorRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/pokemon-color/${id}/`] as const;
-};
 
-export const getApiV2PokemonColorRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2PokemonColorRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon-color/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonColorRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokemonColorRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>
-  > = ({ signal }) =>
-    apiV2PokemonColorRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonColorRetrieveQueryKey(id);
 
-export type ApiV2PokemonColorRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>
->;
-export type ApiV2PokemonColorRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>> = ({ signal }) => apiV2PokemonColorRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonColorRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>>
+export type ApiV2PokemonColorRetrieveQueryError = unknown
+
+
+export function useApiV2PokemonColorRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonColorRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonColorRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get pokemon color
  */
 
-export function useApiV2PokemonColorRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonColorRetrieveQueryOptions(id, options);
+export function useApiV2PokemonColorRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonColorRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonColorRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Some Pokémon may appear in one of multiple, visually different forms. These differences are purely cosmetic. For variations within a Pokémon species, which do differ in more than just visuals, the 'Pokémon' entity is used to represent such a variety.
  * @summary List pokemon forms
  */
 export type apiV2PokemonFormListResponse200 = {
-  data: PaginatedPokemonFormSummaryList;
-  status: 200;
+  data: PaginatedPokemonFormSummaryList
+  status: 200
+}
+    
+export type apiV2PokemonFormListResponseSuccess = (apiV2PokemonFormListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokemonFormListResponseSuccess =
-  apiV2PokemonFormListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokemonFormListResponse = apiV2PokemonFormListResponseSuccess;
+export type apiV2PokemonFormListResponse = (apiV2PokemonFormListResponseSuccess)
 
-export const getApiV2PokemonFormListUrl = (
-  params?: ApiV2PokemonFormListParams,
-) => {
+export const getApiV2PokemonFormListUrl = (params?: ApiV2PokemonFormListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/pokemon-form/?${stringifiedParams}`
-    : `/api/v2/pokemon-form/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/pokemon-form/?${stringifiedParams}` : `https://pokeapi.co/api/v2/pokemon-form/`
+}
 
-export const apiV2PokemonFormList = async (
-  params?: ApiV2PokemonFormListParams,
-  options?: RequestInit,
-): Promise<apiV2PokemonFormListResponse> => {
-  const res = await fetch(getApiV2PokemonFormListUrl(params), {
+export const apiV2PokemonFormList = async (params?: ApiV2PokemonFormListParams, options?: RequestInit): Promise<apiV2PokemonFormListResponse> => {
+  
+  const res = await fetch(getApiV2PokemonFormListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonFormListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonFormListResponse
+}
 
-  const data: apiV2PokemonFormListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonFormListResponse;
-};
 
-export const getApiV2PokemonFormListQueryKey = (
-  params?: ApiV2PokemonFormListParams,
+
+
+
+export const getApiV2PokemonFormListQueryKey = (params?: ApiV2PokemonFormListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon-form/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonFormListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonFormList>>, TError = unknown>(params?: ApiV2PokemonFormListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonFormList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/pokemon-form/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2PokemonFormListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonFormList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokemonFormListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonFormList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokemonFormListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonFormList>>
-  > = ({ signal }) => apiV2PokemonFormList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonFormListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonFormList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2PokemonFormListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonFormList>>
->;
-export type ApiV2PokemonFormListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonFormList>>> = ({ signal }) => apiV2PokemonFormList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonFormList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonFormListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonFormList>>>
+export type ApiV2PokemonFormListQueryError = unknown
+
+
+export function useApiV2PokemonFormList<TData = Awaited<ReturnType<typeof apiV2PokemonFormList>>, TError = unknown>(
+ params: undefined |  ApiV2PokemonFormListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonFormList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonFormList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonFormList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonFormList<TData = Awaited<ReturnType<typeof apiV2PokemonFormList>>, TError = unknown>(
+ params?: ApiV2PokemonFormListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonFormList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonFormList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonFormList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonFormList<TData = Awaited<ReturnType<typeof apiV2PokemonFormList>>, TError = unknown>(
+ params?: ApiV2PokemonFormListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonFormList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List pokemon forms
  */
 
-export function useApiV2PokemonFormList<
-  TData = Awaited<ReturnType<typeof apiV2PokemonFormList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokemonFormListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonFormList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonFormListQueryOptions(params, options);
+export function useApiV2PokemonFormList<TData = Awaited<ReturnType<typeof apiV2PokemonFormList>>, TError = unknown>(
+ params?: ApiV2PokemonFormListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonFormList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonFormListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Some Pokémon may appear in one of multiple, visually different forms. These differences are purely cosmetic. For variations within a Pokémon species, which do differ in more than just visuals, the 'Pokémon' entity is used to represent such a variety.
  * @summary Get pokemon form
  */
 export type apiV2PokemonFormRetrieveResponse200 = {
-  data: PokemonFormDetail;
-  status: 200;
+  data: PokemonFormDetail
+  status: 200
+}
+    
+export type apiV2PokemonFormRetrieveResponseSuccess = (apiV2PokemonFormRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokemonFormRetrieveResponseSuccess =
-  apiV2PokemonFormRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokemonFormRetrieveResponse =
-  apiV2PokemonFormRetrieveResponseSuccess;
+export type apiV2PokemonFormRetrieveResponse = (apiV2PokemonFormRetrieveResponseSuccess)
 
-export const getApiV2PokemonFormRetrieveUrl = (id: string) => {
-  return `/api/v2/pokemon-form/${id}/`;
-};
+export const getApiV2PokemonFormRetrieveUrl = (id: string,) => {
 
-export const apiV2PokemonFormRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2PokemonFormRetrieveResponse> => {
-  const res = await fetch(getApiV2PokemonFormRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/pokemon-form/${id}/`
+}
+
+export const apiV2PokemonFormRetrieve = async (id: string, options?: RequestInit): Promise<apiV2PokemonFormRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2PokemonFormRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonFormRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonFormRetrieveResponse
+}
 
-  const data: apiV2PokemonFormRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonFormRetrieveResponse;
-};
 
-export const getApiV2PokemonFormRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/pokemon-form/${id}/`] as const;
-};
 
-export const getApiV2PokemonFormRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2PokemonFormRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon-form/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonFormRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokemonFormRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>
-  > = ({ signal }) => apiV2PokemonFormRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonFormRetrieveQueryKey(id);
 
-export type ApiV2PokemonFormRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>
->;
-export type ApiV2PokemonFormRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>> = ({ signal }) => apiV2PokemonFormRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonFormRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>>
+export type ApiV2PokemonFormRetrieveQueryError = unknown
+
+
+export function useApiV2PokemonFormRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonFormRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonFormRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get pokemon form
  */
 
-export function useApiV2PokemonFormRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonFormRetrieveQueryOptions(id, options);
+export function useApiV2PokemonFormRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonFormRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonFormRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Habitats are generally different terrain Pokémon can be found in but can also be areas designated for rare or legendary Pokémon.
  * @summary List pokemom habitas
  */
 export type apiV2PokemonHabitatListResponse200 = {
-  data: PaginatedPokemonHabitatSummaryList;
-  status: 200;
+  data: PaginatedPokemonHabitatSummaryList
+  status: 200
+}
+    
+export type apiV2PokemonHabitatListResponseSuccess = (apiV2PokemonHabitatListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokemonHabitatListResponseSuccess =
-  apiV2PokemonHabitatListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokemonHabitatListResponse =
-  apiV2PokemonHabitatListResponseSuccess;
+export type apiV2PokemonHabitatListResponse = (apiV2PokemonHabitatListResponseSuccess)
 
-export const getApiV2PokemonHabitatListUrl = (
-  params?: ApiV2PokemonHabitatListParams,
-) => {
+export const getApiV2PokemonHabitatListUrl = (params?: ApiV2PokemonHabitatListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/pokemon-habitat/?${stringifiedParams}`
-    : `/api/v2/pokemon-habitat/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/pokemon-habitat/?${stringifiedParams}` : `https://pokeapi.co/api/v2/pokemon-habitat/`
+}
 
-export const apiV2PokemonHabitatList = async (
-  params?: ApiV2PokemonHabitatListParams,
-  options?: RequestInit,
-): Promise<apiV2PokemonHabitatListResponse> => {
-  const res = await fetch(getApiV2PokemonHabitatListUrl(params), {
+export const apiV2PokemonHabitatList = async (params?: ApiV2PokemonHabitatListParams, options?: RequestInit): Promise<apiV2PokemonHabitatListResponse> => {
+  
+  const res = await fetch(getApiV2PokemonHabitatListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonHabitatListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonHabitatListResponse
+}
 
-  const data: apiV2PokemonHabitatListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonHabitatListResponse;
-};
 
-export const getApiV2PokemonHabitatListQueryKey = (
-  params?: ApiV2PokemonHabitatListParams,
+
+
+
+export const getApiV2PokemonHabitatListQueryKey = (params?: ApiV2PokemonHabitatListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon-habitat/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonHabitatListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonHabitatList>>, TError = unknown>(params?: ApiV2PokemonHabitatListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonHabitatList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/pokemon-habitat/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2PokemonHabitatListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonHabitatList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokemonHabitatListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonHabitatList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokemonHabitatListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonHabitatList>>
-  > = ({ signal }) =>
-    apiV2PokemonHabitatList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonHabitatListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonHabitatList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2PokemonHabitatListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonHabitatList>>
->;
-export type ApiV2PokemonHabitatListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonHabitatList>>> = ({ signal }) => apiV2PokemonHabitatList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonHabitatList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonHabitatListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonHabitatList>>>
+export type ApiV2PokemonHabitatListQueryError = unknown
+
+
+export function useApiV2PokemonHabitatList<TData = Awaited<ReturnType<typeof apiV2PokemonHabitatList>>, TError = unknown>(
+ params: undefined |  ApiV2PokemonHabitatListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonHabitatList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonHabitatList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonHabitatList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonHabitatList<TData = Awaited<ReturnType<typeof apiV2PokemonHabitatList>>, TError = unknown>(
+ params?: ApiV2PokemonHabitatListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonHabitatList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonHabitatList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonHabitatList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonHabitatList<TData = Awaited<ReturnType<typeof apiV2PokemonHabitatList>>, TError = unknown>(
+ params?: ApiV2PokemonHabitatListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonHabitatList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List pokemom habitas
  */
 
-export function useApiV2PokemonHabitatList<
-  TData = Awaited<ReturnType<typeof apiV2PokemonHabitatList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokemonHabitatListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonHabitatList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonHabitatListQueryOptions(params, options);
+export function useApiV2PokemonHabitatList<TData = Awaited<ReturnType<typeof apiV2PokemonHabitatList>>, TError = unknown>(
+ params?: ApiV2PokemonHabitatListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonHabitatList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonHabitatListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Habitats are generally different terrain Pokémon can be found in but can also be areas designated for rare or legendary Pokémon.
  * @summary Get pokemom habita
  */
 export type apiV2PokemonHabitatRetrieveResponse200 = {
-  data: PokemonHabitatDetail;
-  status: 200;
+  data: PokemonHabitatDetail
+  status: 200
+}
+    
+export type apiV2PokemonHabitatRetrieveResponseSuccess = (apiV2PokemonHabitatRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokemonHabitatRetrieveResponseSuccess =
-  apiV2PokemonHabitatRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokemonHabitatRetrieveResponse =
-  apiV2PokemonHabitatRetrieveResponseSuccess;
+export type apiV2PokemonHabitatRetrieveResponse = (apiV2PokemonHabitatRetrieveResponseSuccess)
 
-export const getApiV2PokemonHabitatRetrieveUrl = (id: string) => {
-  return `/api/v2/pokemon-habitat/${id}/`;
-};
+export const getApiV2PokemonHabitatRetrieveUrl = (id: string,) => {
 
-export const apiV2PokemonHabitatRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2PokemonHabitatRetrieveResponse> => {
-  const res = await fetch(getApiV2PokemonHabitatRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/pokemon-habitat/${id}/`
+}
+
+export const apiV2PokemonHabitatRetrieve = async (id: string, options?: RequestInit): Promise<apiV2PokemonHabitatRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2PokemonHabitatRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonHabitatRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonHabitatRetrieveResponse
+}
 
-  const data: apiV2PokemonHabitatRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonHabitatRetrieveResponse;
-};
 
-export const getApiV2PokemonHabitatRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/pokemon-habitat/${id}/`] as const;
-};
 
-export const getApiV2PokemonHabitatRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2PokemonHabitatRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon-habitat/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonHabitatRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokemonHabitatRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>
-  > = ({ signal }) =>
-    apiV2PokemonHabitatRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonHabitatRetrieveQueryKey(id);
 
-export type ApiV2PokemonHabitatRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>
->;
-export type ApiV2PokemonHabitatRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>> = ({ signal }) => apiV2PokemonHabitatRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonHabitatRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>>
+export type ApiV2PokemonHabitatRetrieveQueryError = unknown
+
+
+export function useApiV2PokemonHabitatRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonHabitatRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonHabitatRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get pokemom habita
  */
 
-export function useApiV2PokemonHabitatRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonHabitatRetrieveQueryOptions(id, options);
+export function useApiV2PokemonHabitatRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonHabitatRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonHabitatRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Shapes used for sorting Pokémon in a Pokédex.
  * @summary List pokemon shapes
  */
 export type apiV2PokemonShapeListResponse200 = {
-  data: PaginatedPokemonShapeSummaryList;
-  status: 200;
+  data: PaginatedPokemonShapeSummaryList
+  status: 200
+}
+    
+export type apiV2PokemonShapeListResponseSuccess = (apiV2PokemonShapeListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokemonShapeListResponseSuccess =
-  apiV2PokemonShapeListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokemonShapeListResponse =
-  apiV2PokemonShapeListResponseSuccess;
+export type apiV2PokemonShapeListResponse = (apiV2PokemonShapeListResponseSuccess)
 
-export const getApiV2PokemonShapeListUrl = (
-  params?: ApiV2PokemonShapeListParams,
-) => {
+export const getApiV2PokemonShapeListUrl = (params?: ApiV2PokemonShapeListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/pokemon-shape/?${stringifiedParams}`
-    : `/api/v2/pokemon-shape/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/pokemon-shape/?${stringifiedParams}` : `https://pokeapi.co/api/v2/pokemon-shape/`
+}
 
-export const apiV2PokemonShapeList = async (
-  params?: ApiV2PokemonShapeListParams,
-  options?: RequestInit,
-): Promise<apiV2PokemonShapeListResponse> => {
-  const res = await fetch(getApiV2PokemonShapeListUrl(params), {
+export const apiV2PokemonShapeList = async (params?: ApiV2PokemonShapeListParams, options?: RequestInit): Promise<apiV2PokemonShapeListResponse> => {
+  
+  const res = await fetch(getApiV2PokemonShapeListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonShapeListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonShapeListResponse
+}
 
-  const data: apiV2PokemonShapeListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonShapeListResponse;
-};
 
-export const getApiV2PokemonShapeListQueryKey = (
-  params?: ApiV2PokemonShapeListParams,
+
+
+
+export const getApiV2PokemonShapeListQueryKey = (params?: ApiV2PokemonShapeListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon-shape/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonShapeListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonShapeList>>, TError = unknown>(params?: ApiV2PokemonShapeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonShapeList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/pokemon-shape/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2PokemonShapeListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonShapeList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokemonShapeListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonShapeList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokemonShapeListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonShapeList>>
-  > = ({ signal }) =>
-    apiV2PokemonShapeList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonShapeListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonShapeList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2PokemonShapeListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonShapeList>>
->;
-export type ApiV2PokemonShapeListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonShapeList>>> = ({ signal }) => apiV2PokemonShapeList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonShapeList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonShapeListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonShapeList>>>
+export type ApiV2PokemonShapeListQueryError = unknown
+
+
+export function useApiV2PokemonShapeList<TData = Awaited<ReturnType<typeof apiV2PokemonShapeList>>, TError = unknown>(
+ params: undefined |  ApiV2PokemonShapeListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonShapeList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonShapeList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonShapeList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonShapeList<TData = Awaited<ReturnType<typeof apiV2PokemonShapeList>>, TError = unknown>(
+ params?: ApiV2PokemonShapeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonShapeList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonShapeList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonShapeList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonShapeList<TData = Awaited<ReturnType<typeof apiV2PokemonShapeList>>, TError = unknown>(
+ params?: ApiV2PokemonShapeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonShapeList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List pokemon shapes
  */
 
-export function useApiV2PokemonShapeList<
-  TData = Awaited<ReturnType<typeof apiV2PokemonShapeList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokemonShapeListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonShapeList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonShapeListQueryOptions(params, options);
+export function useApiV2PokemonShapeList<TData = Awaited<ReturnType<typeof apiV2PokemonShapeList>>, TError = unknown>(
+ params?: ApiV2PokemonShapeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonShapeList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonShapeListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Shapes used for sorting Pokémon in a Pokédex.
  * @summary Get pokemon shape
  */
 export type apiV2PokemonShapeRetrieveResponse200 = {
-  data: PokemonShapeDetail;
-  status: 200;
+  data: PokemonShapeDetail
+  status: 200
+}
+    
+export type apiV2PokemonShapeRetrieveResponseSuccess = (apiV2PokemonShapeRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokemonShapeRetrieveResponseSuccess =
-  apiV2PokemonShapeRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokemonShapeRetrieveResponse =
-  apiV2PokemonShapeRetrieveResponseSuccess;
+export type apiV2PokemonShapeRetrieveResponse = (apiV2PokemonShapeRetrieveResponseSuccess)
 
-export const getApiV2PokemonShapeRetrieveUrl = (id: string) => {
-  return `/api/v2/pokemon-shape/${id}/`;
-};
+export const getApiV2PokemonShapeRetrieveUrl = (id: string,) => {
 
-export const apiV2PokemonShapeRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2PokemonShapeRetrieveResponse> => {
-  const res = await fetch(getApiV2PokemonShapeRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/pokemon-shape/${id}/`
+}
+
+export const apiV2PokemonShapeRetrieve = async (id: string, options?: RequestInit): Promise<apiV2PokemonShapeRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2PokemonShapeRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonShapeRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonShapeRetrieveResponse
+}
 
-  const data: apiV2PokemonShapeRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonShapeRetrieveResponse;
-};
 
-export const getApiV2PokemonShapeRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/pokemon-shape/${id}/`] as const;
-};
 
-export const getApiV2PokemonShapeRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2PokemonShapeRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon-shape/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonShapeRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokemonShapeRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>
-  > = ({ signal }) =>
-    apiV2PokemonShapeRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonShapeRetrieveQueryKey(id);
 
-export type ApiV2PokemonShapeRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>
->;
-export type ApiV2PokemonShapeRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>> = ({ signal }) => apiV2PokemonShapeRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonShapeRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>>
+export type ApiV2PokemonShapeRetrieveQueryError = unknown
+
+
+export function useApiV2PokemonShapeRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonShapeRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonShapeRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get pokemon shape
  */
 
-export function useApiV2PokemonShapeRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonShapeRetrieveQueryOptions(id, options);
+export function useApiV2PokemonShapeRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonShapeRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonShapeRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * A Pokémon Species forms the basis for at least one Pokémon. Attributes of a Pokémon species are shared across all varieties of Pokémon within the species. A good example is Wormadam; Wormadam is the species which can be found in three different varieties, Wormadam-Trash, Wormadam-Sandy and Wormadam-Plant.
  * @summary List pokemon species
  */
 export type apiV2PokemonSpeciesListResponse200 = {
-  data: PaginatedPokemonSpeciesSummaryList;
-  status: 200;
+  data: PaginatedPokemonSpeciesSummaryList
+  status: 200
+}
+    
+export type apiV2PokemonSpeciesListResponseSuccess = (apiV2PokemonSpeciesListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokemonSpeciesListResponseSuccess =
-  apiV2PokemonSpeciesListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokemonSpeciesListResponse =
-  apiV2PokemonSpeciesListResponseSuccess;
+export type apiV2PokemonSpeciesListResponse = (apiV2PokemonSpeciesListResponseSuccess)
 
-export const getApiV2PokemonSpeciesListUrl = (
-  params?: ApiV2PokemonSpeciesListParams,
-) => {
+export const getApiV2PokemonSpeciesListUrl = (params?: ApiV2PokemonSpeciesListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/pokemon-species/?${stringifiedParams}`
-    : `/api/v2/pokemon-species/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/pokemon-species/?${stringifiedParams}` : `https://pokeapi.co/api/v2/pokemon-species/`
+}
 
-export const apiV2PokemonSpeciesList = async (
-  params?: ApiV2PokemonSpeciesListParams,
-  options?: RequestInit,
-): Promise<apiV2PokemonSpeciesListResponse> => {
-  const res = await fetch(getApiV2PokemonSpeciesListUrl(params), {
+export const apiV2PokemonSpeciesList = async (params?: ApiV2PokemonSpeciesListParams, options?: RequestInit): Promise<apiV2PokemonSpeciesListResponse> => {
+  
+  const res = await fetch(getApiV2PokemonSpeciesListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonSpeciesListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonSpeciesListResponse
+}
 
-  const data: apiV2PokemonSpeciesListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonSpeciesListResponse;
-};
 
-export const getApiV2PokemonSpeciesListQueryKey = (
-  params?: ApiV2PokemonSpeciesListParams,
+
+
+
+export const getApiV2PokemonSpeciesListQueryKey = (params?: ApiV2PokemonSpeciesListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon-species/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonSpeciesListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>, TError = unknown>(params?: ApiV2PokemonSpeciesListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/pokemon-species/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2PokemonSpeciesListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokemonSpeciesListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokemonSpeciesListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>
-  > = ({ signal }) =>
-    apiV2PokemonSpeciesList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonSpeciesListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2PokemonSpeciesListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>
->;
-export type ApiV2PokemonSpeciesListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>> = ({ signal }) => apiV2PokemonSpeciesList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonSpeciesListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>>
+export type ApiV2PokemonSpeciesListQueryError = unknown
+
+
+export function useApiV2PokemonSpeciesList<TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>, TError = unknown>(
+ params: undefined |  ApiV2PokemonSpeciesListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonSpeciesList<TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>, TError = unknown>(
+ params?: ApiV2PokemonSpeciesListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonSpeciesList<TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>, TError = unknown>(
+ params?: ApiV2PokemonSpeciesListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List pokemon species
  */
 
-export function useApiV2PokemonSpeciesList<
-  TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokemonSpeciesListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonSpeciesListQueryOptions(params, options);
+export function useApiV2PokemonSpeciesList<TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>, TError = unknown>(
+ params?: ApiV2PokemonSpeciesListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonSpeciesList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonSpeciesListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * A Pokémon Species forms the basis for at least one Pokémon. Attributes of a Pokémon species are shared across all varieties of Pokémon within the species. A good example is Wormadam; Wormadam is the species which can be found in three different varieties, Wormadam-Trash, Wormadam-Sandy and Wormadam-Plant.
  * @summary Get pokemon species
  */
 export type apiV2PokemonSpeciesRetrieveResponse200 = {
-  data: PokemonSpeciesDetail;
-  status: 200;
+  data: PokemonSpeciesDetail
+  status: 200
+}
+    
+export type apiV2PokemonSpeciesRetrieveResponseSuccess = (apiV2PokemonSpeciesRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokemonSpeciesRetrieveResponseSuccess =
-  apiV2PokemonSpeciesRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokemonSpeciesRetrieveResponse =
-  apiV2PokemonSpeciesRetrieveResponseSuccess;
+export type apiV2PokemonSpeciesRetrieveResponse = (apiV2PokemonSpeciesRetrieveResponseSuccess)
 
-export const getApiV2PokemonSpeciesRetrieveUrl = (id: string) => {
-  return `/api/v2/pokemon-species/${id}/`;
-};
+export const getApiV2PokemonSpeciesRetrieveUrl = (id: string,) => {
 
-export const apiV2PokemonSpeciesRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2PokemonSpeciesRetrieveResponse> => {
-  const res = await fetch(getApiV2PokemonSpeciesRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/pokemon-species/${id}/`
+}
+
+export const apiV2PokemonSpeciesRetrieve = async (id: string, options?: RequestInit): Promise<apiV2PokemonSpeciesRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2PokemonSpeciesRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonSpeciesRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonSpeciesRetrieveResponse
+}
 
-  const data: apiV2PokemonSpeciesRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonSpeciesRetrieveResponse;
-};
 
-export const getApiV2PokemonSpeciesRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/pokemon-species/${id}/`] as const;
-};
 
-export const getApiV2PokemonSpeciesRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2PokemonSpeciesRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon-species/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonSpeciesRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokemonSpeciesRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>
-  > = ({ signal }) =>
-    apiV2PokemonSpeciesRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonSpeciesRetrieveQueryKey(id);
 
-export type ApiV2PokemonSpeciesRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>
->;
-export type ApiV2PokemonSpeciesRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>> = ({ signal }) => apiV2PokemonSpeciesRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonSpeciesRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>>
+export type ApiV2PokemonSpeciesRetrieveQueryError = unknown
+
+
+export function useApiV2PokemonSpeciesRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonSpeciesRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonSpeciesRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get pokemon species
  */
 
-export function useApiV2PokemonSpeciesRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonSpeciesRetrieveQueryOptions(id, options);
+export function useApiV2PokemonSpeciesRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonSpeciesRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonSpeciesRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Pokeathlon Stats are different attributes of a Pokémon's performance in Pokéathlons. In Pokéathlons, competitions happen on different courses; one for each of the different Pokéathlon stats. See [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9athlon) for greater detail.
  * @summary List pokeathlon stats
  */
 export type apiV2PokeathlonStatListResponse200 = {
-  data: PaginatedPokeathlonStatSummaryList;
-  status: 200;
+  data: PaginatedPokeathlonStatSummaryList
+  status: 200
+}
+    
+export type apiV2PokeathlonStatListResponseSuccess = (apiV2PokeathlonStatListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokeathlonStatListResponseSuccess =
-  apiV2PokeathlonStatListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokeathlonStatListResponse =
-  apiV2PokeathlonStatListResponseSuccess;
+export type apiV2PokeathlonStatListResponse = (apiV2PokeathlonStatListResponseSuccess)
 
-export const getApiV2PokeathlonStatListUrl = (
-  params?: ApiV2PokeathlonStatListParams,
-) => {
+export const getApiV2PokeathlonStatListUrl = (params?: ApiV2PokeathlonStatListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/pokeathlon-stat/?${stringifiedParams}`
-    : `/api/v2/pokeathlon-stat/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/pokeathlon-stat/?${stringifiedParams}` : `https://pokeapi.co/api/v2/pokeathlon-stat/`
+}
 
-export const apiV2PokeathlonStatList = async (
-  params?: ApiV2PokeathlonStatListParams,
-  options?: RequestInit,
-): Promise<apiV2PokeathlonStatListResponse> => {
-  const res = await fetch(getApiV2PokeathlonStatListUrl(params), {
+export const apiV2PokeathlonStatList = async (params?: ApiV2PokeathlonStatListParams, options?: RequestInit): Promise<apiV2PokeathlonStatListResponse> => {
+  
+  const res = await fetch(getApiV2PokeathlonStatListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokeathlonStatListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokeathlonStatListResponse
+}
 
-  const data: apiV2PokeathlonStatListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokeathlonStatListResponse;
-};
 
-export const getApiV2PokeathlonStatListQueryKey = (
-  params?: ApiV2PokeathlonStatListParams,
+
+
+
+export const getApiV2PokeathlonStatListQueryKey = (params?: ApiV2PokeathlonStatListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokeathlon-stat/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2PokeathlonStatListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokeathlonStatList>>, TError = unknown>(params?: ApiV2PokeathlonStatListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokeathlonStatList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/pokeathlon-stat/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2PokeathlonStatListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokeathlonStatList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokeathlonStatListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokeathlonStatList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokeathlonStatListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokeathlonStatList>>
-  > = ({ signal }) =>
-    apiV2PokeathlonStatList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokeathlonStatListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokeathlonStatList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2PokeathlonStatListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokeathlonStatList>>
->;
-export type ApiV2PokeathlonStatListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokeathlonStatList>>> = ({ signal }) => apiV2PokeathlonStatList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokeathlonStatList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokeathlonStatListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokeathlonStatList>>>
+export type ApiV2PokeathlonStatListQueryError = unknown
+
+
+export function useApiV2PokeathlonStatList<TData = Awaited<ReturnType<typeof apiV2PokeathlonStatList>>, TError = unknown>(
+ params: undefined |  ApiV2PokeathlonStatListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokeathlonStatList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokeathlonStatList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokeathlonStatList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokeathlonStatList<TData = Awaited<ReturnType<typeof apiV2PokeathlonStatList>>, TError = unknown>(
+ params?: ApiV2PokeathlonStatListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokeathlonStatList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokeathlonStatList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokeathlonStatList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokeathlonStatList<TData = Awaited<ReturnType<typeof apiV2PokeathlonStatList>>, TError = unknown>(
+ params?: ApiV2PokeathlonStatListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokeathlonStatList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List pokeathlon stats
  */
 
-export function useApiV2PokeathlonStatList<
-  TData = Awaited<ReturnType<typeof apiV2PokeathlonStatList>>,
-  TError = unknown,
->(
-  params?: ApiV2PokeathlonStatListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokeathlonStatList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokeathlonStatListQueryOptions(params, options);
+export function useApiV2PokeathlonStatList<TData = Awaited<ReturnType<typeof apiV2PokeathlonStatList>>, TError = unknown>(
+ params?: ApiV2PokeathlonStatListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokeathlonStatList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokeathlonStatListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Pokeathlon Stats are different attributes of a Pokémon's performance in Pokéathlons. In Pokéathlons, competitions happen on different courses; one for each of the different Pokéathlon stats. See [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9athlon) for greater detail.
  * @summary Get pokeathlon stat
  */
 export type apiV2PokeathlonStatRetrieveResponse200 = {
-  data: PokeathlonStatDetail;
-  status: 200;
+  data: PokeathlonStatDetail
+  status: 200
+}
+    
+export type apiV2PokeathlonStatRetrieveResponseSuccess = (apiV2PokeathlonStatRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokeathlonStatRetrieveResponseSuccess =
-  apiV2PokeathlonStatRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokeathlonStatRetrieveResponse =
-  apiV2PokeathlonStatRetrieveResponseSuccess;
+export type apiV2PokeathlonStatRetrieveResponse = (apiV2PokeathlonStatRetrieveResponseSuccess)
 
-export const getApiV2PokeathlonStatRetrieveUrl = (id: string) => {
-  return `/api/v2/pokeathlon-stat/${id}/`;
-};
+export const getApiV2PokeathlonStatRetrieveUrl = (id: string,) => {
 
-export const apiV2PokeathlonStatRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2PokeathlonStatRetrieveResponse> => {
-  const res = await fetch(getApiV2PokeathlonStatRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/pokeathlon-stat/${id}/`
+}
+
+export const apiV2PokeathlonStatRetrieve = async (id: string, options?: RequestInit): Promise<apiV2PokeathlonStatRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2PokeathlonStatRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokeathlonStatRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokeathlonStatRetrieveResponse
+}
 
-  const data: apiV2PokeathlonStatRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokeathlonStatRetrieveResponse;
-};
 
-export const getApiV2PokeathlonStatRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/pokeathlon-stat/${id}/`] as const;
-};
 
-export const getApiV2PokeathlonStatRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2PokeathlonStatRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokeathlon-stat/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2PokeathlonStatRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2PokeathlonStatRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>
-  > = ({ signal }) =>
-    apiV2PokeathlonStatRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokeathlonStatRetrieveQueryKey(id);
 
-export type ApiV2PokeathlonStatRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>
->;
-export type ApiV2PokeathlonStatRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>> = ({ signal }) => apiV2PokeathlonStatRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokeathlonStatRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>>
+export type ApiV2PokeathlonStatRetrieveQueryError = unknown
+
+
+export function useApiV2PokeathlonStatRetrieve<TData = Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokeathlonStatRetrieve<TData = Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokeathlonStatRetrieve<TData = Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get pokeathlon stat
  */
 
-export function useApiV2PokeathlonStatRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokeathlonStatRetrieveQueryOptions(id, options);
+export function useApiV2PokeathlonStatRetrieve<TData = Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokeathlonStatRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokeathlonStatRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * A region is an organized area of the Pokémon world. Most often, the main difference between regions is the species of Pokémon that can be encountered within them.
  * @summary List regions
  */
 export type apiV2RegionListResponse200 = {
-  data: PaginatedRegionSummaryList;
-  status: 200;
-};
-
-export type apiV2RegionListResponseSuccess = apiV2RegionListResponse200 & {
+  data: PaginatedRegionSummaryList
+  status: 200
+}
+    
+export type apiV2RegionListResponseSuccess = (apiV2RegionListResponse200) & {
   headers: Headers;
 };
-export type apiV2RegionListResponse = apiV2RegionListResponseSuccess;
+;
 
-export const getApiV2RegionListUrl = (params?: ApiV2RegionListParams) => {
+export type apiV2RegionListResponse = (apiV2RegionListResponseSuccess)
+
+export const getApiV2RegionListUrl = (params?: ApiV2RegionListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/region/?${stringifiedParams}`
-    : `/api/v2/region/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/region/?${stringifiedParams}` : `https://pokeapi.co/api/v2/region/`
+}
 
-export const apiV2RegionList = async (
-  params?: ApiV2RegionListParams,
-  options?: RequestInit,
-): Promise<apiV2RegionListResponse> => {
-  const res = await fetch(getApiV2RegionListUrl(params), {
+export const apiV2RegionList = async (params?: ApiV2RegionListParams, options?: RequestInit): Promise<apiV2RegionListResponse> => {
+  
+  const res = await fetch(getApiV2RegionListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2RegionListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2RegionListResponse
+}
 
-  const data: apiV2RegionListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2RegionListResponse;
-};
 
-export const getApiV2RegionListQueryKey = (params?: ApiV2RegionListParams) => {
-  return [`/api/v2/region/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2RegionListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2RegionList>>,
-  TError = unknown,
->(
-  params?: ApiV2RegionListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2RegionList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2RegionListQueryKey = (params?: ApiV2RegionListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/region/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2RegionListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2RegionList>>, TError = unknown>(params?: ApiV2RegionListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2RegionList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2RegionListQueryKey(params);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2RegionList>>> = ({
-    signal,
-  }) => apiV2RegionList(params, { signal, ...fetchOptions });
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2RegionList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2RegionListQueryKey(params);
 
-export type ApiV2RegionListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2RegionList>>
->;
-export type ApiV2RegionListQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2RegionList>>> = ({ signal }) => apiV2RegionList(params, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2RegionList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2RegionListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2RegionList>>>
+export type ApiV2RegionListQueryError = unknown
+
+
+export function useApiV2RegionList<TData = Awaited<ReturnType<typeof apiV2RegionList>>, TError = unknown>(
+ params: undefined |  ApiV2RegionListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2RegionList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2RegionList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2RegionList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2RegionList<TData = Awaited<ReturnType<typeof apiV2RegionList>>, TError = unknown>(
+ params?: ApiV2RegionListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2RegionList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2RegionList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2RegionList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2RegionList<TData = Awaited<ReturnType<typeof apiV2RegionList>>, TError = unknown>(
+ params?: ApiV2RegionListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2RegionList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List regions
  */
 
-export function useApiV2RegionList<
-  TData = Awaited<ReturnType<typeof apiV2RegionList>>,
-  TError = unknown,
->(
-  params?: ApiV2RegionListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2RegionList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2RegionListQueryOptions(params, options);
+export function useApiV2RegionList<TData = Awaited<ReturnType<typeof apiV2RegionList>>, TError = unknown>(
+ params?: ApiV2RegionListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2RegionList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2RegionListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * A region is an organized area of the Pokémon world. Most often, the main difference between regions is the species of Pokémon that can be encountered within them.
  * @summary Get region
  */
 export type apiV2RegionRetrieveResponse200 = {
-  data: RegionDetail;
-  status: 200;
+  data: RegionDetail
+  status: 200
+}
+    
+export type apiV2RegionRetrieveResponseSuccess = (apiV2RegionRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2RegionRetrieveResponseSuccess =
-  apiV2RegionRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2RegionRetrieveResponse = apiV2RegionRetrieveResponseSuccess;
+export type apiV2RegionRetrieveResponse = (apiV2RegionRetrieveResponseSuccess)
 
-export const getApiV2RegionRetrieveUrl = (id: string) => {
-  return `/api/v2/region/${id}/`;
-};
+export const getApiV2RegionRetrieveUrl = (id: string,) => {
 
-export const apiV2RegionRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2RegionRetrieveResponse> => {
-  const res = await fetch(getApiV2RegionRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/region/${id}/`
+}
+
+export const apiV2RegionRetrieve = async (id: string, options?: RequestInit): Promise<apiV2RegionRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2RegionRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2RegionRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2RegionRetrieveResponse
+}
 
-  const data: apiV2RegionRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2RegionRetrieveResponse;
-};
 
-export const getApiV2RegionRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/region/${id}/`] as const;
-};
 
-export const getApiV2RegionRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2RegionRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2RegionRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2RegionRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/region/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2RegionRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2RegionRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2RegionRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2RegionRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2RegionRetrieve>>
-  > = ({ signal }) => apiV2RegionRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2RegionRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2RegionRetrieveQueryKey(id);
 
-export type ApiV2RegionRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2RegionRetrieve>>
->;
-export type ApiV2RegionRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2RegionRetrieve>>> = ({ signal }) => apiV2RegionRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2RegionRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2RegionRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2RegionRetrieve>>>
+export type ApiV2RegionRetrieveQueryError = unknown
+
+
+export function useApiV2RegionRetrieve<TData = Awaited<ReturnType<typeof apiV2RegionRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2RegionRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2RegionRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2RegionRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2RegionRetrieve<TData = Awaited<ReturnType<typeof apiV2RegionRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2RegionRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2RegionRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2RegionRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2RegionRetrieve<TData = Awaited<ReturnType<typeof apiV2RegionRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2RegionRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get region
  */
 
-export function useApiV2RegionRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2RegionRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2RegionRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2RegionRetrieveQueryOptions(id, options);
+export function useApiV2RegionRetrieve<TData = Awaited<ReturnType<typeof apiV2RegionRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2RegionRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2RegionRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Stats determine certain aspects of battles. Each Pokémon has a value for each stat which grows as they gain levels and can be altered momentarily by effects in battles.
  * @summary List stats
  */
 export type apiV2StatListResponse200 = {
-  data: PaginatedStatSummaryList;
-  status: 200;
-};
-
-export type apiV2StatListResponseSuccess = apiV2StatListResponse200 & {
+  data: PaginatedStatSummaryList
+  status: 200
+}
+    
+export type apiV2StatListResponseSuccess = (apiV2StatListResponse200) & {
   headers: Headers;
 };
-export type apiV2StatListResponse = apiV2StatListResponseSuccess;
+;
 
-export const getApiV2StatListUrl = (params?: ApiV2StatListParams) => {
+export type apiV2StatListResponse = (apiV2StatListResponseSuccess)
+
+export const getApiV2StatListUrl = (params?: ApiV2StatListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/stat/?${stringifiedParams}`
-    : `/api/v2/stat/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/stat/?${stringifiedParams}` : `https://pokeapi.co/api/v2/stat/`
+}
 
-export const apiV2StatList = async (
-  params?: ApiV2StatListParams,
-  options?: RequestInit,
-): Promise<apiV2StatListResponse> => {
-  const res = await fetch(getApiV2StatListUrl(params), {
+export const apiV2StatList = async (params?: ApiV2StatListParams, options?: RequestInit): Promise<apiV2StatListResponse> => {
+  
+  const res = await fetch(getApiV2StatListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2StatListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2StatListResponse
+}
 
-  const data: apiV2StatListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2StatListResponse;
-};
 
-export const getApiV2StatListQueryKey = (params?: ApiV2StatListParams) => {
-  return [`/api/v2/stat/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2StatListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2StatList>>,
-  TError = unknown,
->(
-  params?: ApiV2StatListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2StatList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2StatListQueryKey = (params?: ApiV2StatListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/stat/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2StatListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2StatList>>, TError = unknown>(params?: ApiV2StatListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2StatList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2StatListQueryKey(params);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2StatList>>> = ({
-    signal,
-  }) => apiV2StatList(params, { signal, ...fetchOptions });
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2StatList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2StatListQueryKey(params);
 
-export type ApiV2StatListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2StatList>>
->;
-export type ApiV2StatListQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2StatList>>> = ({ signal }) => apiV2StatList(params, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2StatList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2StatListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2StatList>>>
+export type ApiV2StatListQueryError = unknown
+
+
+export function useApiV2StatList<TData = Awaited<ReturnType<typeof apiV2StatList>>, TError = unknown>(
+ params: undefined |  ApiV2StatListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2StatList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2StatList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2StatList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2StatList<TData = Awaited<ReturnType<typeof apiV2StatList>>, TError = unknown>(
+ params?: ApiV2StatListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2StatList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2StatList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2StatList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2StatList<TData = Awaited<ReturnType<typeof apiV2StatList>>, TError = unknown>(
+ params?: ApiV2StatListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2StatList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List stats
  */
 
-export function useApiV2StatList<
-  TData = Awaited<ReturnType<typeof apiV2StatList>>,
-  TError = unknown,
->(
-  params?: ApiV2StatListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2StatList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2StatListQueryOptions(params, options);
+export function useApiV2StatList<TData = Awaited<ReturnType<typeof apiV2StatList>>, TError = unknown>(
+ params?: ApiV2StatListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2StatList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2StatListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Stats determine certain aspects of battles. Each Pokémon has a value for each stat which grows as they gain levels and can be altered momentarily by effects in battles.
  * @summary Get stat
  */
 export type apiV2StatRetrieveResponse200 = {
-  data: StatDetail;
-  status: 200;
-};
-
-export type apiV2StatRetrieveResponseSuccess = apiV2StatRetrieveResponse200 & {
+  data: StatDetail
+  status: 200
+}
+    
+export type apiV2StatRetrieveResponseSuccess = (apiV2StatRetrieveResponse200) & {
   headers: Headers;
 };
-export type apiV2StatRetrieveResponse = apiV2StatRetrieveResponseSuccess;
+;
 
-export const getApiV2StatRetrieveUrl = (id: string) => {
-  return `/api/v2/stat/${id}/`;
-};
+export type apiV2StatRetrieveResponse = (apiV2StatRetrieveResponseSuccess)
 
-export const apiV2StatRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2StatRetrieveResponse> => {
-  const res = await fetch(getApiV2StatRetrieveUrl(id), {
+export const getApiV2StatRetrieveUrl = (id: string,) => {
+
+
+  
+
+  return `https://pokeapi.co/api/v2/stat/${id}/`
+}
+
+export const apiV2StatRetrieve = async (id: string, options?: RequestInit): Promise<apiV2StatRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2StatRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2StatRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2StatRetrieveResponse
+}
 
-  const data: apiV2StatRetrieveResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2StatRetrieveResponse;
-};
 
-export const getApiV2StatRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/stat/${id}/`] as const;
-};
 
-export const getApiV2StatRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2StatRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2StatRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2StatRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/stat/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2StatRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2StatRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2StatRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2StatRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2StatRetrieve>>
-  > = ({ signal }) => apiV2StatRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2StatRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2StatRetrieveQueryKey(id);
 
-export type ApiV2StatRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2StatRetrieve>>
->;
-export type ApiV2StatRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2StatRetrieve>>> = ({ signal }) => apiV2StatRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2StatRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2StatRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2StatRetrieve>>>
+export type ApiV2StatRetrieveQueryError = unknown
+
+
+export function useApiV2StatRetrieve<TData = Awaited<ReturnType<typeof apiV2StatRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2StatRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2StatRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2StatRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2StatRetrieve<TData = Awaited<ReturnType<typeof apiV2StatRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2StatRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2StatRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2StatRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2StatRetrieve<TData = Awaited<ReturnType<typeof apiV2StatRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2StatRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get stat
  */
 
-export function useApiV2StatRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2StatRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2StatRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2StatRetrieveQueryOptions(id, options);
+export function useApiV2StatRetrieve<TData = Awaited<ReturnType<typeof apiV2StatRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2StatRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2StatRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Super contest effects refer to the effects of moves when used in super contests.
  * @summary List super contest effects
  */
 export type apiV2SuperContestEffectListResponse200 = {
-  data: PaginatedSuperContestEffectSummaryList;
-  status: 200;
+  data: PaginatedSuperContestEffectSummaryList
+  status: 200
+}
+    
+export type apiV2SuperContestEffectListResponseSuccess = (apiV2SuperContestEffectListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2SuperContestEffectListResponseSuccess =
-  apiV2SuperContestEffectListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2SuperContestEffectListResponse =
-  apiV2SuperContestEffectListResponseSuccess;
+export type apiV2SuperContestEffectListResponse = (apiV2SuperContestEffectListResponseSuccess)
 
-export const getApiV2SuperContestEffectListUrl = (
-  params?: ApiV2SuperContestEffectListParams,
-) => {
+export const getApiV2SuperContestEffectListUrl = (params?: ApiV2SuperContestEffectListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/super-contest-effect/?${stringifiedParams}`
-    : `/api/v2/super-contest-effect/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/super-contest-effect/?${stringifiedParams}` : `https://pokeapi.co/api/v2/super-contest-effect/`
+}
 
-export const apiV2SuperContestEffectList = async (
-  params?: ApiV2SuperContestEffectListParams,
-  options?: RequestInit,
-): Promise<apiV2SuperContestEffectListResponse> => {
-  const res = await fetch(getApiV2SuperContestEffectListUrl(params), {
+export const apiV2SuperContestEffectList = async (params?: ApiV2SuperContestEffectListParams, options?: RequestInit): Promise<apiV2SuperContestEffectListResponse> => {
+  
+  const res = await fetch(getApiV2SuperContestEffectListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2SuperContestEffectListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2SuperContestEffectListResponse
+}
 
-  const data: apiV2SuperContestEffectListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2SuperContestEffectListResponse;
-};
 
-export const getApiV2SuperContestEffectListQueryKey = (
-  params?: ApiV2SuperContestEffectListParams,
+
+
+
+export const getApiV2SuperContestEffectListQueryKey = (params?: ApiV2SuperContestEffectListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/super-contest-effect/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2SuperContestEffectListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2SuperContestEffectList>>, TError = unknown>(params?: ApiV2SuperContestEffectListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2SuperContestEffectList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [
-    `/api/v2/super-contest-effect/`,
-    ...(params ? [params] : []),
-  ] as const;
-};
 
-export const getApiV2SuperContestEffectListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2SuperContestEffectList>>,
-  TError = unknown,
->(
-  params?: ApiV2SuperContestEffectListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2SuperContestEffectList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2SuperContestEffectListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2SuperContestEffectList>>
-  > = ({ signal }) =>
-    apiV2SuperContestEffectList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2SuperContestEffectListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2SuperContestEffectList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2SuperContestEffectListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2SuperContestEffectList>>
->;
-export type ApiV2SuperContestEffectListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2SuperContestEffectList>>> = ({ signal }) => apiV2SuperContestEffectList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2SuperContestEffectList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2SuperContestEffectListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2SuperContestEffectList>>>
+export type ApiV2SuperContestEffectListQueryError = unknown
+
+
+export function useApiV2SuperContestEffectList<TData = Awaited<ReturnType<typeof apiV2SuperContestEffectList>>, TError = unknown>(
+ params: undefined |  ApiV2SuperContestEffectListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2SuperContestEffectList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2SuperContestEffectList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2SuperContestEffectList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2SuperContestEffectList<TData = Awaited<ReturnType<typeof apiV2SuperContestEffectList>>, TError = unknown>(
+ params?: ApiV2SuperContestEffectListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2SuperContestEffectList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2SuperContestEffectList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2SuperContestEffectList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2SuperContestEffectList<TData = Awaited<ReturnType<typeof apiV2SuperContestEffectList>>, TError = unknown>(
+ params?: ApiV2SuperContestEffectListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2SuperContestEffectList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List super contest effects
  */
 
-export function useApiV2SuperContestEffectList<
-  TData = Awaited<ReturnType<typeof apiV2SuperContestEffectList>>,
-  TError = unknown,
->(
-  params?: ApiV2SuperContestEffectListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2SuperContestEffectList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2SuperContestEffectListQueryOptions(
-    params,
-    options,
-  );
+export function useApiV2SuperContestEffectList<TData = Awaited<ReturnType<typeof apiV2SuperContestEffectList>>, TError = unknown>(
+ params?: ApiV2SuperContestEffectListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2SuperContestEffectList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2SuperContestEffectListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Super contest effects refer to the effects of moves when used in super contests.
  * @summary Get super contest effect
  */
 export type apiV2SuperContestEffectRetrieveResponse200 = {
-  data: SuperContestEffectDetail;
-  status: 200;
+  data: SuperContestEffectDetail
+  status: 200
+}
+    
+export type apiV2SuperContestEffectRetrieveResponseSuccess = (apiV2SuperContestEffectRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2SuperContestEffectRetrieveResponseSuccess =
-  apiV2SuperContestEffectRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2SuperContestEffectRetrieveResponse =
-  apiV2SuperContestEffectRetrieveResponseSuccess;
+export type apiV2SuperContestEffectRetrieveResponse = (apiV2SuperContestEffectRetrieveResponseSuccess)
 
-export const getApiV2SuperContestEffectRetrieveUrl = (id: string) => {
-  return `/api/v2/super-contest-effect/${id}/`;
-};
+export const getApiV2SuperContestEffectRetrieveUrl = (id: string,) => {
 
-export const apiV2SuperContestEffectRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2SuperContestEffectRetrieveResponse> => {
-  const res = await fetch(getApiV2SuperContestEffectRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/super-contest-effect/${id}/`
+}
+
+export const apiV2SuperContestEffectRetrieve = async (id: string, options?: RequestInit): Promise<apiV2SuperContestEffectRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2SuperContestEffectRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2SuperContestEffectRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2SuperContestEffectRetrieveResponse
+}
 
-  const data: apiV2SuperContestEffectRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2SuperContestEffectRetrieveResponse;
-};
 
-export const getApiV2SuperContestEffectRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/super-contest-effect/${id}/`] as const;
-};
 
-export const getApiV2SuperContestEffectRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2SuperContestEffectRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/super-contest-effect/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2SuperContestEffectRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2SuperContestEffectRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>
-  > = ({ signal }) =>
-    apiV2SuperContestEffectRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2SuperContestEffectRetrieveQueryKey(id);
 
-export type ApiV2SuperContestEffectRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>
->;
-export type ApiV2SuperContestEffectRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>> = ({ signal }) => apiV2SuperContestEffectRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2SuperContestEffectRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>>
+export type ApiV2SuperContestEffectRetrieveQueryError = unknown
+
+
+export function useApiV2SuperContestEffectRetrieve<TData = Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2SuperContestEffectRetrieve<TData = Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2SuperContestEffectRetrieve<TData = Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get super contest effect
  */
 
-export function useApiV2SuperContestEffectRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2SuperContestEffectRetrieveQueryOptions(
-    id,
-    options,
-  );
+export function useApiV2SuperContestEffectRetrieve<TData = Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2SuperContestEffectRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2SuperContestEffectRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Types are properties for Pokémon and their moves. Each type has three properties: which types of Pokémon it is super effective against, which types of Pokémon it is not very effective against, and which types of Pokémon it is completely ineffective against.
  * @summary List types
  */
 export type apiV2TypeListResponse200 = {
-  data: PaginatedTypeSummaryList;
-  status: 200;
-};
-
-export type apiV2TypeListResponseSuccess = apiV2TypeListResponse200 & {
+  data: PaginatedTypeSummaryList
+  status: 200
+}
+    
+export type apiV2TypeListResponseSuccess = (apiV2TypeListResponse200) & {
   headers: Headers;
 };
-export type apiV2TypeListResponse = apiV2TypeListResponseSuccess;
+;
 
-export const getApiV2TypeListUrl = (params?: ApiV2TypeListParams) => {
+export type apiV2TypeListResponse = (apiV2TypeListResponseSuccess)
+
+export const getApiV2TypeListUrl = (params?: ApiV2TypeListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/type/?${stringifiedParams}`
-    : `/api/v2/type/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/type/?${stringifiedParams}` : `https://pokeapi.co/api/v2/type/`
+}
 
-export const apiV2TypeList = async (
-  params?: ApiV2TypeListParams,
-  options?: RequestInit,
-): Promise<apiV2TypeListResponse> => {
-  const res = await fetch(getApiV2TypeListUrl(params), {
+export const apiV2TypeList = async (params?: ApiV2TypeListParams, options?: RequestInit): Promise<apiV2TypeListResponse> => {
+  
+  const res = await fetch(getApiV2TypeListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2TypeListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2TypeListResponse
+}
 
-  const data: apiV2TypeListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2TypeListResponse;
-};
 
-export const getApiV2TypeListQueryKey = (params?: ApiV2TypeListParams) => {
-  return [`/api/v2/type/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2TypeListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2TypeList>>,
-  TError = unknown,
->(
-  params?: ApiV2TypeListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2TypeList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2TypeListQueryKey = (params?: ApiV2TypeListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/type/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2TypeListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2TypeList>>, TError = unknown>(params?: ApiV2TypeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2TypeList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2TypeListQueryKey(params);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2TypeList>>> = ({
-    signal,
-  }) => apiV2TypeList(params, { signal, ...fetchOptions });
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2TypeList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2TypeListQueryKey(params);
 
-export type ApiV2TypeListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2TypeList>>
->;
-export type ApiV2TypeListQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2TypeList>>> = ({ signal }) => apiV2TypeList(params, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2TypeList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2TypeListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2TypeList>>>
+export type ApiV2TypeListQueryError = unknown
+
+
+export function useApiV2TypeList<TData = Awaited<ReturnType<typeof apiV2TypeList>>, TError = unknown>(
+ params: undefined |  ApiV2TypeListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2TypeList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2TypeList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2TypeList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2TypeList<TData = Awaited<ReturnType<typeof apiV2TypeList>>, TError = unknown>(
+ params?: ApiV2TypeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2TypeList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2TypeList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2TypeList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2TypeList<TData = Awaited<ReturnType<typeof apiV2TypeList>>, TError = unknown>(
+ params?: ApiV2TypeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2TypeList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List types
  */
 
-export function useApiV2TypeList<
-  TData = Awaited<ReturnType<typeof apiV2TypeList>>,
-  TError = unknown,
->(
-  params?: ApiV2TypeListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2TypeList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2TypeListQueryOptions(params, options);
+export function useApiV2TypeList<TData = Awaited<ReturnType<typeof apiV2TypeList>>, TError = unknown>(
+ params?: ApiV2TypeListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2TypeList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2TypeListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Types are properties for Pokémon and their moves. Each type has three properties: which types of Pokémon it is super effective against, which types of Pokémon it is not very effective against, and which types of Pokémon it is completely ineffective against.
  * @summary Get types
  */
 export type apiV2TypeRetrieveResponse200 = {
-  data: TypeDetail;
-  status: 200;
-};
-
-export type apiV2TypeRetrieveResponseSuccess = apiV2TypeRetrieveResponse200 & {
+  data: TypeDetail
+  status: 200
+}
+    
+export type apiV2TypeRetrieveResponseSuccess = (apiV2TypeRetrieveResponse200) & {
   headers: Headers;
 };
-export type apiV2TypeRetrieveResponse = apiV2TypeRetrieveResponseSuccess;
+;
 
-export const getApiV2TypeRetrieveUrl = (id: string) => {
-  return `/api/v2/type/${id}/`;
-};
+export type apiV2TypeRetrieveResponse = (apiV2TypeRetrieveResponseSuccess)
 
-export const apiV2TypeRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2TypeRetrieveResponse> => {
-  const res = await fetch(getApiV2TypeRetrieveUrl(id), {
+export const getApiV2TypeRetrieveUrl = (id: string,) => {
+
+
+  
+
+  return `https://pokeapi.co/api/v2/type/${id}/`
+}
+
+export const apiV2TypeRetrieve = async (id: string, options?: RequestInit): Promise<apiV2TypeRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2TypeRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2TypeRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2TypeRetrieveResponse
+}
 
-  const data: apiV2TypeRetrieveResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2TypeRetrieveResponse;
-};
 
-export const getApiV2TypeRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/type/${id}/`] as const;
-};
 
-export const getApiV2TypeRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2TypeRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2TypeRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2TypeRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/type/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2TypeRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2TypeRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2TypeRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getApiV2TypeRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2TypeRetrieve>>
-  > = ({ signal }) => apiV2TypeRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2TypeRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2TypeRetrieveQueryKey(id);
 
-export type ApiV2TypeRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2TypeRetrieve>>
->;
-export type ApiV2TypeRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2TypeRetrieve>>> = ({ signal }) => apiV2TypeRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2TypeRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2TypeRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2TypeRetrieve>>>
+export type ApiV2TypeRetrieveQueryError = unknown
+
+
+export function useApiV2TypeRetrieve<TData = Awaited<ReturnType<typeof apiV2TypeRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2TypeRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2TypeRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2TypeRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2TypeRetrieve<TData = Awaited<ReturnType<typeof apiV2TypeRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2TypeRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2TypeRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2TypeRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2TypeRetrieve<TData = Awaited<ReturnType<typeof apiV2TypeRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2TypeRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get types
  */
 
-export function useApiV2TypeRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2TypeRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2TypeRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2TypeRetrieveQueryOptions(id, options);
+export function useApiV2TypeRetrieve<TData = Awaited<ReturnType<typeof apiV2TypeRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2TypeRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2TypeRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Versions of the games, e.g., Red, Blue or Yellow.
  * @summary List versions
  */
 export type apiV2VersionListResponse200 = {
-  data: PaginatedVersionSummaryList;
-  status: 200;
-};
-
-export type apiV2VersionListResponseSuccess = apiV2VersionListResponse200 & {
+  data: PaginatedVersionSummaryList
+  status: 200
+}
+    
+export type apiV2VersionListResponseSuccess = (apiV2VersionListResponse200) & {
   headers: Headers;
 };
-export type apiV2VersionListResponse = apiV2VersionListResponseSuccess;
+;
 
-export const getApiV2VersionListUrl = (params?: ApiV2VersionListParams) => {
+export type apiV2VersionListResponse = (apiV2VersionListResponseSuccess)
+
+export const getApiV2VersionListUrl = (params?: ApiV2VersionListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/version/?${stringifiedParams}`
-    : `/api/v2/version/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/version/?${stringifiedParams}` : `https://pokeapi.co/api/v2/version/`
+}
 
-export const apiV2VersionList = async (
-  params?: ApiV2VersionListParams,
-  options?: RequestInit,
-): Promise<apiV2VersionListResponse> => {
-  const res = await fetch(getApiV2VersionListUrl(params), {
+export const apiV2VersionList = async (params?: ApiV2VersionListParams, options?: RequestInit): Promise<apiV2VersionListResponse> => {
+  
+  const res = await fetch(getApiV2VersionListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2VersionListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2VersionListResponse
+}
 
-  const data: apiV2VersionListResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2VersionListResponse;
-};
 
-export const getApiV2VersionListQueryKey = (
-  params?: ApiV2VersionListParams,
+
+
+
+export const getApiV2VersionListQueryKey = (params?: ApiV2VersionListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/version/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2VersionListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2VersionList>>, TError = unknown>(params?: ApiV2VersionListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/version/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2VersionListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2VersionList>>,
-  TError = unknown,
->(
-  params?: ApiV2VersionListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2VersionList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2VersionListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2VersionList>>
-  > = ({ signal }) => apiV2VersionList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2VersionListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2VersionList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2VersionListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2VersionList>>
->;
-export type ApiV2VersionListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2VersionList>>> = ({ signal }) => apiV2VersionList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2VersionListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2VersionList>>>
+export type ApiV2VersionListQueryError = unknown
+
+
+export function useApiV2VersionList<TData = Awaited<ReturnType<typeof apiV2VersionList>>, TError = unknown>(
+ params: undefined |  ApiV2VersionListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2VersionList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2VersionList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2VersionList<TData = Awaited<ReturnType<typeof apiV2VersionList>>, TError = unknown>(
+ params?: ApiV2VersionListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2VersionList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2VersionList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2VersionList<TData = Awaited<ReturnType<typeof apiV2VersionList>>, TError = unknown>(
+ params?: ApiV2VersionListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List versions
  */
 
-export function useApiV2VersionList<
-  TData = Awaited<ReturnType<typeof apiV2VersionList>>,
-  TError = unknown,
->(
-  params?: ApiV2VersionListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2VersionList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2VersionListQueryOptions(params, options);
+export function useApiV2VersionList<TData = Awaited<ReturnType<typeof apiV2VersionList>>, TError = unknown>(
+ params?: ApiV2VersionListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2VersionListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Versions of the games, e.g., Red, Blue or Yellow.
  * @summary Get version
  */
 export type apiV2VersionRetrieveResponse200 = {
-  data: VersionDetail;
-  status: 200;
+  data: VersionDetail
+  status: 200
+}
+    
+export type apiV2VersionRetrieveResponseSuccess = (apiV2VersionRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2VersionRetrieveResponseSuccess =
-  apiV2VersionRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2VersionRetrieveResponse = apiV2VersionRetrieveResponseSuccess;
+export type apiV2VersionRetrieveResponse = (apiV2VersionRetrieveResponseSuccess)
 
-export const getApiV2VersionRetrieveUrl = (id: string) => {
-  return `/api/v2/version/${id}/`;
-};
+export const getApiV2VersionRetrieveUrl = (id: string,) => {
 
-export const apiV2VersionRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2VersionRetrieveResponse> => {
-  const res = await fetch(getApiV2VersionRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/version/${id}/`
+}
+
+export const apiV2VersionRetrieve = async (id: string, options?: RequestInit): Promise<apiV2VersionRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2VersionRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2VersionRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2VersionRetrieveResponse
+}
 
-  const data: apiV2VersionRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2VersionRetrieveResponse;
-};
 
-export const getApiV2VersionRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/version/${id}/`] as const;
-};
 
-export const getApiV2VersionRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2VersionRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2VersionRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2VersionRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/version/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2VersionRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2VersionRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2VersionRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2VersionRetrieve>>
-  > = ({ signal }) => apiV2VersionRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2VersionRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2VersionRetrieveQueryKey(id);
 
-export type ApiV2VersionRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2VersionRetrieve>>
->;
-export type ApiV2VersionRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2VersionRetrieve>>> = ({ signal }) => apiV2VersionRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2VersionRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2VersionRetrieve>>>
+export type ApiV2VersionRetrieveQueryError = unknown
+
+
+export function useApiV2VersionRetrieve<TData = Awaited<ReturnType<typeof apiV2VersionRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2VersionRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2VersionRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2VersionRetrieve<TData = Awaited<ReturnType<typeof apiV2VersionRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2VersionRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2VersionRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2VersionRetrieve<TData = Awaited<ReturnType<typeof apiV2VersionRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get version
  */
 
-export function useApiV2VersionRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2VersionRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2VersionRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2VersionRetrieveQueryOptions(id, options);
+export function useApiV2VersionRetrieve<TData = Awaited<ReturnType<typeof apiV2VersionRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2VersionRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Version groups categorize highly similar versions of the games.
  * @summary List version groups
  */
 export type apiV2VersionGroupListResponse200 = {
-  data: PaginatedVersionGroupSummaryList;
-  status: 200;
+  data: PaginatedVersionGroupSummaryList
+  status: 200
+}
+    
+export type apiV2VersionGroupListResponseSuccess = (apiV2VersionGroupListResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2VersionGroupListResponseSuccess =
-  apiV2VersionGroupListResponse200 & {
-    headers: Headers;
-  };
-export type apiV2VersionGroupListResponse =
-  apiV2VersionGroupListResponseSuccess;
+export type apiV2VersionGroupListResponse = (apiV2VersionGroupListResponseSuccess)
 
-export const getApiV2VersionGroupListUrl = (
-  params?: ApiV2VersionGroupListParams,
-) => {
+export const getApiV2VersionGroupListUrl = (params?: ApiV2VersionGroupListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/v2/version-group/?${stringifiedParams}`
-    : `/api/v2/version-group/`;
-};
+  return stringifiedParams.length > 0 ? `https://pokeapi.co/api/v2/version-group/?${stringifiedParams}` : `https://pokeapi.co/api/v2/version-group/`
+}
 
-export const apiV2VersionGroupList = async (
-  params?: ApiV2VersionGroupListParams,
-  options?: RequestInit,
-): Promise<apiV2VersionGroupListResponse> => {
-  const res = await fetch(getApiV2VersionGroupListUrl(params), {
+export const apiV2VersionGroupList = async (params?: ApiV2VersionGroupListParams, options?: RequestInit): Promise<apiV2VersionGroupListResponse> => {
+  
+  const res = await fetch(getApiV2VersionGroupListUrl(params),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2VersionGroupListResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2VersionGroupListResponse
+}
 
-  const data: apiV2VersionGroupListResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2VersionGroupListResponse;
-};
 
-export const getApiV2VersionGroupListQueryKey = (
-  params?: ApiV2VersionGroupListParams,
+
+
+
+export const getApiV2VersionGroupListQueryKey = (params?: ApiV2VersionGroupListParams,) => {
+    return [
+    `https://pokeapi.co/api/v2/version-group/`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getApiV2VersionGroupListQueryOptions = <TData = Awaited<ReturnType<typeof apiV2VersionGroupList>>, TError = unknown>(params?: ApiV2VersionGroupListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionGroupList>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/version-group/`, ...(params ? [params] : [])] as const;
-};
 
-export const getApiV2VersionGroupListQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2VersionGroupList>>,
-  TError = unknown,
->(
-  params?: ApiV2VersionGroupListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2VersionGroupList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2VersionGroupListQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2VersionGroupList>>
-  > = ({ signal }) =>
-    apiV2VersionGroupList(params, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2VersionGroupListQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2VersionGroupList>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2VersionGroupListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2VersionGroupList>>
->;
-export type ApiV2VersionGroupListQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2VersionGroupList>>> = ({ signal }) => apiV2VersionGroupList(params, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionGroupList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2VersionGroupListQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2VersionGroupList>>>
+export type ApiV2VersionGroupListQueryError = unknown
+
+
+export function useApiV2VersionGroupList<TData = Awaited<ReturnType<typeof apiV2VersionGroupList>>, TError = unknown>(
+ params: undefined |  ApiV2VersionGroupListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionGroupList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2VersionGroupList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2VersionGroupList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2VersionGroupList<TData = Awaited<ReturnType<typeof apiV2VersionGroupList>>, TError = unknown>(
+ params?: ApiV2VersionGroupListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionGroupList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2VersionGroupList>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2VersionGroupList>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2VersionGroupList<TData = Awaited<ReturnType<typeof apiV2VersionGroupList>>, TError = unknown>(
+ params?: ApiV2VersionGroupListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionGroupList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List version groups
  */
 
-export function useApiV2VersionGroupList<
-  TData = Awaited<ReturnType<typeof apiV2VersionGroupList>>,
-  TError = unknown,
->(
-  params?: ApiV2VersionGroupListParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2VersionGroupList>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2VersionGroupListQueryOptions(params, options);
+export function useApiV2VersionGroupList<TData = Awaited<ReturnType<typeof apiV2VersionGroupList>>, TError = unknown>(
+ params?: ApiV2VersionGroupListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionGroupList>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2VersionGroupListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Version groups categorize highly similar versions of the games.
  * @summary Get version group
  */
 export type apiV2VersionGroupRetrieveResponse200 = {
-  data: VersionGroupDetail;
-  status: 200;
+  data: VersionGroupDetail
+  status: 200
+}
+    
+export type apiV2VersionGroupRetrieveResponseSuccess = (apiV2VersionGroupRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2VersionGroupRetrieveResponseSuccess =
-  apiV2VersionGroupRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2VersionGroupRetrieveResponse =
-  apiV2VersionGroupRetrieveResponseSuccess;
+export type apiV2VersionGroupRetrieveResponse = (apiV2VersionGroupRetrieveResponseSuccess)
 
-export const getApiV2VersionGroupRetrieveUrl = (id: string) => {
-  return `/api/v2/version-group/${id}/`;
-};
+export const getApiV2VersionGroupRetrieveUrl = (id: string,) => {
 
-export const apiV2VersionGroupRetrieve = async (
-  id: string,
-  options?: RequestInit,
-): Promise<apiV2VersionGroupRetrieveResponse> => {
-  const res = await fetch(getApiV2VersionGroupRetrieveUrl(id), {
+
+  
+
+  return `https://pokeapi.co/api/v2/version-group/${id}/`
+}
+
+export const apiV2VersionGroupRetrieve = async (id: string, options?: RequestInit): Promise<apiV2VersionGroupRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2VersionGroupRetrieveUrl(id),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2VersionGroupRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2VersionGroupRetrieveResponse
+}
 
-  const data: apiV2VersionGroupRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2VersionGroupRetrieveResponse;
-};
 
-export const getApiV2VersionGroupRetrieveQueryKey = (id?: string) => {
-  return [`/api/v2/version-group/${id}/`] as const;
-};
 
-export const getApiV2VersionGroupRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
+
+
+export const getApiV2VersionGroupRetrieveQueryKey = (id?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/version-group/${id}/`
+    ] as const;
+    }
+
+    
+export const getApiV2VersionGroupRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getApiV2VersionGroupRetrieveQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>
-  > = ({ signal }) =>
-    apiV2VersionGroupRetrieve(id, { signal, ...fetchOptions });
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  const queryKey =  queryOptions?.queryKey ?? getApiV2VersionGroupRetrieveQueryKey(id);
 
-export type ApiV2VersionGroupRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>
->;
-export type ApiV2VersionGroupRetrieveQueryError = unknown;
+  
 
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>> = ({ signal }) => apiV2VersionGroupRetrieve(id, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2VersionGroupRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>>
+export type ApiV2VersionGroupRetrieveQueryError = unknown
+
+
+export function useApiV2VersionGroupRetrieve<TData = Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2VersionGroupRetrieve<TData = Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2VersionGroupRetrieve<TData = Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get version group
  */
 
-export function useApiV2VersionGroupRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2VersionGroupRetrieveQueryOptions(id, options);
+export function useApiV2VersionGroupRetrieve<TData = Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2VersionGroupRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2VersionGroupRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
 
 /**
  * Handles Pokemon Encounters as a sub-resource.
  * @summary Get pokemon encounter
  */
 export type apiV2PokemonEncountersRetrieveResponse200 = {
-  data: ApiV2PokemonEncountersRetrieve200Item[];
-  status: 200;
+  data: ApiV2PokemonEncountersRetrieve200Item[]
+  status: 200
+}
+    
+export type apiV2PokemonEncountersRetrieveResponseSuccess = (apiV2PokemonEncountersRetrieveResponse200) & {
+  headers: Headers;
 };
+;
 
-export type apiV2PokemonEncountersRetrieveResponseSuccess =
-  apiV2PokemonEncountersRetrieveResponse200 & {
-    headers: Headers;
-  };
-export type apiV2PokemonEncountersRetrieveResponse =
-  apiV2PokemonEncountersRetrieveResponseSuccess;
+export type apiV2PokemonEncountersRetrieveResponse = (apiV2PokemonEncountersRetrieveResponseSuccess)
 
-export const getApiV2PokemonEncountersRetrieveUrl = (pokemonId: string) => {
-  return `/api/v2/pokemon/${pokemonId}/encounters`;
-};
+export const getApiV2PokemonEncountersRetrieveUrl = (pokemonId: string,) => {
 
-export const apiV2PokemonEncountersRetrieve = async (
-  pokemonId: string,
-  options?: RequestInit,
-): Promise<apiV2PokemonEncountersRetrieveResponse> => {
-  const res = await fetch(getApiV2PokemonEncountersRetrieveUrl(pokemonId), {
+
+  
+
+  return `https://pokeapi.co/api/v2/pokemon/${pokemonId}/encounters`
+}
+
+export const apiV2PokemonEncountersRetrieve = async (pokemonId: string, options?: RequestInit): Promise<apiV2PokemonEncountersRetrieveResponse> => {
+  
+  const res = await fetch(getApiV2PokemonEncountersRetrieveUrl(pokemonId),
+  {      
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: apiV2PokemonEncountersRetrieveResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as apiV2PokemonEncountersRetrieveResponse
+}
 
-  const data: apiV2PokemonEncountersRetrieveResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as apiV2PokemonEncountersRetrieveResponse;
-};
 
-export const getApiV2PokemonEncountersRetrieveQueryKey = (
-  pokemonId?: string,
+
+
+
+export const getApiV2PokemonEncountersRetrieveQueryKey = (pokemonId?: string,) => {
+    return [
+    `https://pokeapi.co/api/v2/pokemon/${pokemonId}/encounters`
+    ] as const;
+    }
+
+    
+export const getApiV2PokemonEncountersRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>, TError = unknown>(pokemonId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/v2/pokemon/${pokemonId}/encounters`] as const;
-};
 
-export const getApiV2PokemonEncountersRetrieveQueryOptions = <
-  TData = Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>,
-  TError = unknown,
->(
-  pokemonId: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ??
-    getApiV2PokemonEncountersRetrieveQueryKey(pokemonId);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>
-  > = ({ signal }) =>
-    apiV2PokemonEncountersRetrieve(pokemonId, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getApiV2PokemonEncountersRetrieveQueryKey(pokemonId);
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!pokemonId,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
+  
 
-export type ApiV2PokemonEncountersRetrieveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>
->;
-export type ApiV2PokemonEncountersRetrieveQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>> = ({ signal }) => apiV2PokemonEncountersRetrieve(pokemonId, { signal, ...fetchOptions });
 
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(pokemonId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ApiV2PokemonEncountersRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>>
+export type ApiV2PokemonEncountersRetrieveQueryError = unknown
+
+
+export function useApiV2PokemonEncountersRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>, TError = unknown>(
+ pokemonId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonEncountersRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>, TError = unknown>(
+ pokemonId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useApiV2PokemonEncountersRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>, TError = unknown>(
+ pokemonId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get pokemon encounter
  */
 
-export function useApiV2PokemonEncountersRetrieve<
-  TData = Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>,
-  TError = unknown,
->(
-  pokemonId: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>,
-      TError,
-      TData
-    >;
-    fetch?: RequestInit;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getApiV2PokemonEncountersRetrieveQueryOptions(
-    pokemonId,
-    options,
-  );
+export function useApiV2PokemonEncountersRetrieve<TData = Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>, TError = unknown>(
+ pokemonId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof apiV2PokemonEncountersRetrieve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+  const queryOptions = getApiV2PokemonEncountersRetrieveQueryOptions(pokemonId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
