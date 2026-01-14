@@ -28,7 +28,7 @@ pnpm test
 # Dev
 
 This project uses pokeapi.co as a demo API. You can find the API documentation [here](https://pokeapi.co/docs/v2).
-The OpenAPI spec can be found in /src/pokeapi.yml. [Orval](https://orval.dev/) is used to generate the API client (using Tanstack Query as the data fetching library) from the OpenAPI spec.
+The OpenAPI spec can be found in /src/pokeapi.yml ([ref](https://github.com/PokeAPI/pokeapi/blob/master/openapi.yml)). [Orval](https://orval.dev/) is used to generate the API client (using Tanstack Query as the data fetching library) from the OpenAPI spec.
 To regenerate the API client after making changes to the OpenAPI spec, run:
 
 ```bash
