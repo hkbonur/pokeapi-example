@@ -5,9 +5,10 @@ import * as pokeapi from '../../../generated/pokeapi'
 import React from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-// Mock the API hook
+// Mock the API hooks
 vi.mock('../../../generated/pokeapi', () => ({
-  useApiV2PokemonRetrieve: vi.fn()
+  useApiV2PokemonRetrieve: vi.fn(),
+  useApiV2PokemonList: vi.fn()
 }))
 
 const createWrapper = () => {
@@ -27,6 +28,22 @@ const createWrapper = () => {
 describe('usePokemonSearch', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    
+    // Default mock for list
+    vi.mocked(pokeapi.useApiV2PokemonList).mockReturnValue({
+      data: {
+        data: {
+          results: [
+            { name: 'bulbasaur', url: '' },
+            { name: 'ivysaur', url: '' },
+            { name: 'pikachu', url: '' },
+            { name: 'raichu', url: '' }
+          ]
+        }
+      },
+      isLoading: false,
+      error: null
+    } as any)
   })
 
   it('should initialize with empty search term and no pokemon name', () => {
@@ -43,6 +60,43 @@ describe('usePokemonSearch', () => {
     expect(result.current.searchTerm).toBe('')
     expect(result.current.pokemonName).toBe(null)
     expect(result.current.pokemon).toBeUndefined()
+    expect(result.current.suggestions).toEqual([])
+  })
+
+  it('should list suggestions when typing', () => {
+    vi.mocked(pokeapi.useApiV2PokemonRetrieve).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null
+    } as any)
+
+    const { result } = renderHook(() => usePokemonSearch(), {
+      wrapper: createWrapper()
+    })
+
+    act(() => {
+      result.current.handleSearchTermChange('chu')
+    })
+
+    expect(result.current.suggestions).toEqual(['pikachu', 'raichu'])
+  })
+
+  it('should return empty suggestions for short search term', () => {
+    vi.mocked(pokeapi.useApiV2PokemonRetrieve).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null
+    } as any)
+
+    const { result } = renderHook(() => usePokemonSearch(), {
+      wrapper: createWrapper()
+    })
+
+    act(() => {
+      result.current.handleSearchTermChange('p')
+    })
+
+    expect(result.current.suggestions).toEqual([])
   })
 
   it('should update search term when handleSearchTermChange is called', () => {
@@ -64,7 +118,7 @@ describe('usePokemonSearch', () => {
     expect(result.current.pokemonName).toBe(null)
   })
 
-  it('should set pokemon name and trim/lowercase when handleSearch is called', () => {
+  it('should set pokemon name and trim/lowercase when handleSearch is called with event', () => {
     vi.mocked(pokeapi.useApiV2PokemonRetrieve).mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -86,6 +140,25 @@ describe('usePokemonSearch', () => {
     })
 
     expect(mockEvent.preventDefault).toHaveBeenCalled()
+    expect(result.current.pokemonName).toBe('pikachu')
+  })
+
+  it('should set pokemon name when handleSearch is called with string', () => {
+    vi.mocked(pokeapi.useApiV2PokemonRetrieve).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null
+    } as any)
+
+    const { result } = renderHook(() => usePokemonSearch(), {
+      wrapper: createWrapper()
+    })
+
+    act(() => {
+      result.current.handleSearch('Pikachu')
+    })
+
+    expect(result.current.searchTerm).toBe('pikachu')
     expect(result.current.pokemonName).toBe('pikachu')
   })
 

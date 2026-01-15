@@ -6,7 +6,7 @@ import { ErrorState } from './ErrorState'
 import { PokemonCard } from '@/components/PokemonCard'
 
 export function PokemonSearchPage() {
-  const { searchTerm, pokemonName, pokemon, isLoading, error, handleSearch, handleSearchTermChange } =
+  const { searchTerm, pokemonName, pokemon, isLoading, error, suggestions, handleSearch, handleSearchTermChange } =
     usePokemonSearch()
 
   return (
@@ -14,7 +14,12 @@ export function PokemonSearchPage() {
       <div className="container mx-auto px-4 py-16">
         <PageHeader />
 
-        <SearchForm searchTerm={searchTerm} onSearchTermChange={handleSearchTermChange} onSubmit={handleSearch} />
+        <SearchForm
+          searchTerm={searchTerm}
+          suggestions={suggestions}
+          onSearchTermChange={handleSearchTermChange}
+          onSubmit={handleSearch}
+        />
 
         {isLoading && <LoadingState />}
 
