@@ -4,6 +4,7 @@ import { SearchForm } from './SearchForm'
 import { LoadingState } from './LoadingState'
 import { ErrorState } from './ErrorState'
 import { PokemonCard } from '@/components/PokemonCard'
+import { AIChatPanel } from '@/features/pokemon-ai/components/AIChatPanel'
 
 export function PokemonSearchPage() {
   const { searchTerm, pokemonName, pokemon, isLoading, error, suggestions, handleSearch, handleSearchTermChange } =
@@ -26,6 +27,8 @@ export function PokemonSearchPage() {
         {!!error && <ErrorState pokemonName={pokemonName} />}
 
         {pokemon && <PokemonCard pokemon={pokemon} />}
+
+        <AIChatPanel />
       </div>
     </div>
   )

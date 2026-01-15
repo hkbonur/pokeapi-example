@@ -1,7 +1,7 @@
-import type { PokemonDetailStatsItem } from '../../../generated/schemas'
+import type { PokemonStat } from '../../../generated/schemas'
 
 interface Props {
-  stat: PokemonDetailStatsItem
+  stat: PokemonStat
 }
 
 export function StatBar(props: Props) {

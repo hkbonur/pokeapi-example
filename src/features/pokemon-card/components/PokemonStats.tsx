@@ -1,8 +1,8 @@
 import { StatBar } from './StatBar'
-import type { PokemonDetailStatsItem } from '../../../generated/schemas'
+import type { PokemonStat } from '../../../generated/schemas'
 
 interface Props {
-  stats: readonly PokemonDetailStatsItem[] | undefined
+  stats: readonly PokemonStat[] | undefined
 }
 
 export function PokemonStats(props: Props) {

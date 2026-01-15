@@ -31,7 +31,7 @@ export function PokemonCard({ pokemon }: PokemonCardProps) {
         <div
           className="h-28 relative"
           style={{
-            background: `linear-gradient(to bottom right, ${typeColor}, ${typeColor}88)`,
+            background: `linear-gradient(to bottom right, ${typeColor}, ${typeColor}88)`
           }}
         >
           <div className="absolute top-4 right-4 text-white/50 font-black text-4xl opacity-50 z-0">
@@ -61,16 +61,14 @@ export function PokemonCard({ pokemon }: PokemonCardProps) {
         <div className="pt-16 pb-6 px-6">
           {/* Header Info */}
           <div className="text-center mb-6">
-            <h2 className="text-3xl font-black text-gray-800 capitalize mb-2 top-0 sticky">
-              {pokemon.name}
-            </h2>
+            <h2 className="text-3xl font-black text-gray-800 capitalize mb-2 top-0 sticky">{pokemon.name}</h2>
             <div className="flex justify-center gap-2">
               {pokemon.types?.map((typeInfo) => (
                 <span
                   key={typeInfo.type.name}
                   className="px-3 py-1 rounded-full text-white text-xs font-bold uppercase tracking-wider shadow-sm"
                   style={{
-                    backgroundColor: getPokemonTypeColor(typeInfo.type.name),
+                    backgroundColor: getPokemonTypeColor(typeInfo.type.name)
                   }}
                 >
                   {typeInfo.type.name}
@@ -146,9 +144,7 @@ export function PokemonCard({ pokemon }: PokemonCardProps) {
                           className="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs font-bold capitalize border border-purple-100"
                         >
                           {ability.ability.name.replace('-', ' ')}
-                          {ability.is_hidden && (
-                            <span className="text-purple-400 ml-1 text-[10px]">(H)</span>
-                          )}
+                          {ability.is_hidden && <span className="text-purple-400 ml-1 text-[10px]">(H)</span>}
                         </span>
                       ))}
                     </div>
@@ -179,9 +175,7 @@ export function PokemonCard({ pokemon }: PokemonCardProps) {
                           style={{ backgroundColor: typeColor }}
                         />
                       </div>
-                      <span className="text-xs font-bold text-gray-800 w-8 text-right">
-                        {stat.base_stat}
-                      </span>
+                      <span className="text-xs font-bold text-gray-800 w-8 text-right">{stat.base_stat}</span>
                     </div>
                   ))}
                 </motion.div>
@@ -206,7 +200,7 @@ export function PokemonCard({ pokemon }: PokemonCardProps) {
                       </div>
                     ))}
                   </div>
-                  
+
                   <button
                     onClick={() => setIsDrawerOpen(true)}
                     className="w-full mt-2 py-3 px-4 rounded-xl bg-gray-900 text-white text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors group"

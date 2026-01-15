@@ -28,7 +28,7 @@ const createWrapper = () => {
 describe('usePokemonSearch', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Default mock for list
     vi.mocked(pokeapi.useApiV2PokemonList).mockReturnValue({
       data: {
