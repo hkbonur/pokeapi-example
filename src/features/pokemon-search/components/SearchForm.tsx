@@ -1,5 +1,6 @@
-import React, { useRef, useEffect } from 'react'
+import React from 'react'
 import { Search } from 'lucide-react'
+import { useSearchForm } from '../hooks/useSearchForm'
 
 interface Props {
   searchTerm: string
@@ -9,36 +10,21 @@ interface Props {
 }
 
 export function SearchForm(props: Props) {
-  const [isFocused, setIsFocused] = React.useState(false)
-  const wrapperRef = useRef<HTMLFormElement>(null)
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setIsFocused(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
-
-  const handleSuggestionClick = (name: string) => {
-    props.onSubmit(name)
-    setIsFocused(false)
-  }
-
-  const showSuggestions = isFocused && props.suggestions && props.suggestions.length > 0
+  const { wrapperRef, showSuggestions, handleSuggestionClick, handleSubmit, handleInputChange, handleInputFocus } =
+    useSearchForm({
+      suggestions: props.suggestions,
+      onSearchTermChange: props.onSearchTermChange,
+      onSubmit: props.onSubmit
+    })
 
   return (
-    <form onSubmit={props.onSubmit} className="max-w-2xl mx-auto mb-16" ref={wrapperRef}>
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto mb-16" ref={wrapperRef}>
       <div className="relative">
         <input
           type="text"
           value={props.searchTerm}
-          onChange={(e) => props.onSearchTermChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
+          onChange={handleInputChange}
+          onFocus={handleInputFocus}
           placeholder="Enter Pokémon name (e.g., pikachu, charizard)..."
           className="w-full px-6 py-5 text-xl rounded-full border-4 border-white shadow-2xl focus:outline-none focus:ring-4 focus:ring-yellow-300 transition-all"
           aria-label="Search for a Pokémon"
