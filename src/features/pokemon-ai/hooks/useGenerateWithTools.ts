@@ -1,8 +1,10 @@
-import { google } from '@ai-sdk/google'
 import { type ModelMessage, type StepResult, streamText, type ToolSet } from 'ai'
 import { useMemo } from 'react'
 import { type AIModel, DEFAULT_MODEL, getAiSdkLanguageModel } from '../config/aiProvider'
 import { buildInitialSystemMessage } from '../utils/buildInitialSystemMessage'
+
+import { getActions } from '../tools/getActions'
+import { displayActionDetails } from '../tools/displayActionDetails'
 
 export interface AIGenerationOptions {
   abortSignal: AbortSignal | undefined
@@ -18,7 +20,8 @@ export interface AIToolResult {
 }
 
 const tools: ToolSet = {
-  webSearch: google.tools.googleSearch({})
+  getActions,
+  displayActionDetails
 }
 
 export function useGenerateWithTools(model: AIModel = DEFAULT_MODEL, options: AIGenerationOptions) {

@@ -8,7 +8,8 @@ export const Route = createRootRoute({
       <Outlet />
       <TanStackDevtools
         config={{
-          position: 'bottom-left'
+          openHotkey: ['Control', 'H'],
+          triggerHidden: true
         }}
         plugins={[
           {
