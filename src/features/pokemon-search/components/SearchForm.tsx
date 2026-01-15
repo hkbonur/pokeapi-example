@@ -3,8 +3,8 @@ import { Search } from 'lucide-react'
 
 interface Props {
   searchTerm: string
-  onSearchTermChange: (value: string) => void
-  onSubmit: (e: React.FormEvent) => void
+  onSearchTermChange: (_value: string) => void
+  onSubmit: (_e: React.FormEvent) => void
 }
 
 export function SearchForm(props: Props) {
